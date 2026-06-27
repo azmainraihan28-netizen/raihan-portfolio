@@ -1,0 +1,176 @@
+---
+day: 16
+slug: day16-ai-hr-resume-screener
+title: "AI HR Resume Screener"
+tagline: "webhook-triggered n8n workflow that"
+week: 3
+category: "Internal Ops"
+industries: ["SaaS", "Agencies", "Startups", "HR", "Recruiting"]
+tools: ["n8n", "OpenAI", "GPT-4o-mini", "Gmail", "Google Sheets", "Slack", "Webhook"]
+nodes: 11
+costPerRun: "~$0.001"
+heroMetric: "~$0.6k peak build value"
+priceLow: 200
+priceHigh: 600
+featured: true
+workflowJson: "/workflows/day16_ai_hr_resume_screener.json"
+linkedinPost: "/posts/day16"
+targetUsers: "HR teams, recruitment agencies, SaaS companies, fast-scaling startups, freelance recruiters"
+screenshot: "/workflows/shots/day16.png"
+---
+## The Problem
+
+1. Manual resume screening takes 6–10 hours per open role — most of that time spent on obvious mismatches
+2. Scoring is inconsistent — same resume gets a "Yes" from one recruiter, "No" from another
+3. Top candidates rejected because of keyword mismatches with ATS, not actual skill gaps
+4. High-volume job posts (200+ applications) are physically impossible to review thoroughly
+5. ATS platforms (Greenhouse, Lever, Workable) charge $300–$2,000/month for screening features that still aren't truly AI-powered
+
+## The Solution
+
+A webhook-triggered n8n workflow that:
+- Accepts resume text + job description via POST request
+- Uses GPT-4o-mini to generate a 14-field screening report in ~3 seconds
+- Scores candidates 1–10 with match %, strengths, gaps, red flags, culture fit, interview questions, salary estimate, and next action
+- Logs an 18-column row to Google Sheets for every candidate
+- Fires Slack alert + HTML email ONLY for top candidates (score ≥ 7) — zero noise for low scorers
+- Returns structured JSON response for front-end or ATS integration
+- Cost: ~$0.001 per resume (GPT-4o-mini)
+
+## How It Works
+
+Node-by-node flow:
+
+- **Webhook** — POST /hr-resume-screener
+- **Set** — Normalizes 8 input fields (name, email, resume, JD, position, company, hr_email, timestamp)
+- **IF** — Guards against missing resume_text or job_description → 400 error
+- **OpenAI (gpt-4o-mini)** — 14-field structured screening report as JSON
+- **Code** — Safely parses AI JSON with full fallback on parse error
+- **Google Sheets** — 18-column candidate screening database
+- **IF** — Routes top candidates (score ≥ 7) vs. low scorers
+- **Slack** — Rich top-candidate alert with full profile summary
+- **Gmail** — Branded HTML email to HR with full screening report
+- **No Op** — Silent pass for low-score candidates
+- **Respond to Webhook (×2)** — Returns results JSON or 400 error
+
+## Credentials & Setup
+
+- OpenAI API Key
+- Google Sheets OAuth2
+- Gmail OAuth2
+- Slack OAuth (optional — for team alerts)
+
+## Pricing Packages
+
+- Fiverr/Upwork setup: **$200–$600**
+- With custom scoring rubric + multi-role support: **$600–$1,200**
+- Full hiring automation (JD generation + screening + calendar scheduling): **$2,000–$4,000**
+- Monthly retainer: **$75–$200/month**
+- Bundle with Day 8 (meeting notes) + Day 9 (cold email) → Full Ops + Outreach Package: **$1,500–$2,500**
+
+## The Original LinkedIn Post
+
+<details>
+<summary>Read the post that announced this build</summary>
+
+# Day 16 — LinkedIn Post: AI HR Resume Screener
+
+---
+
+## 📋 PAIN POINTS IDENTIFIED
+
+1. HR teams manually screen 6–10 hours of resumes per open role — and most of that time is wasted on obvious mismatches
+2. Screening is inconsistent — same resume gets a "Yes" from one recruiter and a "No" from another
+3. Top candidates get rejected because their resume doesn't match ATS keywords, not because they lack skills
+4. 200+ applications per job post is physically impossible to review thoroughly
+5. ATS and hiring platforms (Greenhouse, Lever, Workable) charge $300–$2,000/month for screening features that still aren't AI-powered
+
+## 💡 SOLUTION SUMMARY
+
+Webhook-triggered n8n workflow that:
+- Receives resume text + job description via POST
+- Uses GPT-4o-mini to generate a 14-field screening report in ~3 seconds
+- Logs every candidate to Google Sheets (18-column screening database)
+- Fires Slack + Gmail alerts ONLY for top candidates (score ≥ 7/10)
+- Returns structured JSON for front-end or ATS integration
+- Cost: ~$0.001 per resume screened
+
+---
+
+## 🚀 LINKEDIN POST
+
+---
+
+I built an AI that screens resumes better than most junior HR managers.
+
+It costs $0.001 per candidate.
+
+Here's what the average company's hiring process looks like right now:
+
+❌ HR reads 200+ resumes manually — 6 hours of work per role
+❌ Inconsistent scoring — same resume, different recruiter, different outcome
+❌ Strong candidates rejected for keyword mismatches, not skill gaps
+❌ ATS tools charge $300–$2,000/month and STILL aren't AI-powered
+
+So I built the fix in n8n. Here's exactly how it works:
+
+→ POST resume text + job description to the webhook
+→ GPT-4o-mini analyzes the match in ~3 seconds
+→ Returns a 14-field intelligence report:
+
+• Overall score (1–10)
+• Match percentage vs. job description
+• Key strengths & skill gaps
+• Red flags detected
+• Culture fit score
+• 3 tailored interview questions
+• Estimated salary range
+• Recommended next step (Phone Screen / Technical Interview / Reject)
+
+→ Logs all 18 fields to Google Sheets automatically
+→ Slack + Email alert fires ONLY for top candidates (score ≥ 7)
+→ Everyone else is silently logged — no noise
+
+The results for my clients:
+
+✅ 100 resumes screened in the time it used to take to read 3
+✅ Consistent, bias-reduced scoring across every candidate
+✅ HR team only sees shortlisted candidates in their inbox
+✅ Full screening database for analytics and audit trails
+
+I use this for SaaS companies, recruitment agencies, and fast-scaling startups.
+
+One-time setup: $200–$600
+Monthly API cost: ~$0.10 for 100 resumes
+
+Teams paying $2,000/month for ATS screening features don't need to anymore.
+
+—
+
+If you want the workflow JSON, drop "HIRE" in the comments or DM me.
+
+Day 16 of 30. One automation every single day.
+
+Follow along if you want to automate your business the same way.
+
+#n8n #AIAutomation #HRTech #WorkflowAutomation #NoCode #OpenAI #Recruitment #Hiring #BuildInPublic #Automation
+
+---
+
+## 📊 POST METRICS TARGETS
+
+- **Hook strength:** 9/10 — specific claim with specific number ($0.001)
+- **Pain-point clarity:** High — speaks directly to HR's daily frustration
+- **Sellability:** High — clear ROI, clear pricing, clear gig opportunity
+- **CTA:** Strong — "drop HIRE in comments" creates engagement signal
+- **Estimated reach:** 3,000–8,000 impressions (automation niche performs well)
+
+## 💼 GIG VALUE REFERENCE
+
+- **Fiverr/Upwork setup:** $200–$600
+- **With custom scoring rubric + multi-role support:** $600–$1,200
+- **Full hiring automation (JD gen + screening + scheduling):** $2,000–$4,000
+- **Monthly retainer:** $75–$200/month
+- **Bundle with Day 8 (meeting notes) + Day 9 (cold email):** Full Ops + Outreach Package at $1,500–$2,500
+
+</details>

@@ -1,0 +1,198 @@
+---
+day: 10
+slug: day10-review-aggregator-sentiment
+title: "Review Aggregator + AI Sentiment Dashboard"
+tagline: "scheduled n8n workflow that"
+week: 2
+category: "Marketing & Sales"
+industries: ["SaaS", "Agencies", "E-commerce"]
+tools: ["n8n", "OpenAI", "GPT-4o-mini", "Google Sheets", "Slack", "Trustpilot"]
+nodes: 11
+costPerRun: "~$0.001"
+heroMetric: "~$0.8k peak build value"
+priceLow: 300
+priceHigh: 800
+featured: false
+workflowJson: "/workflows/day10_review_aggregator_sentiment.json"
+linkedinPost: "/posts/day10"
+targetUsers: "Local businesses, e-commerce stores, agencies, SaaS companies with public review presence"
+screenshot: "/workflows/shots/day10.png"
+---
+## The Problem
+
+1. Businesses miss negative reviews for 3–5 days on average — damaging brand trust before anyone responds
+2. Manually monitoring Google + Trustpilot daily wastes 30–60 minutes of ops time per business
+3. Reputation tools like Birdeye, Podium, and ReviewTrackers cost $200–$500/month
+4. Generic alerts give only a star rating — no context, no theme, no action guidance
+5. Multi-location and multi-client businesses have no unified cross-platform dashboard
+
+## The Solution
+
+A scheduled n8n workflow that:
+- Pulls fresh reviews from Google Business Profile and Trustpilot every morning at 9 AM
+- Normalizes both review sources into a single unified schema
+- Runs each review through GPT-4o-mini for 7-field sentiment enrichment
+- Appends a 14-column row to a Google Sheets reputation dashboard
+- Fires an instant rich Slack alert for every negative review with urgency level and action guidance
+
+## How It Works
+
+Node-by-node flow:
+
+- **Schedule Trigger** — runs daily at 9 AM
+- **HTTP Request (×2)** — Google Business Profile API + Trustpilot API
+- **Code (×2)** — normalizes both formats into a unified schema
+- **Merge** — combines both streams into one
+- **SplitInBatches** — processes one review at a time
+- **OpenAI (gpt-4o-mini)** — sentiment, score, theme, emotion, urgency, summary
+- **Code** — safely parses AI JSON with error fallback
+- **Google Sheets** — 14-column dashboard row per review
+- **IF** — routes negative reviews to Slack alert
+- **Slack** — rich alert with urgency, theme, emotion, action status
+- **NoOp** — silent pass for positive/neutral reviews
+
+## Credentials & Setup
+
+- Google Business Profile OAuth2
+- Trustpilot API Key (free)
+- OpenAI API Key
+- Google Sheets OAuth2
+- Slack OAuth2 (optional)
+
+## Pricing Packages
+
+- Fiverr/Upwork setup: **$300–$800**
+- With Google Data Studio dashboard: **$800–$1,500**
+- Multi-location/multi-client version: **$1,500–$3,000**
+- Monthly retainer: **$75–$200/month**
+- Bundle with Day 9 (cold email) → full reputation + outreach package
+
+## The Original LinkedIn Post
+
+<details>
+<summary>Read the post that announced this build</summary>
+
+# Day 10 LinkedIn Post — Review Aggregator + AI Sentiment Dashboard
+
+---
+
+## 📌 POST COPY
+
+**Your business got a 1-star review at 2 AM.**
+
+You found out 3 days later.
+
+That's a lost customer, a damaged reputation, and zero chance of recovery.
+
+---
+
+Most businesses check their reviews manually — maybe once a week.
+That's not reputation management. That's damage control.
+
+Here's the n8n workflow I built that fixes this completely 👇
+
+---
+
+**🔁 Day 10: Review Aggregator + AI Sentiment Dashboard**
+
+Every morning at 9 AM, this workflow automatically:
+
+✅ Pulls the latest reviews from **Google Business Profile + Trustpilot**
+✅ Runs each review through **GPT-4o-mini** for deep sentiment analysis
+✅ Extracts: sentiment score, key theme, emotion, urgency level & summary
+✅ Logs everything into a clean **Google Sheets dashboard**
+✅ Fires an instant **Slack alert** the moment a negative review drops
+
+The AI doesn't just label it "negative."
+It tells you *why* — and whether it needs an urgent reply.
+
+---
+
+**Real output per review:**
+→ Sentiment: Negative | Score: 2/10
+→ Emotion: Frustrated
+→ Theme: Slow shipping
+→ Urgency: High
+→ Summary: "Customer unhappy about 2-week delivery delay"
+→ Action: ⚠️ Reply ASAP
+
+All in under 3 seconds. For free. While you sleep.
+
+---
+
+**Pain it solves:**
+❌ Manually checking 3+ review platforms daily
+❌ Missing negative reviews until it's too late
+❌ Paying $200–$500/month for reputation tools
+❌ No unified view of what customers actually feel
+
+**Who buys this workflow:**
+→ Local businesses (restaurants, clinics, salons)
+→ E-commerce stores on Google + Trustpilot
+→ Agencies managing reputation for multiple clients
+→ SaaS companies with public review presence
+
+---
+
+I'm building **1 n8n workflow per day for 30 days** — from basic to agentic.
+
+Every workflow is:
+🌍 Worldwide usable
+💰 Sellable as a gig
+🔧 Drop-in ready (import the JSON, plug in credentials, done)
+
+**Drop a "10" in the comments** and I'll share the full workflow JSON.
+
+Follow along → more drops coming daily.
+
+---
+
+\#n8n \#automation \#nocode \#AIautomation \#workflowautomation \#reputationmanagement \#sentimentanalysis \#buildinpublic \#openai \#googlereviews \#trustpilot \#freelancing \#gig \#saas \#digitalmarketing
+
+---
+
+## 📊 Pain Points Summary (for reference)
+
+1. Businesses miss negative reviews for days — avg response time is 3–5 days, damaging brand trust
+2. Manually monitoring Google + Trustpilot + others is 30–60 min/day of wasted ops time
+3. Tools like Birdeye, Podium, or ReviewTrackers cost $200–$500/month
+4. Generic review alerts don't give context — just a star rating, no action guidance
+5. Multi-location or multi-client businesses have no unified dashboard across platforms
+
+## 💡 Solution
+
+A scheduled n8n workflow that:
+- Fetches fresh reviews from Google Business Profile and Trustpilot every morning
+- Normalizes both sources into a unified schema
+- Sends each review to GPT-4o-mini for 7-field sentiment enrichment
+- Appends a 14-column row to a Google Sheets dashboard per review
+- Instantly Slacks the team for any Negative review with urgency + action guidance
+
+## 🧩 Nodes Used
+- **Schedule Trigger** — runs daily at 9 AM
+- **HTTP Request (×2)** — Google Business Profile API + Trustpilot API
+- **Code (×2)** — Normalizes both review formats into unified schema
+- **Merge** — Combines both streams into one
+- **SplitInBatches** — Processes reviews one at a time
+- **OpenAI (gpt-4o-mini)** — Sentiment, score, theme, emotion, urgency, summary
+- **Code** — Parses AI JSON safely with fallback
+- **Google Sheets** — 14-column dashboard row per review
+- **IF** — Routes negative reviews to Slack alert
+- **Slack** — Rich negative review alert with action status
+- **NoOp** — Silent pass for positive/neutral reviews
+
+## 🔐 Credentials Needed
+- Google Business Profile OAuth2
+- Trustpilot API Key (free)
+- OpenAI API Key
+- Google Sheets OAuth2
+- Slack OAuth2 (optional)
+
+## 💰 Gig / Sale Value
+- Fiverr / Upwork setup: **$300–$800**
+- With Google Data Studio dashboard: **$800–$1,500**
+- Multi-location/multi-client version: **$1,500–$3,000**
+- Monthly retainer: **$75–$200/month**
+- Bundle with Day 9 (cold email) → full reputation + outreach package
+
+</details>

@@ -1,0 +1,166 @@
+---
+day: 28
+slug: day28-investor-update-generator
+title: "AI Investor Update Generator"
+tagline: "webhook-triggered n8n workflow that"
+week: 4
+category: "Advanced & Agentic"
+industries: ["Founders", "Startups"]
+tools: ["n8n", "OpenAI", "GPT-4o-mini", "Gmail", "Google Sheets", "Slack", "Notion", "Webhook"]
+nodes: 13
+costPerRun: "~$0.002 (GPT-4o-mini) — effectively free at any update frequency"
+heroMetric: "~$0.002 (GPT-4o-mini)"
+priceLow: 300
+priceHigh: 800
+featured: false
+workflowJson: "/workflows/day28_investor_update_generator.json"
+linkedinPost: "/posts/day28"
+targetUsers: "Startup founders, pre-seed/seed/Series A CEOs, solo founders, VCs managing portfolio companies"
+screenshot: "/workflows/shots/day28.png"
+---
+## The Problem
+
+1. Founders spend 2–4 hours per investor update manually writing, formatting, and proofreading — every single month
+2. Metrics live in 4 different tools (Stripe, Mixpanel, QuickBooks, spreadsheets) — there is no single narrative view, making updates inconsistent
+3. Inconsistent or skipped updates damage investor confidence — silence is worse than bad numbers, yet founders skip updates when busy
+4. Generic investor update templates feel impersonal — investors disengage from obvious copy-paste emails with no analysis
+5. No historical record — founders can't see their own progress arc or reference past updates at board meetings without hunting through email threads
+
+## The Solution
+
+A webhook-triggered n8n workflow that:
+- Accepts raw business metrics via POST: MRR, ARR, customers, churn, burn rate, runway, cash on hand, plus founder commentary (wins, challenges, asks)
+- Sends all data to GPT-4o-mini which returns: a full 750–1,000 word HTML investor update, subject line, health score (1–10), health label, MRR/customer growth %, key insight, risk flag, and next raise signal
+- Emails every investor on the list automatically — handles comma-separated addresses, sends individually
+- Logs 23 fields to Google Sheets — building a permanent investor relations database
+- Posts a rich Slack block digest with health score, key insight, risk flag, and executive summary
+- Returns a structured JSON response for front-end or Notion/Airtable integration
+- Cost: ~$0.002 per update (GPT-4o-mini)
+
+## How It Works
+
+Node-by-node flow:
+
+- **Webhook** — POST /investor-update
+- **Set** — Normalizes 22 input fields with safe defaults
+- **IF (Validate)** — Guards against missing company_name or zero MRR → 400 error
+- **HTTP Request (OpenAI)** — GPT-4o-mini with JSON mode: generates full investor update package (10 fields)
+- **Code (Parse)** — Safely parses AI JSON, merges with input context, computes token cost
+- **Google Sheets** — Appends 23-column investor update log row
+- **IF (Has Emails?)** — Routes to email send path or silent skip
+- **Code (Split Emails)** — Splits comma-separated investor list into individual items
+- **Gmail** — Sends personalized HTML update to each investor
+- **IF (Slack Enabled?)** — Routes to Slack digest or silent skip
+- **Slack** — Rich block digest: health score, growth %, key insight, risk flag, summary, cost
+- **No Op (×2)** — Silent passes for no-email and no-Slack paths
+- **Respond to Webhook (×2)** — Returns full JSON result (200) or validation error (400)
+
+## Credentials & Setup
+
+- OpenAI API Key (passed in payload)
+- Gmail OAuth2
+- Google Sheets OAuth2
+- Slack OAuth2 (optional — for team digest)
+
+## Cost Breakdown
+
+~$0.002 (GPT-4o-mini) — effectively free at any update frequency
+
+## Pricing Packages
+
+- Fiverr/Upwork setup: **$300–$800**
+- With Notion investor portal + branded email templates: **$800–$1,500**
+- "Founder OS" bundle (investor update + personal CRM + cold call follow-up): **$2,000–$4,000**
+- Monthly retainer (run + manage + archive): **$75–$200/month**
+- Bundle with Day 25 (personal CRM) + Day 27 (cold call follow-up) → Full Founder Sales + Investor OS: **$2,000–$3,500**
+
+## The Original LinkedIn Post
+
+<details>
+<summary>Read the post that announced this build</summary>
+
+# Day 28 LinkedIn Post — AI Investor Update Generator
+
+---
+
+## 📌 POST COPY
+
+**Day 28 of 30 — I built an n8n workflow that writes your investor update for you. In 8 seconds.**
+
+Most founders dread investor updates.
+
+Not because they don't have results.
+Because translating raw numbers into a coherent, professional narrative takes time — and brainpower you don't have after running a company all month.
+
+So I automated it.
+
+Here's what this workflow does:
+
+You send it a POST request with your key metrics:
+→ MRR, ARR, customers, churn, burn rate, runway, cash on hand
+→ Top wins, current challenges, next milestones, and investor asks
+
+And it returns:
+
+✅ A full HTML investor update email (750–1,000 words) — with sections for metrics, wins, challenges, next 90 days, and asks
+✅ A professional subject line (e.g. "[Acme] Investor Update — Q2 2025")
+✅ A business health score (1–10) with a label: Thriving / Growing / Stable / Struggling / Critical
+✅ A risk flag — the biggest concern visible from your data
+✅ A "Next Raise Signal" — Not Now / 6 Months / 3 Months / Raising Now
+✅ A 3-sentence executive summary for quick sharing in Slack
+✅ Auto-sent to every investor email on your list (one by one, personalized header)
+✅ Logged to Google Sheets — a permanent investor update archive
+✅ Slack digest for your co-founder/team: health score + key insight + risk flag
+
+**The whole thing costs ~$0.002 per update. GPT-4o-mini writes what used to take 2 hours.**
+
+---
+
+**Why this matters for your gig portfolio:**
+
+Every funded startup needs monthly investor updates.
+Most skip them because it's painful.
+That's the gap — and you can fill it.
+
+→ Charge $300–$800 to set this up once
+→ Add Notion/Airtable logging + branded email templates → $1,200
+→ Build a "Founder OS" bundle (this + day 25 personal CRM + day 27 cold call follow-up) → $2,500+
+
+The founders who use this consistently raise their next round faster.
+Investors who receive clean, structured updates reply more. Refer more. Invest more.
+
+One workflow. Two hours saved per month. Real relationship equity built.
+
+---
+
+🔗 Full workflow JSON (ready to import into n8n) — link in comments
+💬 Drop a 🚀 if you want the Postman test payload too
+
+#n8n #AIAutomation #NoCode #StartupFounders #InvestorRelations #WorkflowAutomation #BuildInPublic #Day28of30
+
+---
+
+## 📊 PAIN POINTS IDENTIFIED
+
+1. Founders spend 2–4 hours per investor update manually writing, formatting, and proofreading — monthly
+2. Metrics live in 4 different tools (Stripe, Mixpanel, QuickBooks, spreadsheets) — no single narrative view
+3. Inconsistent updates damage investor confidence — silence is worse than bad numbers
+4. Generic investor update templates feel impersonal — investors disengage from copy-paste emails
+5. No historical record — founders can't see their own progress arc or reference past updates at board meetings
+
+## 💡 SOLUTION SUMMARY
+
+Webhook-triggered n8n workflow that accepts raw business metrics + founder commentary, passes it to GPT-4o-mini for a professional investor update narrative, emails every investor automatically, logs the full record to Google Sheets, and posts a health-score digest to Slack.
+
+## 💰 GIG VALUE
+
+- Fiverr/Upwork setup: **$300–$800**
+- With Notion investor portal + branded templates: **$800–$1,500**
+- "Founder OS" bundle (this + CRM + cold call follow-up): **$2,000–$4,000**
+- Monthly retainer (run + manage + report): **$75–$200/month**
+
+---
+
+*Day 28 of 30 | n8n Automation Challenge*
+
+</details>

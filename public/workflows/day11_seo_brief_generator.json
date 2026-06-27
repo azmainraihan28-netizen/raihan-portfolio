@@ -1,0 +1,336 @@
+{
+  "name": "Day 11 — AI SEO Content Brief Generator",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "seo-brief-generator",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "node-001",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f1",
+              "name": "keyword",
+              "value": "={{ $json.body.keyword?.trim() || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "f2",
+              "name": "tone",
+              "value": "={{ $json.body.tone || 'informative and authoritative' }}",
+              "type": "string"
+            },
+            {
+              "id": "f3",
+              "name": "target_word_count",
+              "value": "={{ $json.body.target_word_count || 1500 }}",
+              "type": "number"
+            },
+            {
+              "id": "f4",
+              "name": "email_to",
+              "value": "={{ $json.body.email_to || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "f5",
+              "name": "website_niche",
+              "value": "={{ $json.body.website_niche || 'general' }}",
+              "type": "string"
+            },
+            {
+              "id": "f6",
+              "name": "serpapi_key",
+              "value": "={{ $json.body.serpapi_key || '' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node-002",
+      "name": "Normalize Inputs",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [420, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.keyword }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "node-003",
+      "name": "Keyword Exists?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [640, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={ \"success\": false, \"error\": \"keyword field is required\" }",
+        "options": {
+          "responseCode": 400
+        }
+      },
+      "id": "node-004",
+      "name": "Error — Missing Keyword",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [860, 480]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://serpapi.com/search.json",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "q",       "value": "={{ $json.keyword }}" },
+            { "name": "engine",  "value": "google" },
+            { "name": "num",     "value": "10" },
+            { "name": "hl",      "value": "en" },
+            { "name": "gl",      "value": "us" },
+            { "name": "api_key", "value": "={{ $json.serpapi_key }}" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node-005",
+      "name": "SerpAPI — Google SERP",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [860, 280]
+    },
+    {
+      "parameters": {
+        "jsCode": "const data   = $input.first().json;\nconst inputs = $('Normalize Inputs').first().json;\n\nconst organic = (data.organic_results || []).slice(0, 8).map((r, i) => ({\n  rank: i + 1,\n  title:   r.title   || '',\n  snippet: r.snippet || ''\n}));\n\nconst paa     = (data.related_questions || []).slice(0, 8).map(q => q.question || '').filter(Boolean);\nconst related = (data.related_searches  || []).slice(0, 8).map(s => s.query    || '').filter(Boolean);\nconst featured = data.answer_box?.answer || data.answer_box?.snippet || 'None';\n\nconst serpSummary =\n`KEYWORD: \"${inputs.keyword}\"\n\nTOP RANKING PAGES:\n${organic.map(r => `${r.rank}. [${r.title}] — ${r.snippet}`).join('\\n')}\n\nPEOPLE ALSO ASK:\n${paa.length ? paa.map((q,i) => `${i+1}. ${q}`).join('\\n') : 'None found'}\n\nRELATED SEARCHES: ${related.join(', ') || 'None'}\nFEATURED SNIPPET: ${featured}`;\n\nreturn [{ json: {\n  keyword:          inputs.keyword,\n  tone:             inputs.tone,\n  target_word_count:inputs.target_word_count,\n  email_to:         inputs.email_to,\n  website_niche:    inputs.website_niche,\n  serp_summary:     serpSummary,\n  paa_questions:    paa,\n  related_searches: related\n}}];"
+      },
+      "id": "node-006",
+      "name": "Extract SERP Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1080, 280]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"gpt-4o-mini\",\n  \"temperature\": 0.7,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are an expert SEO strategist and content architect. Based on SERP analysis data, generate a comprehensive data-driven SEO content brief that a writer can use to create a top-ranking article. Return ONLY valid JSON with this exact structure:\\n{\\n  \\\"title_options\\\": [\\\"Option 1\\\", \\\"Option 2\\\", \\\"Option 3\\\"],\\n  \\\"meta_description\\\": \\\"150-160 char meta description\\\",\\n  \\\"target_keyword\\\": \\\"primary keyword\\\",\\n  \\\"secondary_keywords\\\": [\\\"kw1\\\", \\\"kw2\\\", \\\"kw3\\\", \\\"kw4\\\", \\\"kw5\\\"],\\n  \\\"search_intent\\\": \\\"informational | transactional | navigational | commercial\\\",\\n  \\\"content_type\\\": \\\"how-to guide | listicle | comparison | pillar page | tutorial\\\",\\n  \\\"recommended_word_count\\\": 1500,\\n  \\\"tone_and_style\\\": \\\"description of tone\\\",\\n  \\\"outline\\\": [\\n    {\\\"heading\\\": \\\"H1 Title\\\", \\\"level\\\": \\\"H1\\\", \\\"notes\\\": \\\"brief notes\\\"},\\n    {\\\"heading\\\": \\\"Introduction\\\", \\\"level\\\": \\\"H2\\\", \\\"notes\\\": \\\"Hook + problem statement\\\"},\\n    {\\\"heading\\\": \\\"Section\\\", \\\"level\\\": \\\"H2\\\", \\\"notes\\\": \\\"detail notes\\\"},\\n    {\\\"heading\\\": \\\"Subsection\\\", \\\"level\\\": \\\"H3\\\", \\\"notes\\\": \\\"detail notes\\\"}\\n  ],\\n  \\\"faq_section\\\": [\\n    {\\\"question\\\": \\\"PAA question\\\", \\\"answer_hint\\\": \\\"what to cover\\\"}\\n  ],\\n  \\\"content_gaps\\\": [\\\"gap 1\\\", \\\"gap 2\\\", \\\"gap 3\\\"],\\n  \\\"cta_recommendation\\\": \\\"specific CTA\\\",\\n  \\\"estimated_difficulty\\\": \\\"easy | medium | hard\\\",\\n  \\\"competitor_insights\\\": \\\"2-3 sentence insight on differentiation\\\"\\n}\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Generate a content brief for a {{ $json.website_niche }} website. Target tone: {{ $json.tone }}. Target word count: {{ $json.target_word_count }} words.\\n\\nSERP DATA:\\n{{ $json.serp_summary }}\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "id": "node-007",
+      "name": "OpenAI — Generate Brief",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1300, 280],
+      "credentials": {
+        "openAiApi": {
+          "id": "1",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw      = $input.first().json;\nconst aiText   = raw.choices?.[0]?.message?.content || '';\nconst serpData = $('Extract SERP Data').first().json;\n\nlet brief = {};\ntry {\n  const cleaned = aiText.replace(/```json\\n?/g,'').replace(/```\\n?/g,'').trim();\n  brief = JSON.parse(cleaned);\n} catch(e) {\n  const match = aiText.match(/\\{[\\s\\S]*\\}/);\n  try   { brief = JSON.parse(match?.[0] || '{}'); }\n  catch { brief = { error: 'JSON parse failed', raw: aiText }; }\n}\n\nbrief.generated_at        = new Date().toISOString();\nbrief.keyword_queried     = serpData.keyword;\nbrief.paa_questions_found = serpData.paa_questions  || [];\nbrief.related_searches    = serpData.related_searches || [];\n\n// Build HTML email\nconst outlineHtml = (brief.outline || []).map(item =>\n  `<${item.level} style=\"margin:8px 0\">${item.heading}</${item.level}><p style=\"color:#555;font-size:13px;margin:4px 0 12px\">${item.notes||''}</p>`\n).join('');\n\nconst faqHtml = (brief.faq_section || []).map(f =>\n  `<li><strong>${f.question}</strong><br><em>${f.answer_hint||''}</em></li>`\n).join('');\n\nconst htmlEmail = `<html><body style=\"font-family:Arial,sans-serif;max-width:700px;margin:auto;padding:20px;color:#333\">\n<h1 style=\"color:#1a73e8\">📋 SEO Content Brief</h1>\n<h2>${brief.target_keyword || serpData.keyword}</h2>\n<p><strong>Generated:</strong> ${new Date().toLocaleDateString()}</p><hr>\n<h3>🎯 Title Options</h3><ol>${(brief.title_options||[]).map(t=>`<li>${t}</li>`).join('')}</ol>\n<h3>📝 Meta Description</h3><p style=\"background:#f5f5f5;padding:10px;border-radius:6px\">${brief.meta_description||''}</p>\n<h3>🔍 SEO Details</h3>\n<table style=\"width:100%;border-collapse:collapse\">\n<tr><td style=\"padding:6px;border:1px solid #ddd\"><strong>Search Intent</strong></td><td style=\"padding:6px;border:1px solid #ddd\">${brief.search_intent||''}</td></tr>\n<tr><td style=\"padding:6px;border:1px solid #ddd\"><strong>Content Type</strong></td><td style=\"padding:6px;border:1px solid #ddd\">${brief.content_type||''}</td></tr>\n<tr><td style=\"padding:6px;border:1px solid #ddd\"><strong>Word Count</strong></td><td style=\"padding:6px;border:1px solid #ddd\">${brief.recommended_word_count||''}</td></tr>\n<tr><td style=\"padding:6px;border:1px solid #ddd\"><strong>Difficulty</strong></td><td style=\"padding:6px;border:1px solid #ddd\">${brief.estimated_difficulty||''}</td></tr>\n</table>\n<h3>🔑 Secondary Keywords</h3><p>${(brief.secondary_keywords||[]).join(', ')}</p>\n<h3>📐 Outline</h3>${outlineHtml}\n<h3>❓ FAQ</h3><ul>${faqHtml}</ul>\n<h3>💡 Content Gaps</h3><ul>${(brief.content_gaps||[]).map(g=>`<li>${g}</li>`).join('')}</ul>\n<h3>🏆 Competitor Insights</h3><p>${brief.competitor_insights||''}</p>\n<h3>📢 CTA</h3><p>${brief.cta_recommendation||''}</p>\n<hr><p style=\"color:#999;font-size:12px\">Auto-generated by n8n | AI Automation Expert</p>\n</body></html>`;\n\nreturn [{ json: { brief, html_email: htmlEmail, email_to: serpData.email_to, keyword: serpData.keyword } }];"
+      },
+      "id": "node-008",
+      "name": "Parse & Format Brief",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1520, 280]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Sheet1",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date":                  "={{ $now.format('yyyy-MM-dd') }}",
+            "Keyword":               "={{ $json.keyword }}",
+            "Search Intent":         "={{ $json.brief.search_intent }}",
+            "Content Type":          "={{ $json.brief.content_type }}",
+            "Recommended Word Count":"={{ $json.brief.recommended_word_count }}",
+            "Difficulty":            "={{ $json.brief.estimated_difficulty }}",
+            "Title Option 1":        "={{ $json.brief.title_options?.[0] || '' }}",
+            "Secondary Keywords":    "={{ ($json.brief.secondary_keywords || []).join(', ') }}",
+            "Content Gaps":          "={{ ($json.brief.content_gaps || []).join(' | ') }}",
+            "Sections Count":        "={{ ($json.brief.outline || []).length }}",
+            "FAQ Count":             "={{ ($json.brief.faq_section || []).length }}",
+            "Email Sent To":         "={{ $json.email_to }}"
+          }
+        },
+        "options": {}
+      },
+      "id": "node-009",
+      "name": "Google Sheets — Log Brief",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [1740, 160]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "c2",
+              "leftValue": "={{ $json.email_to }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "node-010",
+      "name": "Email Requested?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1740, 360]
+    },
+    {
+      "parameters": {
+        "sendTo":  "={{ $json.email_to }}",
+        "subject": "=📋 SEO Content Brief Ready: {{ $json.keyword }}",
+        "message": "={{ $json.html_email }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "node-011",
+      "name": "Gmail — Send Brief",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [1960, 280]
+    },
+    {
+      "parameters": {},
+      "id": "node-012",
+      "name": "Skip Email",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1960, 460]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: true, keyword: $('Parse & Format Brief').first().json.keyword, brief: $('Parse & Format Brief').first().json.brief, email_sent: $('Parse & Format Brief').first().json.email_to !== '', generated_at: new Date().toISOString() }) }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "node-013",
+      "name": "Respond — Success",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [2180, 360]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [[{ "node": "Normalize Inputs",      "type": "main", "index": 0 }]]
+    },
+    "Normalize Inputs": {
+      "main": [[{ "node": "Keyword Exists?",        "type": "main", "index": 0 }]]
+    },
+    "Keyword Exists?": {
+      "main": [
+        [{ "node": "SerpAPI — Google SERP",         "type": "main", "index": 0 }],
+        [{ "node": "Error — Missing Keyword",        "type": "main", "index": 0 }]
+      ]
+    },
+    "SerpAPI — Google SERP": {
+      "main": [[{ "node": "Extract SERP Data",       "type": "main", "index": 0 }]]
+    },
+    "Extract SERP Data": {
+      "main": [[{ "node": "OpenAI — Generate Brief", "type": "main", "index": 0 }]]
+    },
+    "OpenAI — Generate Brief": {
+      "main": [[{ "node": "Parse & Format Brief",    "type": "main", "index": 0 }]]
+    },
+    "Parse & Format Brief": {
+      "main": [[
+        { "node": "Google Sheets — Log Brief",       "type": "main", "index": 0 },
+        { "node": "Email Requested?",                "type": "main", "index": 0 }
+      ]]
+    },
+    "Email Requested?": {
+      "main": [
+        [{ "node": "Gmail — Send Brief",             "type": "main", "index": 0 }],
+        [{ "node": "Skip Email",                     "type": "main", "index": 0 }]
+      ]
+    },
+    "Gmail — Send Brief": {
+      "main": [[{ "node": "Respond — Success",       "type": "main", "index": 0 }]]
+    },
+    "Skip Email": {
+      "main": [[{ "node": "Respond — Success",       "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "day11-seo-brief-v2",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "tags": [
+    { "name": "seo" },
+    { "name": "ai-automation" },
+    { "name": "content-marketing" },
+    { "name": "n8n-30day-challenge" }
+  ]
+}

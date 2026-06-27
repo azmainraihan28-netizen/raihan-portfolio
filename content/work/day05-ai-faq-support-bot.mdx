@@ -1,0 +1,58 @@
+---
+day: 5
+slug: day5-ai-faq-support-bot
+title: "AI Customer Support FAQ Bot"
+tagline: "webhook-triggered AI bot that"
+week: 1
+category: "Foundations"
+industries: ["SaaS", "Agencies", "E-commerce", "Freelancers", "Founders"]
+tools: ["n8n", "OpenAI", "GPT-4o-mini", "Slack", "Webhook"]
+nodes: 7
+costPerRun: "~$0.001"
+heroMetric: "~$0.5k peak build value"
+priceLow: 150
+priceHigh: 500
+featured: false
+workflowJson: "/workflows/day5_ai_faq_support_bot.json"
+linkedinPost: "/posts/day5"
+targetUsers: "SaaS founders, e-commerce stores, agencies, freelancers"
+screenshot: "/workflows/shots/day5.png"
+---
+## The Problem
+
+1. Support teams waste 3–5 hours/day answering the same FAQ questions
+2. Tickets pile up overnight and across timezones — customers wait hours for basic answers
+3. Hiring more support agents is expensive ($2,000–$5,000/month per agent)
+4. Chatbot platforms (Intercom, Drift, Zendesk) cost $300–$1,000+/month
+5. Questions that do need humans get mixed in with simple ones — burning agent time
+
+## The Solution
+
+A webhook-triggered AI bot that:
+- Instantly matches customer questions against a customizable FAQ database
+- Answers confidently using GPT-4o-mini (cost: ~$0.0002 per query)
+- Auto-escalates unanswerable questions to Slack for human review
+- Returns structured JSON responses for easy front-end integration
+
+## How It Works
+
+Node-by-node flow:
+
+- **Webhook** — Receives customer question (POST)
+- **Set** — Extracts and normalizes fields
+- **OpenAI (gpt-4o-mini)** — FAQ matching + answer generation
+- **Code** — Parses AI response, flags escalation
+- **IF** — Routes to escalation or direct answer path
+- **Slack** — Sends escalation alert to support channel
+- **Respond to Webhook** — Returns structured JSON response (×2)
+
+## Credentials & Setup
+
+- OpenAI API Key
+- Slack OAuth (optional — for escalation alerts)
+
+## Pricing Packages
+
+- Sell as a standalone Fiverr/Upwork service: **$150–$500 setup**
+- Bundle with Day 4 (lead qualifier) for a full support+sales automation package
+- Works for: SaaS, e-commerce, agencies, coaches, service businesses

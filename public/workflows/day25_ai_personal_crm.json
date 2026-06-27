@@ -1,0 +1,438 @@
+{
+  "name": "Day 25 — AI Personal CRM (Auto-Log Every Interaction)",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyX",
+              "value": 15,
+              "unit": "minutes"
+            }
+          ]
+        },
+        "filters": {
+          "labelIds": ["SENT"],
+          "readStatus": "all"
+        },
+        "options": {
+          "downloadAttachments": false
+        }
+      },
+      "id": "1a2b3c4d-0001-0001-0001-000000000001",
+      "name": "📧 Gmail Trigger (Sent Emails)",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.1,
+      "position": [120, 300],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "GMAIL_CREDENTIAL_ID",
+          "name": "Gmail OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "to_address",
+              "value": "={{ $json.to && $json.to[0] && $json.to[0].value ? $json.to[0].value : 'unknown@unknown.com' }}",
+              "type": "string"
+            },
+            {
+              "id": "a2",
+              "name": "to_name",
+              "value": "={{ $json.to && $json.to[0] && $json.to[0].name ? $json.to[0].name : '' }}",
+              "type": "string"
+            },
+            {
+              "id": "a3",
+              "name": "subject",
+              "value": "={{ $json.subject || '(no subject)' }}",
+              "type": "string"
+            },
+            {
+              "id": "a4",
+              "name": "body_snippet",
+              "value": "={{ $json.text ? $json.text.substring(0, 1500) : ($json.snippet || '') }}",
+              "type": "string"
+            },
+            {
+              "id": "a5",
+              "name": "sent_date",
+              "value": "={{ $json.date || $now.toISO() }}",
+              "type": "string"
+            },
+            {
+              "id": "a6",
+              "name": "message_id",
+              "value": "={{ $json.id || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "a7",
+              "name": "thread_id",
+              "value": "={{ $json.threadId || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "a8",
+              "name": "openai_key",
+              "value": "YOUR_OPENAI_API_KEY",
+              "type": "string"
+            },
+            {
+              "id": "a9",
+              "name": "sheet_id",
+              "value": "YOUR_GOOGLE_SHEET_ID",
+              "type": "string"
+            },
+            {
+              "id": "a10",
+              "name": "slack_enabled",
+              "value": true,
+              "type": "boolean"
+            },
+            {
+              "id": "a11",
+              "name": "slack_channel",
+              "value": "#crm-followups",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "1a2b3c4d-0001-0001-0001-000000000002",
+      "name": "⚙️ Set — Normalize Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [340, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.to_address }}",
+              "rightValue": "no-reply|noreply|newsletter|unsubscribe|donotreply|mailer-daemon|notifications?@|bounce|autorespond",
+              "operator": {
+                "type": "string",
+                "operation": "notRegex"
+              }
+            },
+            {
+              "id": "c2",
+              "leftValue": "={{ $json.to_address }}",
+              "rightValue": "unknown@unknown.com",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "1a2b3c4d-0001-0001-0001-000000000003",
+      "name": "🔍 IF — Valid Contact?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [560, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.openai_key }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"gpt-4o-mini\",\n  \"response_format\": { \"type\": \"json_object\" },\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a CRM intelligence assistant. Analyze email interactions and extract structured relationship data. Always return valid JSON.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Analyze this sent email and return ONLY a JSON object with these exact fields:\\n{\\n  \\\"contact_name\\\": \\\"Full name of recipient (infer from email if name missing)\\\",\\n  \\\"contact_company\\\": \\\"Company name from email domain or body context (Unknown if not detectable)\\\",\\n  \\\"relationship_type\\\": \\\"One of: Prospect / Client / Partner / Vendor / Recruiter / Colleague / Personal / Other\\\",\\n  \\\"interaction_type\\\": \\\"One of: Cold Outreach / Follow-Up / Proposal / Check-In / Support / Negotiation / Onboarding / Closing / Other\\\",\\n  \\\"interaction_summary\\\": \\\"2-3 sentence plain-English summary of what this email was about\\\",\\n  \\\"sentiment\\\": \\\"One of: Warm / Neutral / Cold / Urgent / Positive / Negative\\\",\\n  \\\"follow_up_required\\\": \\\"Yes or No\\\",\\n  \\\"follow_up_action\\\": \\\"Specific next action (e.g. Schedule call, Send proposal, Wait for reply, None)\\\",\\n  \\\"follow_up_days\\\": \\\"Integer: days until follow-up (0 if none)\\\",\\n  \\\"urgency\\\": \\\"One of: High / Medium / Low\\\",\\n  \\\"deal_stage\\\": \\\"One of: Awareness / Interest / Consideration / Intent / Decision / Closed / None\\\",\\n  \\\"estimated_value\\\": \\\"Estimated deal value USD as number (0 if personal or no deal)\\\",\\n  \\\"key_topics\\\": \\\"Comma-separated key topics discussed (max 5)\\\",\\n  \\\"language\\\": \\\"Language of the email body (English, Bengali, Spanish, etc.)\\\",\\n  \\\"relationship_strength\\\": \\\"One of: New / Warm / Hot / Cold / Dormant\\\"\\n}\\n\\nEmail Data:\\nTo: {{ $json.to_address }} ({{ $json.to_name }})\\nSubject: {{ $json.subject }}\\nDate: {{ $json.sent_date }}\\nBody excerpt: {{ $json.body_snippet }}\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "id": "1a2b3c4d-0001-0001-0001-000000000004",
+      "name": "🤖 OpenAI — Analyze Interaction",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [780, 180]
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first();\nconst aiRaw = item.json;\n\nlet aiData = {};\ntry {\n  const content = aiRaw.choices?.[0]?.message?.content || '{}';\n  aiData = JSON.parse(content);\n} catch (e) {\n  // Fallback if AI response is malformed\n  aiData = {\n    contact_name: 'Unknown',\n    contact_company: 'Unknown',\n    relationship_type: 'Other',\n    interaction_type: 'Other',\n    interaction_summary: 'AI parse error — review manually',\n    sentiment: 'Neutral',\n    follow_up_required: 'No',\n    follow_up_action: 'None',\n    follow_up_days: 0,\n    urgency: 'Low',\n    deal_stage: 'None',\n    estimated_value: 0,\n    key_topics: '',\n    language: 'English',\n    relationship_strength: 'New'\n  };\n}\n\n// Retrieve context from Set node\nconst ctx = $('⚙️ Set — Normalize Fields').first().json;\n\nconst record = {\n  timestamp: new Date().toISOString(),\n  message_id: ctx.message_id || '',\n  thread_id: ctx.thread_id || '',\n  to_address: ctx.to_address || '',\n  to_name: ctx.to_name || '',\n  subject: ctx.subject || '',\n  sent_date: ctx.sent_date || '',\n  // AI-enriched fields\n  contact_name: aiData.contact_name || ctx.to_name || 'Unknown',\n  contact_company: aiData.contact_company || 'Unknown',\n  relationship_type: aiData.relationship_type || 'Other',\n  interaction_type: aiData.interaction_type || 'Other',\n  interaction_summary: aiData.interaction_summary || '',\n  sentiment: aiData.sentiment || 'Neutral',\n  follow_up_required: aiData.follow_up_required || 'No',\n  follow_up_action: aiData.follow_up_action || 'None',\n  follow_up_days: parseInt(aiData.follow_up_days) || 0,\n  urgency: aiData.urgency || 'Low',\n  deal_stage: aiData.deal_stage || 'None',\n  estimated_value: parseFloat(aiData.estimated_value) || 0,\n  key_topics: aiData.key_topics || '',\n  language: aiData.language || 'English',\n  relationship_strength: aiData.relationship_strength || 'New',\n  // Pass config forward\n  openai_key: ctx.openai_key,\n  sheet_id: ctx.sheet_id,\n  slack_enabled: ctx.slack_enabled,\n  slack_channel: ctx.slack_channel\n};\n\nreturn [{ json: record }];"
+      },
+      "id": "1a2b3c4d-0001-0001-0001-000000000005",
+      "name": "🔧 Code — Parse AI Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1000, 180]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $json.sheet_id }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "CRM",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $json.timestamp }}",
+            "Message ID": "={{ $json.message_id }}",
+            "Thread ID": "={{ $json.thread_id }}",
+            "Contact Email": "={{ $json.to_address }}",
+            "Contact Name": "={{ $json.contact_name }}",
+            "Company": "={{ $json.contact_company }}",
+            "Relationship Type": "={{ $json.relationship_type }}",
+            "Relationship Strength": "={{ $json.relationship_strength }}",
+            "Interaction Type": "={{ $json.interaction_type }}",
+            "Subject": "={{ $json.subject }}",
+            "Sent Date": "={{ $json.sent_date }}",
+            "Summary": "={{ $json.interaction_summary }}",
+            "Sentiment": "={{ $json.sentiment }}",
+            "Follow Up Required": "={{ $json.follow_up_required }}",
+            "Follow Up Action": "={{ $json.follow_up_action }}",
+            "Follow Up In (Days)": "={{ $json.follow_up_days }}",
+            "Urgency": "={{ $json.urgency }}",
+            "Deal Stage": "={{ $json.deal_stage }}",
+            "Est. Value ($)": "={{ $json.estimated_value }}",
+            "Key Topics": "={{ $json.key_topics }}",
+            "Language": "={{ $json.language }}"
+          }
+        },
+        "options": {}
+      },
+      "id": "1a2b3c4d-0001-0001-0001-000000000006",
+      "name": "📊 Google Sheets — Log CRM Record",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.3,
+      "position": [1220, 180],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "SHEETS_CREDENTIAL_ID",
+          "name": "Google Sheets OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond1",
+              "leftValue": "={{ $json.urgency }}",
+              "rightValue": "High",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "cond2",
+              "leftValue": "={{ $json.follow_up_required }}",
+              "rightValue": "Yes",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "cond3",
+              "leftValue": "={{ $json.slack_enabled }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "1a2b3c4d-0001-0001-0001-000000000007",
+      "name": "🔥 IF — High-Urgency Follow-Up?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1440, 180]
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $json.slack_channel }}",
+          "mode": "name"
+        },
+        "blocksUi": "=[\n  {\n    \"type\": \"header\",\n    \"text\": {\n      \"type\": \"plain_text\",\n      \"text\": \"🔔 High-Urgency CRM Follow-Up\",\n      \"emoji\": true\n    }\n  },\n  {\n    \"type\": \"section\",\n    \"fields\": [\n      {\n        \"type\": \"mrkdwn\",\n        \"text\": \"*Contact:*\\n{{ $json.contact_name }}\\n{{ $json.to_address }}\"\n      },\n      {\n        \"type\": \"mrkdwn\",\n        \"text\": \"*Company:*\\n{{ $json.contact_company }}\"\n      },\n      {\n        \"type\": \"mrkdwn\",\n        \"text\": \"*Relationship:*\\n{{ $json.relationship_type }} — {{ $json.relationship_strength }}\"\n      },\n      {\n        \"type\": \"mrkdwn\",\n        \"text\": \"*Deal Stage:*\\n{{ $json.deal_stage }}\"\n      },\n      {\n        \"type\": \"mrkdwn\",\n        \"text\": \"*Urgency:*\\n🔴 {{ $json.urgency }}\"\n      },\n      {\n        \"type\": \"mrkdwn\",\n        \"text\": \"*Est. Value:*\\n${{ $json.estimated_value }}\"\n      }\n    ]\n  },\n  {\n    \"type\": \"section\",\n    \"text\": {\n      \"type\": \"mrkdwn\",\n      \"text\": \"*Interaction Summary:*\\n{{ $json.interaction_summary }}\"\n    }\n  },\n  {\n    \"type\": \"section\",\n    \"text\": {\n      \"type\": \"mrkdwn\",\n      \"text\": \"*✅ Next Action:* {{ $json.follow_up_action }}\\n*⏰ Follow up in:* {{ $json.follow_up_days }} day(s)\\n*🏷 Topics:* {{ $json.key_topics }}\"\n    }\n  },\n  {\n    \"type\": \"divider\"\n  }\n]",
+        "otherOptions": {}
+      },
+      "id": "1a2b3c4d-0001-0001-0001-000000000008",
+      "name": "💬 Slack — Follow-Up Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [1660, 80],
+      "credentials": {
+        "slackApi": {
+          "id": "SLACK_CREDENTIAL_ID",
+          "name": "Slack OAuth"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "1a2b3c4d-0001-0001-0001-000000000009",
+      "name": "⏭️ No Op — Low Priority",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1660, 300]
+    },
+    {
+      "parameters": {},
+      "id": "1a2b3c4d-0001-0001-0001-000000000010",
+      "name": "⏭️ No Op — Skip System Email",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [780, 420]
+    }
+  ],
+  "connections": {
+    "📧 Gmail Trigger (Sent Emails)": {
+      "main": [
+        [
+          {
+            "node": "⚙️ Set — Normalize Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "⚙️ Set — Normalize Fields": {
+      "main": [
+        [
+          {
+            "node": "🔍 IF — Valid Contact?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔍 IF — Valid Contact?": {
+      "main": [
+        [
+          {
+            "node": "🤖 OpenAI — Analyze Interaction",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "⏭️ No Op — Skip System Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🤖 OpenAI — Analyze Interaction": {
+      "main": [
+        [
+          {
+            "node": "🔧 Code — Parse AI Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔧 Code — Parse AI Response": {
+      "main": [
+        [
+          {
+            "node": "📊 Google Sheets — Log CRM Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📊 Google Sheets — Log CRM Record": {
+      "main": [
+        [
+          {
+            "node": "🔥 IF — High-Urgency Follow-Up?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔥 IF — High-Urgency Follow-Up?": {
+      "main": [
+        [
+          {
+            "node": "💬 Slack — Follow-Up Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "⏭️ No Op — Low Priority",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "day25-v1",
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "day25-ai-personal-crm"
+  },
+  "id": "day25",
+  "tags": [
+    { "name": "personal-crm" },
+    { "name": "gmail" },
+    { "name": "ai-automation" },
+    { "name": "30-day-challenge" }
+  ]
+}

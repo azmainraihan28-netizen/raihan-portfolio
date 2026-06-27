@@ -1,0 +1,173 @@
+---
+day: 19
+slug: day19-ai-standup-bot
+title: "AI Standup Bot"
+tagline: "webhook-triggered n8n workflow that"
+week: 3
+category: "Internal Ops"
+industries: ["Agencies", "Founders", "Startups", "Ops"]
+tools: ["n8n", "OpenAI", "GPT-4o-mini", "Google Sheets", "Slack", "Webhook"]
+nodes: 10
+costPerRun: "~$0.0003 (GPT-4o-mini) — effectively free at any team size"
+heroMetric: "~$0.0003 (GPT-4o-mini)"
+priceLow: 200
+priceHigh: 600
+featured: false
+workflowJson: "/workflows/day19_ai_standup_bot.json"
+linkedinPost: "/posts/day19"
+targetUsers: "Remote teams, startup founders, engineering managers, ops teams, agencies running distributed teams"
+screenshot: "/workflows/shots/day19.png"
+---
+## The Problem
+
+1. Managers waste 15–30 minutes every morning chasing team members for status updates via DM or meeting
+2. Async standups (forms, bots) collect data but do nothing intelligent with it — blockers get buried
+3. Standup info lives and dies in Slack threads — no searchable history, no trend tracking, no health data
+4. Blockers go unnoticed until sprint review or missed deadline — killing team velocity
+5. Tools like Geekbot, Standuply, and Range cost $3–$9 per user/month with no real AI analysis built in
+
+## The Solution
+
+A webhook-triggered n8n workflow that:
+- Receives standup submissions via POST from any form, Slack slash command, or custom app
+- Uses GPT-4o-mini to structure the update, detect blockers, rate severity, estimate productivity, and read sentiment
+- Posts a clean, formatted standup to the Slack team channel automatically
+- Fires a private blocker alert to the manager channel if severity is medium or high
+- Logs 16 intelligence fields to Google Sheets — building a long-term team health database
+
+## How It Works
+
+Node-by-node flow:
+
+- **Webhook** — Receives POST request from team member
+- **Set** — Normalizes 12 input fields with safe defaults
+- **IF** — Validates required fields → returns 400 on missing
+- **OpenAI (gpt-4o-mini)** — 10-field standup intelligence report (blockers, severity, risk, sentiment, productivity, Slack message, manager note)
+- **Code** — Safe JSON parser with fallback template on parse error
+- **Google Sheets** — Appends 16-column standup log row
+- **Slack (×2)** — Team standup channel post + manager blocker alert
+- **IF** — Routes blocker vs. clean standup
+- **No Op** — Silent pass for clean standups
+- **Respond to Webhook (×2)** — Returns 200 success JSON or 400 validation error
+
+## Credentials & Setup
+
+- OpenAI API Key
+- Google Sheets OAuth2
+- Slack OAuth2
+
+## Cost Breakdown
+
+~$0.0003 (GPT-4o-mini) — effectively free at any team size
+
+## Pricing Packages
+
+- Fiverr/Upwork setup: **$200–$600**
+- With Slack slash command + custom web form UI: **$600–$1,200**
+- Full async team ops system (standup + retrospective + sprint summary): **$1,500–$3,000**
+- Monthly retainer: **$75–$200/month**
+- Bundle with Day 8 (meeting notes) + Day 17 (onboarding) → Full Team Ops Package: **$1,500–$2,500**
+
+## The Original LinkedIn Post
+
+<details>
+<summary>Read the post that announced this build</summary>
+
+# Day 19 / 30 — AI Standup Bot 🤖
+
+## LinkedIn Caption
+
+---
+
+Your team wastes 30 minutes every morning in a standup that could run itself.
+
+So I built one that does.
+
+Introducing the **AI Standup Bot** — a fully automated n8n workflow that:
+
+✅ Collects standup updates from every team member via webhook
+✅ Uses GPT-4o-mini to structure, analyze, and score each update
+✅ Detects blockers — rates severity as low / medium / **high**
+✅ Posts a clean, formatted summary to your Slack channel
+✅ Fires a private alert to the manager if someone is blocked
+✅ Logs 16 data points per submission to Google Sheets — building a team health database over time
+
+The part that makes this different?
+
+It doesn't just collect updates. It **thinks** about them.
+
+🧠 Is this person's plan realistic today?
+🧠 Are they burned out based on their tone?
+🧠 Should the manager step in — or let them run?
+
+Your standup just became an intelligence system.
+
+**Cost to run: $0.0003 per standup submission.**
+No Jira. No Monday. No $200/month tools.
+
+---
+
+Here's the full stack it uses:
+→ Webhook trigger (team submits via form or app)
+→ GPT-4o-mini (structures + analyzes)
+→ Google Sheets (team health log)
+→ Slack (standup channel + manager alert)
+
+---
+
+Want this running for your team this week?
+
+📩 Drop me a DM or check my Fiverr gig in the comments.
+
+This is Day 19 of my **#30DayAutomationChallenge** — building 1 sellable n8n workflow every day.
+
+Follow me so you don't miss Day 20. 👇
+
+---
+
+**#n8n #AIAutomation #WorkflowAutomation #RemoteWork #ProductivityHack #NoCode #SlackBot #Automation #AITools #FreelanceAutomation #30DayChallenge #BuildInPublic**
+
+---
+
+## Pain Points Addressed
+
+1. Async standups get ignored — nobody fills in forms unless it's fast and frictionless
+2. Managers manually chase 5–10 people every morning for updates (15–30 min wasted)
+3. Blockers go unnoticed until sprint end — killing velocity and causing missed deadlines
+4. Standup info dies in Slack threads — no searchable history, no trend tracking
+5. Distributed/remote teams in different timezones can't do sync standups at all
+
+## Solution Summary
+
+A webhook-powered AI standup workflow that:
+- Accepts standup updates via POST from any form, app, or Slack command
+- GPT-4o-mini structures the update, detects blockers, estimates productivity, and reads sentiment
+- Posts a clean formatted standup to the team Slack channel instantly
+- Fires a private blocker alert to the manager channel if severity is medium or high
+- Logs 16 columns to Google Sheets — building a long-term team health dataset
+
+## Nodes Used (12 total)
+- **Webhook** — Receives POST from team member
+- **Set** — Normalizes 12 input fields with safe defaults
+- **IF** — Validates required fields → 400 on missing
+- **OpenAI (gpt-4o-mini)** — 10-field standup intelligence report
+- **Code** — Safe JSON parser with fallback template
+- **Google Sheets** — Appends 16-column standup log
+- **Slack (×2)** — Team channel post + manager blocker alert
+- **IF** — Routes blocker vs. clean standup
+- **No Op** — Silent pass for clean standups
+- **Respond to Webhook (×2)** — 200 success or 400 validation error
+
+## Credentials Needed
+- OpenAI API Key
+- Google Sheets OAuth2
+- Slack OAuth2
+
+## Gig / Sale Value
+- Fiverr/Upwork standup bot setup: **$200–$600**
+- With custom Slack slash command + web form: **$600–$1,200**
+- Full async team ops system (standup + retrospective + task sync): **$1,500–$3,000**
+- Monthly retainer: **$75–$200/month**
+- Bundle with Day 8 (meeting notes) + Day 17 (onboarding) → Full Team Ops Automation Package: **$1,500–$2,500**
+
+</details>

@@ -1,0 +1,139 @@
+---
+day: 25
+slug: day25-ai-personal-crm
+title: "AI Personal CRM"
+tagline: "Gmail-triggered n8n workflow that"
+week: 4
+category: "Advanced & Agentic"
+industries: ["Agencies", "Freelancers", "Founders", "Sales", "Consulting"]
+tools: ["n8n", "OpenAI", "GPT-4o-mini", "Gmail", "Google Sheets", "Slack"]
+nodes: 9
+costPerRun: "~$0.001 (GPT-4o-mini) — effectively free at any email volume"
+heroMetric: "~$0.001 (GPT-4o-mini)"
+priceLow: 200
+priceHigh: 600
+featured: false
+workflowJson: "/workflows/day25_ai_personal_crm.json"
+linkedinPost: "/posts/day25"
+targetUsers: "Freelancers, consultants, agency owners, sales professionals, founders, B2B service providers"
+screenshot: "/workflows/shots/day25.png"
+---
+## The Problem
+
+1. Professionals miss follow-ups on 40–60% of important contacts — deals and relationships die silently in overflowing inboxes
+2. Manual CRM data entry consumes 5–6 hours/week — most salespeople fill it incorrectly, inconsistently, or skip it entirely
+3. No memory between meetings — you arrive to calls asking "remind me, what did we last discuss?" — destroying trust
+4. Enterprise CRM tools (Salesforce, HubSpot, Pipedrive) cost $50–$1,200/month and still require manual input to function
+5. Email, LinkedIn DMs, and meetings live in silos — no single relationship intelligence view of any contact's full history
+
+## The Solution
+
+A Gmail-triggered n8n workflow that:
+- Polls the Gmail Sent folder every 15 minutes and processes each outgoing email
+- Filters out system emails, newsletters, and no-reply addresses automatically
+- Sends email metadata + body excerpt to GPT-4o-mini for 15-field CRM intelligence extraction
+- Extracts: contact name, company, relationship type, relationship strength, interaction type, summary, sentiment, follow-up required, next action, follow-up days, urgency, deal stage, estimated deal value, key topics, language
+- Logs a 21-column record to a Google Sheets personal CRM database — building a permanent relationship history
+- Fires a rich Slack block alert only for high-urgency follow-ups that need same-day action
+- Cost: ~$0.001 per email analyzed (GPT-4o-mini)
+
+## How It Works
+
+Node-by-node flow:
+
+- **Gmail Trigger** — Polls Sent folder every 15 minutes (label filter: SENT)
+- **Set** — Normalizes 11 input fields with safe defaults (to_address, to_name, subject, body_snippet, sent_date, message_id, thread_id, openai_key, sheet_id, slack_enabled, slack_channel)
+- **IF** — Filters system/no-reply emails via regex → silent skip for non-human addresses
+- **HTTP Request (OpenAI)** — GPT-4o-mini with JSON mode: 15-field CRM intelligence report
+- **Code** — Safely parses AI JSON, merges with email context, builds full 21-field CRM record
+- **Google Sheets** — Appends 21-column CRM row (Timestamp → Language, all intelligence fields)
+- **IF** — Routes high-urgency + follow-up-required + Slack-enabled interactions
+- **Slack** — Rich block alert: contact card, deal stage, value, summary, next action, follow-up timeline
+- **No Op (×2)** — Silent passes for low-priority emails and system-email skips
+
+## Credentials & Setup
+
+- Gmail OAuth2
+- OpenAI API Key (passed inline in Set node — replace `YOUR_OPENAI_API_KEY`)
+- Google Sheets OAuth2 (set Sheet ID in Set node — replace `YOUR_GOOGLE_SHEET_ID`)
+- Slack OAuth2 (optional — for high-urgency follow-up alerts)
+
+## Cost Breakdown
+
+~$0.001 (GPT-4o-mini) — effectively free at any email volume
+
+## Pricing Packages
+
+- Fiverr/Upwork setup: **$200–$600**
+- With contact deduplication + relationship scoring dashboard: **$600–$1,200**
+- Full sales intelligence system (CRM + cold email + competitor tracker): **$2,000–$4,000**
+- Monthly retainer: **$75–$200/month**
+- Bundle with Day 9 (cold email) + Day 10 (review aggregator) → Full Sales Ops Package: **$1,000–$2,000**
+
+## The Original LinkedIn Post
+
+<details>
+<summary>Read the post that announced this build</summary>
+
+# Day 25 — LinkedIn Post
+# AI Personal CRM (Auto-Log Every Interaction)
+
+---
+
+## 📝 Caption
+
+I used to lose deals because I forgot to follow up.
+
+Not anymore.
+
+I built an n8n workflow that turns my Gmail into a fully automated Personal CRM — zero manual input, zero missed contacts.
+
+Here's what happens every time I send an email:
+
+→ AI reads the email and identifies the contact & company
+→ Classifies the relationship: Prospect, Client, Partner, Vendor...
+→ Detects the deal stage: Awareness → Interest → Consideration → Closing
+→ Writes a 3-sentence summary of the interaction
+→ Decides if a follow-up is needed — and exactly what action to take
+→ Logs 21 structured fields to a Google Sheets CRM database
+→ Fires a Slack alert only for high-urgency follow-ups
+
+Cost per email analyzed: **$0.001**
+Cost of Salesforce/HubSpot: **$50–$1,200/month**
+
+The difference? Mine runs 24/7, needs no manual entry, and took 45 minutes to build.
+
+This is Day 25 of my 30-Day n8n Automation Challenge.
+
+---
+
+Every consultant, freelancer, and agency owner I know has this problem:
+
+You talk to 20 people this week. By Friday you've forgotten who said what, who needs a proposal, who's "just thinking about it."
+
+Deals don't close because follow-up dies in your inbox.
+
+This workflow fixes that. It's your silent assistant that never forgets a conversation.
+
+---
+
+**Want the JSON?**
+
+Drop "CRM" in the comments and I'll send it.
+
+Or grab the full 30-workflow bundle from my Fiverr gig — all automations, ready to import, zero setup headaches. Link in bio.
+
+#n8n #AIAutomation #PersonalCRM #SalesAutomation #NoCode #Automation #FreelancerTools #AgencyGrowth #WorkflowAutomation #GPT4
+
+---
+
+## 🎯 Post Tactics
+
+- **Hook:** Loss aversion ("I used to lose deals") → immediately relatable
+- **Value:** Concrete bullet list of what AI does → shows, doesn't tell
+- **Social proof:** Cost comparison (their tool vs. $0.001) → makes the ROI obvious
+- **CTA 1:** Comment trigger ("Drop CRM") → drives engagement, boosts reach
+- **CTA 2:** Gig link → direct monetization path
+- **Hashtags:** Mix of niche (#n8n) + broad (#Automation) for reach balance
+
+</details>

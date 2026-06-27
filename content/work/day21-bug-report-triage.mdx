@@ -1,0 +1,115 @@
+---
+day: 21
+slug: day21-bug-report-triage
+title: "Day 21 Workflow"
+tagline: "Day 21 n8n automation"
+week: 3
+category: "Internal Ops"
+industries: ["SaaS", "Agencies"]
+tools: ["n8n"]
+nodes: 0
+costPerRun: "~$0.001"
+heroMetric: "~$0.8k peak build value"
+priceLow: 200
+priceHigh: 800
+featured: false
+workflowJson: "/workflows/day21_bug_report_triage.json"
+linkedinPost: "/posts/day21"
+targetUsers: ""
+screenshot: "/workflows/shots/day21.png"
+---
+## Overview
+
+A day 21 workflow workflow from the 30-day n8n automation challenge. Detailed write-up coming soon — meanwhile, the [LinkedIn post](/posts/day21) and JSON workflow capture the full scope.
+
+## The Original LinkedIn Post
+
+<details>
+<summary>Read the post that announced this build</summary>
+
+# Day 21 of 30 — LinkedIn Post
+
+## 🐛 Workflow Topic
+**Bug Report Triage: GitHub Issue → AI Severity Score → Auto-Label + Assign + Slack Alert**
+
+---
+
+## 📌 Pain Points Identified
+1. Engineering teams waste 30–60 min/day just reading and manually categorizing GitHub issues
+2. Critical P0 bugs sit unnoticed for hours because they look like regular tickets
+3. Issues get assigned to the wrong team — backend bug goes to frontend dev, wasting everyone's time
+4. No automatic escalation — a system-down bug gets the same silence as a typo fix
+5. Growing teams with 50+ open issues at a time have zero triage system — chaos mode
+
+## 💡 Solution (Short)
+n8n workflow that fires the moment a GitHub issue is opened → AI reads title + description → assigns P0/P1/P2/P3 severity → labels it → assigns to the right team area → posts a triage comment on the issue → fires a Slack alert if it's critical. Zero manual work.
+
+---
+
+## 📣 LinkedIn Caption
+
+---
+
+**Day 21/30 — I built an AI that triages your GitHub bugs before your team even sees them. 🤖**
+
+Every engineering team has this problem:
+
+➡ A critical bug gets filed at 11 PM
+➡ It sits in the queue labeled "bug"
+➡ No one sees it until Monday morning
+➡ Users are screaming
+
+I fixed that with a 10-node n8n workflow.
+
+Here's what happens the moment someone opens a GitHub issue:
+
+🔍 **Step 1 — AI reads the issue**
+GPT-4o-mini analyzes the title + description and assigns a severity:
+— P0 = System down / data loss
+— P1 = Major feature broken
+— P2 = Workaround exists
+— P3 = Minor / cosmetic
+
+⚡ **Step 2 — Auto-labels the issue**
+Severity label + area label (frontend / backend / devops / security) added automatically.
+
+👤 **Step 3 — Assigns the right team**
+No more "who should handle this?" — the AI routes it to the right person instantly.
+
+💬 **Step 4 — Posts a triage comment**
+A formatted summary appears on the issue itself — severity reason, assignment reason, plain-English summary.
+
+🚨 **Step 5 — Fires Slack alert for P0/P1 only**
+Critical issues get a red alert in #engineering-alerts with all context included.
+
+The whole thing runs in under 5 seconds.
+
+Your team wakes up to triaged, labeled, assigned issues — not a wall of unread noise.
+
+---
+
+I built this for a 12-person SaaS team that was triaging manually every morning.
+
+They cut their triage time from 45 minutes to 0.
+
+That's 45 minutes back, every single day, for every engineer.
+
+---
+
+🔗 Drop a comment with "TRIAGE" and I'll send you the ready-to-use n8n JSON — import it in one click.
+
+If you're building or selling automations like this, let's connect. I do this daily.
+
+---
+
+#n8n #AIAutomation #GitHubAutomation #NoCode #WorkflowAutomation #DevOps #EngineeringProductivity #OpenAI #AutomationExpert #Day21of30
+
+---
+
+## 🎯 Gig Positioning Notes
+- Sell as: "GitHub Bug Triage Automation Setup" — $150–$300 one-time
+- Upsell: Custom label mapping + Jira/Linear integration — $400–$600
+- Recurring: Monthly workflow maintenance retainer — $99–$199/mo
+- Target buyers: CTOs, Engineering Managers, DevOps leads at Series A–B startups
+
+</details>

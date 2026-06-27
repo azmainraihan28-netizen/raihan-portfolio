@@ -1,0 +1,190 @@
+---
+day: 11
+slug: day11-seo-brief-generator
+title: "AI SEO Content Brief Generator"
+tagline: "webhook-triggered workflow that"
+week: 2
+category: "Marketing & Sales"
+industries: ["SaaS", "Agencies", "Marketing"]
+tools: ["n8n", "OpenAI", "GPT-4o-mini", "Gmail", "Google Sheets", "SerpAPI", "Webhook"]
+nodes: 12
+costPerRun: "~$0.001"
+heroMetric: "~$0.6k peak build value"
+priceLow: 200
+priceHigh: 600
+featured: false
+workflowJson: "/workflows/day11_seo_brief_generator.json"
+linkedinPost: "/posts/day11"
+targetUsers: "Content marketers, SEO agencies, freelance writers, bloggers, SaaS marketing teams"
+screenshot: "/workflows/shots/day11.png"
+---
+## The Problem
+
+1. Manual brief creation wastes 3–5 hours per article — analyzing 10 competitor pages, PAA, headings, gaps every time
+2. Writers start with vague briefs ("write 1,500 words on X") and produce content that never ranks
+3. SERP data goes stale fast — manual research doesn't keep up with ranking changes
+4. SEO brief tools (Surfer SEO, Clearscope, MarketMuse) cost $100–$500/month — overkill for freelancers
+5. Teams publish content 80% identical to competitors, missing the gaps that could rank them #1
+
+## The Solution
+
+A webhook-triggered workflow that:
+- Accepts a keyword via POST request and hits SerpAPI for live top-10 Google SERP data
+- Extracts competitor titles, snippets, People Also Ask questions, and related searches
+- Sends structured SERP data to GPT-4o-mini which generates a full content brief as JSON
+- Brief includes: 3 title options, meta description, full H1→H3 outline, FAQ section, secondary keywords, content gaps, CTA, competitor insights
+- Logs every brief to Google Sheets and emails the HTML-formatted version directly to the writer
+- Complete brief generated in ~25 seconds from keyword input
+
+## How It Works
+
+Node-by-node flow:
+
+- **Webhook** — Receives keyword + config (POST)
+- **Set** — Normalizes inputs and sets defaults
+- **IF** — Guards against empty keyword → 400 error
+- **HTTP Request** — SerpAPI call for live SERP data
+- **Code** — Extracts top results, PAA questions, related searches
+- **OpenAI (gpt-4o-mini)** — Generates full structured content brief as JSON
+- **Code** — Parses AI JSON, builds HTML email version
+- **Google Sheets** — Logs keyword + brief metadata (12 columns)
+- **IF** — Routes to Gmail send or silent skip
+- **Gmail** — Sends formatted brief to writer's email
+- **NoOp** — Silent skip when no email provided
+- **Respond to Webhook (×2)** — Returns brief JSON or 400 error
+
+## Credentials & Setup
+
+- SerpAPI Key (free tier: 100 searches/month)
+- OpenAI API Key
+- Google Sheets OAuth2
+- Gmail OAuth2 (optional — for email delivery)
+
+## Pricing Packages
+
+- Fiverr/Upwork setup: **$200–$600**
+- With Sheets dashboard + batch mode: **$800–$1,200**
+- White-label for agencies: **$1,500–$3,000**
+- Monthly retainer (brief-as-a-service): **$150–$400/month**
+- Bundle with Day 9 (cold email) → SEO + Outreach automation package
+
+## The Original LinkedIn Post
+
+<details>
+<summary>Read the post that announced this build</summary>
+
+# Day 11 LinkedIn Post — AI SEO Content Brief Generator
+
+---
+
+## 📋 PAIN POINTS IDENTIFIED
+
+**Who suffers:** Content marketers, SEO agencies, bloggers, freelance writers, SaaS marketing teams
+
+1. **Brief creation wastes 3–5 hours per article** — manually analyzing 10 competitor pages, extracting PAA questions, mapping headings, identifying gaps. Every. Single. Time.
+2. **Writers start blind** — vague briefs like "write 1,500 words on X" produce mediocre content that never ranks
+3. **SERP data goes stale fast** — what ranked last month may not rank today, and manual research doesn't scale
+4. **SEO tools cost $100–$500/month** — Surfer SEO, Clearscope, MarketMuse. Overkill for freelancers and small teams
+5. **Content gaps go unnoticed** — teams publish content that's 80% identical to competitors instead of covering angles competitors missed
+
+---
+
+## ✅ SOLUTION
+
+A webhook-triggered n8n workflow that:
+- Accepts a keyword (POST request) and hits SerpAPI to analyze the top 10 Google results in real-time
+- Extracts competitor titles, snippets, People Also Ask questions, and related searches
+- Sends all SERP data to GPT-4o-mini which produces a full structured content brief in JSON
+- Brief includes: 3 title options, meta description, article outline (H1→H3), FAQ section, secondary keywords, content gaps, CTA recommendation, and competitor insights
+- Logs every brief to Google Sheets (searchable archive)
+- Emails the full HTML-formatted brief directly to the writer — no copy-pasting needed
+
+**Total time from keyword to complete brief: ~25 seconds.**
+
+---
+
+## 🔧 NODES USED
+
+| # | Node | Purpose |
+|---|------|---------|
+| 1 | Webhook | Receives keyword + config (POST) |
+| 2 | Set | Normalizes inputs, sets defaults |
+| 3 | IF | Guards against empty keyword |
+| 4 | HTTP Request | Calls SerpAPI for live Google SERP data |
+| 5 | Code | Extracts top results, PAA, related searches |
+| 6 | OpenAI (gpt-4o-mini) | Generates full structured brief as JSON |
+| 7 | Code | Parses AI output, builds HTML email |
+| 8 | Google Sheets | Logs keyword + brief metadata |
+| 9 | IF | Routes: email or skip |
+| 10 | Gmail | Sends formatted brief to writer |
+| 11 | NoOp | Silent skip when no email provided |
+| 12 | Respond to Webhook | Returns complete brief as JSON |
+| 13 | Respond to Webhook | Returns 400 error if keyword missing |
+
+---
+
+## 🔑 CREDENTIALS NEEDED
+
+- SerpAPI Key (free: 100 searches/month at serpapi.com)
+- OpenAI API Key
+- Google Sheets OAuth2
+- Gmail OAuth2 (optional — for email delivery)
+
+---
+
+## 💰 GIG / SALE VALUE
+
+- Fiverr/Upwork single setup: **$200–$600**
+- With Google Sheets dashboard + auto-categorization: **$800–$1,200**
+- White-label for agencies (multi-keyword batch mode): **$1,500–$3,000**
+- Monthly retainer (brief generation as a service): **$150–$400/month**
+- Bundle with Day 9 (cold email) → SEO + Outreach automation package
+
+---
+
+## 📱 LINKEDIN CAPTION
+
+---
+
+**I built an n8n workflow that writes a complete SEO content brief in 25 seconds.**
+
+No Surfer SEO. No Clearscope. No $300/month tools.
+
+Just a webhook, SerpAPI, and GPT-4o-mini.
+
+Here's what it does in one run:
+
+→ Pulls live Google SERP data for your keyword
+→ Extracts top-ranking titles, snippets & People Also Ask
+→ Identifies content gaps competitors missed
+→ Generates a full article outline (H1 → H3)
+→ Writes 3 title options + meta description
+→ Adds an FAQ section from real PAA data
+→ Emails the formatted brief directly to your writer
+
+What used to take my team 3–5 hours now takes 25 seconds.
+
+And the best part?
+
+You don't need a single paid SEO tool.
+SerpAPI has a free tier. GPT-4o-mini costs ~$0.0003 per brief.
+Google Sheets is your dashboard.
+
+This is Day 11 of my 30-day n8n automation challenge.
+
+Every workflow I build solves a real problem.
+Every workflow is ready to use on day 1.
+Every workflow can be sold as a gig.
+
+Drop a 🔥 if you want the JSON file.
+I'll share it in the comments.
+
+---
+
+#n8n #AIAutomation #SEO #ContentMarketing #NoCode #WorkflowAutomation #OpenAI #DigitalMarketing #FreelanceTips #Automation
+
+---
+
+*File: `day11_seo_brief_generator.json` | Challenge Day: 11/30*
+
+</details>

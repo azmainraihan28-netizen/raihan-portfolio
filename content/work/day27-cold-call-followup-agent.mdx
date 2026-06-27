@@ -1,0 +1,191 @@
+---
+day: 27
+slug: day27-cold-call-followup-agent
+title: "AI Cold-Call Follow-Up Agent"
+tagline: "Twilio-triggered n8n workflow that"
+week: 4
+category: "Advanced & Agentic"
+industries: ["Agencies", "Founders", "Sales"]
+tools: ["n8n", "OpenAI", "GPT-4o-mini", "Gmail", "Google Sheets", "Slack", "Twilio", "Webhook"]
+nodes: 12
+costPerRun: "~$0.002 total (GPT-4o-mini) — effectively free at any sales volume"
+heroMetric: "~$0.002 total (GPT-4o-mini)"
+priceLow: 300
+priceHigh: 800
+featured: false
+workflowJson: "/workflows/day27_cold_call_followup_agent.json"
+linkedinPost: "/posts/day27"
+targetUsers: "B2B sales teams, SDRs, agency sales reps, founders doing outbound, inside sales teams"
+screenshot: "/workflows/shots/day27.png"
+---
+## The Problem
+
+1. 80%+ of sales calls end with zero follow-up — reps intend to follow up but volume makes it impossible
+2. Manual follow-up emails after 50 daily calls take 10–15 minutes each — reps skip them under pressure
+3. Follow-up arrives 3–6 hours after the call — the prospect has already moved on or forgotten the conversation
+4. No record of call context — reps show up to the next touchpoint blind, having to re-ask the same questions
+5. Hot prospects go cold in under 2 hours without an immediate re-engagement signal post-call
+
+## The Solution
+
+A Twilio-triggered n8n workflow that:
+- Triggers automatically when Twilio fires a call status webhook (CallStatus = completed)
+- Filters out calls under 60 seconds (voicemails, wrong numbers, cold hang-ups)
+- Sends call metadata + rep notes to GPT-4o-mini to generate a unique personalized SMS + email + lead score
+- AI outputs: SMS message (≤160 chars), email subject, HTML email body, lead temperature (hot/warm/cold), urgency score (1–10), next step recommendation, follow-up day
+- Sends SMS via Twilio within 90 seconds of call ending
+- Sends personalized HTML follow-up email via Gmail in parallel
+- Logs 17 fields to Google Sheets: full call intelligence record
+- Fires Slack block alert to manager channel with lead card and next action
+
+## How It Works
+
+Node-by-node flow:
+
+- **Webhook** — Receives Twilio CallStatus POST callback
+- **Set** — Normalizes 19 input fields (Twilio fields + custom metadata)
+- **IF** — Filters short/incomplete calls (< 60 seconds OR status ≠ completed)
+- **HTTP Request (OpenAI)** — GPT-4o-mini: 8-field follow-up package as JSON
+- **Code** — Safely parses AI JSON with full fallback template
+- **HTTP Request (Twilio)** — Sends SMS via Twilio Messages API (Basic Auth)
+- **Gmail** — Sends personalized HTML follow-up email
+- **Google Sheets** — Appends 17-column call + follow-up log
+- **IF** — Routes Slack-enabled vs. silent
+- **Slack** — Rich block manager alert with lead card, urgency, next step, SMS preview
+- **No Op** — Silent pass when Slack disabled
+- **Respond to Webhook (×2)** — Returns success JSON or skip JSON
+
+## Credentials & Setup
+
+- Twilio Account SID + Auth Token (passed in payload)
+- OpenAI API Key (passed in payload)
+- Gmail OAuth2
+- Google Sheets OAuth2
+- Slack OAuth (optional — for manager alerts)
+
+## Cost Breakdown
+
+~$0.002 total (GPT-4o-mini) — effectively free at any sales volume
+
+## Pricing Packages
+
+- Fiverr/Upwork setup: **$300–$800**
+- With HubSpot/Salesforce CRM sync: **$800–$1,500**
+- Full sales automation stack (dial → follow-up → sequence → CRM): **$2,000–$4,000**
+- Monthly retainer: **$75–$200/month**
+- Bundle with Day 9 (cold email) + Day 25 (personal CRM) → Full Sales Ops Engine: **$1,500–$2,500**
+
+## The Original LinkedIn Post
+
+<details>
+<summary>Read the post that announced this build</summary>
+
+# Day 27 LinkedIn Post — AI Cold-Call Follow-Up Agent (Twilio)
+
+---
+
+## 🔥 CAPTION (Primary — Hook-First)
+
+Your reps hang up. Then nothing happens for 3 hours.
+
+That's where deals go to die.
+
+I built an n8n workflow that fires a personalized follow-up SMS + email within 2 minutes of every sales call ending — automatically.
+
+Here's how it works:
+
+📞 Twilio triggers the workflow the moment a call is marked "completed"
+⏱️ Calls under 60 seconds are filtered out (voicemails, wrong numbers — no spam)
+🧠 GPT-4o-mini reads the call duration + rep notes and writes a personalized SMS AND email — not a template. An actual human-sounding message
+📱 Twilio sends the SMS instantly (while they still remember who you are)
+📧 Gmail sends the follow-up email in parallel
+📊 Everything logs to Google Sheets: lead temperature, urgency score (1-10), next step, follow-up day
+🔔 Slack alerts your manager for hot leads — so the right person can double down
+
+The AI even classifies leads as 🔥 hot / ☀️ warm / ❄️ cold based on call length and notes.
+
+Cost per call: ~$0.002
+Time saved per rep per day: 45+ minutes
+Deals that no longer die in silence: priceless
+
+This is Day 27 of my 30-day n8n automation challenge.
+Every workflow I build is real, functional, and drop-in ready.
+
+Want the JSON? Comment "27" and I'll send it.
+
+---
+
+## 🎯 PAIN POINTS IDENTIFIED
+
+1. Sales reps make 50+ calls a day — 80%+ go to voicemail or end without any follow-up action
+2. Manual follow-up emails after calls take 10–15 minutes per prospect — reps skip them under volume pressure
+3. Follow-up timing is random and too late — the prospect has moved on by the time the email arrives
+4. No record of what was promised on calls — reps show up to the next touchpoint blind
+5. Hot prospects go cold in under 2 hours without a fast follow-up signal
+
+## ✅ SOLUTION SUMMARY
+
+Twilio webhook → n8n → GPT-4o-mini generates personalized SMS + email → Twilio sends SMS → Gmail sends email → Google Sheets logs 17 fields → Slack alerts manager for hot leads.
+
+Triggers in under 2 minutes from call end. Cost: ~$0.002 per call.
+
+## 🛠️ NODES USED
+
+- **Webhook** — Receives Twilio call status callback (POST)
+- **Set** — Normalizes 19 fields from Twilio payload + custom metadata
+- **IF** — Filters out short/incomplete calls (< 60 seconds, non-completed status)
+- **HTTP Request (OpenAI)** — GPT-4o-mini generates SMS, email subject, email body, lead temperature, urgency score, next step, follow-up day
+- **Code** — Safely parses AI JSON with full fallback template
+- **HTTP Request (Twilio)** — Sends SMS via Twilio Messages API
+- **Gmail** — Sends personalized HTML follow-up email
+- **Google Sheets** — Appends 17-column call log row
+- **IF** — Routes Slack-enabled vs. silent
+- **Slack** — Rich block manager alert with lead card, urgency, next step, SMS preview
+- **No Op** — Silent pass when Slack disabled
+- **Respond to Webhook (×2)** — Returns success JSON or skip JSON
+
+## 🔑 CREDENTIALS NEEDED
+
+- Twilio Account SID + Auth Token (passed in payload)
+- OpenAI API Key (passed in payload)
+- Gmail OAuth2
+- Google Sheets OAuth2
+- Slack OAuth (optional)
+
+## 💰 GIG / SALE VALUE
+
+- Fiverr/Upwork setup: **$300–$800**
+- With CRM sync (HubSpot/Salesforce via API): **$800–$1,500**
+- Full sales automation stack (dial → follow-up → sequence → CRM log): **$2,000–$4,000**
+- Monthly retainer: **$75–$200/month**
+- Bundle with Day 9 (cold email) + Day 25 (personal CRM) → Full Sales Ops Engine: **$1,500–$2,500**
+
+---
+
+## 📝 ALTERNATE CAPTION (Shorter — Scroll-Stopper Version)
+
+80% of sales calls end with zero follow-up.
+
+Not because reps don't care.
+Because following up manually after 50 calls a day is impossible.
+
+I automated it.
+
+→ Call ends on Twilio
+→ GPT-4o-mini writes a personalized SMS + email (not a template)
+→ SMS fires in 90 seconds via Twilio
+→ Email sends via Gmail
+→ Lead scored: 🔥 hot / ☀️ warm / ❄️ cold
+→ Everything logged to Sheets
+→ Manager gets Slack alert on hot leads
+
+Cost: $0.002 per call.
+Speed: Faster than your rep closes their laptop.
+
+Day 27/30 of my n8n automation challenge.
+
+Drop a "27" in the comments for the free JSON.
+
+#n8n #SalesAutomation #AI #Twilio #WorkflowAutomation #NoCode #AIAutomation
+
+</details>

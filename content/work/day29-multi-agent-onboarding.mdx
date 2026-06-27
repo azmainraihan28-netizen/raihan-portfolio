@@ -1,0 +1,149 @@
+---
+day: 29
+slug: day29-multi-agent-onboarding
+title: "Multi-Agent Customer Onboarding Orchestrator"
+tagline: "webhook-triggered multi-agent n8n workflow that runs 3 AI agents in parallel the moment…"
+week: 4
+category: "Advanced & Agentic"
+industries: ["SaaS", "Agencies", "E-commerce", "Founders"]
+tools: ["n8n", "OpenAI", "Gmail", "Google Sheets", "Slack", "Webhook"]
+nodes: 12
+costPerRun: "~$0.003 total (3 × GPT-4o-mini calls) — effectively free at any signup volume"
+heroMetric: "~$0.003 total (3 × GPT-4o-mini calls)"
+priceLow: 300
+priceHigh: 800
+featured: true
+workflowJson: "/workflows/day29_multi_agent_onboarding.json"
+linkedinPost: "/posts/day29"
+targetUsers: "SaaS founders, product teams, customer success managers, agencies, e-commerce brands with subscription products"
+screenshot: "/workflows/shots/day29.png"
+---
+## The Problem
+
+1. SaaS companies lose 40–60% of new signups in the first 7 days — mostly because onboarding is generic and feels like it was built for someone else
+2. Customer success teams manually write the same onboarding emails for every new customer — 30–60 minutes of repetitive work per person
+3. Day 3 check-ins and Day 7 follow-ups are "planned" but never actually sent — too many customers, not enough time
+4. Every customer gets the same onboarding flow regardless of role, industry, or use case — destroying activation rates
+5. Tools like Intercom, Customer.io, and Appcues cost $200–$1,000/month for flows that still aren't truly AI-personalized
+
+## The Solution
+
+A webhook-triggered multi-agent n8n workflow that runs 3 AI agents in parallel the moment a customer signs up:
+- **Agent 1 (Welcome Writer):** Reads customer name, role, industry, use case → writes a fully personalized welcome email with their specific 3-step action plan
+- **Agent 2 (Onboarding Strategist):** Builds a 6-step role-specific checklist with time estimates, quick win, 14-day success milestone, and recommended features
+- **Agent 3 (Health Monitor):** Pre-writes a Day 3 check-in email + a Day 5 re-engagement email — both queued automatically via Wait nodes before welcome is even sent
+- All 3 agents run in parallel — full onboarding sequence generated in under 8 seconds
+- Logs 15 customer intelligence fields to Google Sheets
+- Fires Slack alert with health risk summary for ops team
+
+## How It Works
+
+Node-by-node flow:
+
+- **Webhook** — POST /customer-onboarding
+- **Set** — Normalizes 13 input fields (name, email, company, plan, industry, role, use_case, product, slack config, sheet ID)
+- **IF** — Validates email not empty → 400 error on missing
+- **HTTP Request (OpenAI ×3)** — Agent 1, Agent 2, Agent 3 run in parallel (fan-out)
+- **Code** — Merges all 3 agent outputs, builds enriched welcome email HTML, builds Slack message
+- **Gmail (×3)** — Welcome (instant), Day 3 check-in, Day 5 re-engagement
+- **Wait (×2)** — 3-day delay, then 2-day delay (Day 5 total)
+- **Google Sheets** — 15-column customer onboarding log
+- **IF** — Routes Slack-enabled vs. silent
+- **Slack** — Rich alert: customer card, quick win assigned, health risks, email queue status
+- **No Op** — Silent pass when Slack disabled
+- **Respond to Webhook (×2)** — Returns success JSON or 400 validation error
+
+## Credentials & Setup
+
+- OpenAI API Key (passed in payload)
+- Gmail OAuth2
+- Google Sheets OAuth2
+- Slack OAuth2 (optional — for team onboarding alerts)
+
+## Cost Breakdown
+
+~$0.003 total (3 × GPT-4o-mini calls) — effectively free at any signup volume
+
+## Pricing Packages
+
+- Fiverr/Upwork setup: **$300–$800**
+- With CRM sync (HubSpot/Airtable) + custom email branding: **$800–$1,500**
+- Full customer success suite (onboarding + NPS + churn prevention): **$2,000–$4,000**
+- Monthly retainer: **$75–$200/month**
+- Bundle with Day 17 (employee onboarding) + Day 16 (HR screener) → Complete Hiring + Customer Ops Package: **$2,000–$3,500**
+
+## The Original LinkedIn Post
+
+<details>
+<summary>Read the post that announced this build</summary>
+
+# Day 29/30 — LinkedIn Post
+
+---
+
+## 🔥 Caption
+
+**I built a 3-agent AI system that onboards customers better than most full-time success teams.**
+
+No CRM. No $500/month tool. Just n8n + OpenAI + Gmail.
+
+Here's what happens the moment someone signs up:
+
+→ **Agent 1 (Welcome Writer)** reads their role, industry, and use case — then writes a hyper-personalized welcome email from scratch. Not a template. Not a merge tag. An actual human-sounding email.
+
+→ **Agent 2 (Onboarding Strategist)** builds a 6-step checklist specifically for that customer's goals. A startup founder gets a different plan than an e-commerce manager.
+
+→ **Agent 3 (Health Monitor)** pre-writes a Day 3 check-in AND a Day 5 re-engagement email — both queued automatically before the welcome email even hits their inbox.
+
+All 3 agents run **in parallel**. The whole thing fires in under 8 seconds.
+
+The result:
+✅ Welcome email sent instantly (personalized, not generic)
+✅ Day 3 check-in queued automatically
+✅ Day 5 re-engagement ready if they go inactive
+✅ Slack alert fired to your team with health risk summary
+✅ Every customer logged to Google Sheets with 15 intelligence fields
+
+Most SaaS companies lose 40–60% of new customers in the first 7 days.
+
+Not because the product is bad. Because the onboarding felt like it was built for someone else.
+
+This workflow fixes that — for $0.003 per customer.
+
+---
+
+**The JSON is ready to import.** Drop your details in 4 fields, connect Gmail + Sheets, and it runs.
+
+If you want this set up for your product — DM me "ONBOARD" and I'll get it live for you.
+
+Tomorrow is Day 30. The capstone drops. 🏆
+
+---
+
+**#n8n #AIAutomation #CustomerSuccess #NoCode #WorkflowAutomation #SaaS #OnboardingAutomation #AIAgents #Automation #ProductivityHacks #BuildInPublic**
+
+---
+
+## 📊 Pain Points Identified
+1. SaaS companies lose 40–60% of new signups in the first 7 days — mostly due to impersonal, generic onboarding
+2. Customer success teams manually write the same onboarding emails over and over — 30–60 min per customer
+3. Day 3 and Day 7 check-ins are "scheduled" but never actually sent under busy ops workloads
+4. Every customer gets the same onboarding flow regardless of their role, industry, or goal — killing activation rates
+5. Tools like Intercom, Customer.io, and Appcues charge $200–$1,000/month for flows that still aren't truly personalized
+
+## 💡 Solution Summary
+A webhook-triggered multi-agent n8n workflow that runs 3 AI agents in parallel on signup:
+- Agent 1 writes a personalized welcome email based on customer context
+- Agent 2 builds a role-specific onboarding checklist with quick wins
+- Agent 3 pre-writes Day 3 check-in + Day 5 re-engagement emails, queued via Wait nodes
+- All customers logged to Google Sheets; VIP/high-risk alerts fired to Slack
+- Cost: ~$0.003 per customer (GPT-4o-mini × 3 calls)
+
+## 💰 Gig/Sale Value
+- Fiverr/Upwork setup: **$300–$800**
+- With CRM sync (HubSpot/Airtable) + custom email branding: **$800–$1,500**
+- Full customer success automation suite (onboarding + NPS + churn prevention): **$2,000–$4,000**
+- Monthly retainer: **$75–$200/month**
+- Bundle with Day 17 (employee onboarding) + Day 16 (HR screener) → Complete Hiring + Customer Ops Package: **$2,000–$3,500**
+
+</details>

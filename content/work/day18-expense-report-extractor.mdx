@@ -1,0 +1,138 @@
+---
+day: 18
+slug: day18-expense-report-extractor
+title: "AI Expense Report Extractor & Categorizer"
+tagline: "webhook-triggered n8n workflow that"
+week: 3
+category: "Internal Ops"
+industries: ["Agencies", "Freelancers", "Startups", "HR", "Ops", "Finance"]
+tools: ["n8n", "OpenAI", "GPT-4o-mini", "Gmail", "Google Sheets", "Slack", "Webhook"]
+nodes: 10
+costPerRun: "~$0.001"
+heroMetric: "~$0.6k peak build value"
+priceLow: 200
+priceHigh: 600
+featured: false
+workflowJson: "/workflows/day18_expense_report_extractor.json"
+linkedinPost: "/posts/day18"
+targetUsers: "HR teams, finance departments, remote teams, startup ops, freelancers, SMBs, accounting agencies"
+screenshot: "/workflows/shots/day18.png"
+---
+## The Problem
+
+1. Employees waste 20–30 minutes per expense manually entering data — multiplied across 50+ people this is days of lost productivity per month
+2. Finance teams spend 5–10 hours/month reconciling reports with wrong categories, missing tax data, and duplicate entries
+3. Tools like Expensify, Concur, and Ramp charge $10–$25 per user/month — expensive at scale, still not truly AI-powered
+4. Paper and email receipts get lost or delayed, causing reimbursement friction and unhappy employees
+5. No consistent categorization — different employees code the same expense differently, making reporting unreliable
+
+## The Solution
+
+A webhook-triggered n8n workflow that:
+- Receives receipt text from any source (email forward, web form, mobile app, Zapier)
+- Uses GPT-4o-mini to extract 16 structured fields: vendor, date, amount, tax, subtotal, category, subcategory, payment method, business purpose, billability, policy flag, confidence score
+- Enforces a configurable budget limit — auto-flags OVER_LIMIT or NEEDS_REVIEW expenses
+- Logs a 21-column row to Google Sheets for every submission
+- Fires a rich Slack block message to the finance/manager channel for any policy violation
+- Sends HTML confirmation email to employee — either auto-approval or pending review notice
+- Returns structured JSON for front-end, ERP, or CRM integration
+- Cost: ~$0.001 per receipt (GPT-4o-mini)
+
+## How It Works
+
+Node-by-node flow:
+
+- **Webhook** — POST /expense-report
+- **Set** — Normalizes 10 input fields with safe defaults (budget limit, currency, slack channel, sheet ID)
+- **IF** — Guards against missing receipt_text or employee_email → 400 error
+- **OpenAI (gpt-4o-mini)** — Extracts 16-field expense intelligence report as JSON
+- **Code** — Safely parses AI JSON, applies budget limit check, builds final 21-field record
+- **Google Sheets** — Appends 21-column expense log row
+- **IF** — Routes policy-flagged vs. clean expenses
+- **Slack** — Rich block message alert for manager/finance channel (approval required path)
+- **Gmail (×2)** — Pending approval email OR auto-approval confirmation email
+- **Respond to Webhook (×2)** — Returns success JSON (200) or validation error (400)
+
+## Credentials & Setup
+
+- OpenAI API Key
+- Google Sheets OAuth2
+- Gmail OAuth2
+- Slack OAuth2 (optional — for manager alerts)
+
+## Pricing Packages
+
+- Fiverr/Upwork setup: **$200–$600**
+- With multi-currency support + monthly summary report: **$600–$1,200**
+- Full finance automation suite (invoice extractor + expense tracker + approval flow): **$1,500–$3,000**
+- Monthly retainer: **$75–$200/month**
+- Bundle with Day 7 (invoice extractor) → Complete Accounts Payable + Expense Package: **$800–$1,500**
+
+## The Original LinkedIn Post
+
+<details>
+<summary>Read the post that announced this build</summary>
+
+# Day 18 of 30 — LinkedIn Post
+
+## 🏷️ Topic
+AI Expense Report Extractor & Categorizer (n8n Workflow)
+
+---
+
+## 📝 Caption
+
+**Day 18/30 — I built an AI that reads your receipts, categorizes your expenses, and flags policy violations before your finance team even opens their laptop.**
+
+Here's the thing about expense reports nobody talks about:
+
+Employees spend 20–30 minutes per expense just entering data manually.
+Finance teams spend 5–10 hours/month reconciling reports with wrong categories, missing info, and duplicate entries.
+Tools like Expensify and Concur charge $10–$25 per employee/month to solve a problem that n8n + GPT-4o-mini solves for **$0.001 per receipt.**
+
+This workflow changes that entirely.
+
+**What it does in ~4 seconds:**
+
+📥 Receives receipt text via webhook (from any source — email forward, form, app)
+🤖 Sends it to GPT-4o-mini which extracts 16 structured fields:
+   → Vendor name, date, amount, tax, subtotal
+   → Category + subcategory (Meals, Travel, SaaS, etc.)
+   → Payment method, business purpose, billability
+   → Policy flag: APPROVED / NEEDS_REVIEW / OVER_LIMIT
+   → Confidence score (1–10)
+
+📊 Logs a 21-column row to Google Sheets automatically
+⚠️ Flags over-budget or policy-violating expenses → Slack alert to manager + employee email
+✅ Auto-approves clean expenses → instant confirmation email sent
+
+**No manual categorization.
+No missed policy violations.
+No surprise rejections at month end.**
+
+The best part? You configure the budget limit, Slack channel, and approval rules in a single Set node. Zero code after setup.
+
+This is what I build for clients globally. Plug it into any team's workflow, any ERP system, any approval process.
+
+👇 Drop "EXPENSE" in the comments and I'll send you the JSON file — free.
+
+---
+
+🔗 **If you want this set up for your company or want to hire me to build your custom automation stack, DM me or check the link in my bio.**
+
+---
+
+#n8n #AIAutomation #WorkflowAutomation #FinanceAutomation #ExpenseManagement #NoCode #OpenAI #GPT4 #BusinessAutomation #AutomationExpert #ProductivityHacks #SaaS #FreelanceAutomation #n8nWorkflow #AITools
+
+---
+
+## 🎯 Post Strategy Notes
+
+- **Hook:** Leads with a specific cost comparison ($10–$25/user vs $0.001) — immediately grabs attention from finance and ops folks
+- **Format:** Line breaks every 1–2 lines for mobile readability
+- **CTA:** "Drop EXPENSE in the comments" drives engagement which boosts algorithmic reach
+- **Secondary CTA:** DM / link in bio drives direct sales leads
+- **Hashtag count:** 15 — optimal for LinkedIn reach without looking spammy
+- **Best posting time:** Tuesday–Thursday, 7–9 AM or 12–1 PM (your timezone)
+
+</details>

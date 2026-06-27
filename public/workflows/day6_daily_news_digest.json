@@ -1,0 +1,275 @@
+{
+  "name": "Day 6 — Daily AI News Digest (RSS + GPT-4o-mini → Email)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 7 * * 1-5"
+            }
+          ]
+        }
+      },
+      "id": "node-schedule",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cfg-recipient",
+              "name": "recipient_email",
+              "value": "your@email.com",
+              "type": "string"
+            },
+            {
+              "id": "cfg-name",
+              "name": "recipient_name",
+              "value": "Azmain",
+              "type": "string"
+            },
+            {
+              "id": "cfg-topics",
+              "name": "topics",
+              "value": "AI, automation, n8n, no-code, SaaS, startups",
+              "type": "string"
+            },
+            {
+              "id": "cfg-max",
+              "name": "max_articles",
+              "value": 20,
+              "type": "number"
+            },
+            {
+              "id": "cfg-openai",
+              "name": "openai_api_key",
+              "value": "YOUR_OPENAI_API_KEY",
+              "type": "string"
+            },
+            {
+              "id": "cfg-date",
+              "name": "today",
+              "value": "={{ $now.toFormat('MMMM d, yyyy') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node-config",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://feeds.feedburner.com/TechCrunch",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "node-rss1",
+      "name": "RSS — TechCrunch",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [680, 160]
+    },
+    {
+      "parameters": {
+        "url": "https://www.theverge.com/rss/index.xml",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "node-rss2",
+      "name": "RSS — The Verge",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://venturebeat.com/feed/",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "node-rss3",
+      "name": "RSS — VentureBeat",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [680, 440]
+    },
+    {
+      "parameters": {
+        "mode": "append",
+        "destinationData": "automatic"
+      },
+      "id": "node-merge",
+      "name": "Merge All Feeds",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Normalize and deduplicate articles; keep newest max_articles\nconst config = $('Config').first().json;\nconst maxArticles = config.max_articles || 20;\n\nconst seen = new Set();\nconst articles = [];\n\nfor (const item of $input.all()) {\n  const d = item.json;\n  const title = (d.title || '').trim();\n  const link  = (d.link || d.url || '').trim();\n  const date  = d.isoDate || d.pubDate || d.published || new Date().toISOString();\n  const snippet = (d.contentSnippet || d.summary || d.description || '').slice(0, 300).trim();\n  const source  = d.creator || d['dc:creator'] || new URL(link || 'https://unknown').hostname.replace('www.','');\n\n  if (!title || !link) continue;\n  const key = title.toLowerCase().slice(0, 60);\n  if (seen.has(key)) continue;\n  seen.add(key);\n\n  articles.push({ title, link, date, snippet, source });\n  if (articles.length >= maxArticles) break;\n}\n\nif (articles.length === 0) {\n  throw new Error('No articles collected from RSS feeds — check feed URLs.');\n}\n\nreturn [{ json: { articles, config } }];\n"
+      },
+      "id": "node-normalize",
+      "name": "Normalize & Deduplicate",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.config.openai_api_key }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"gpt-4o-mini\",\n  \"response_format\": { \"type\": \"json_object\" },\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a world-class tech journalist creating a daily briefing email. Be sharp, opinionated, and concise. Output valid JSON only.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Today is {{ $json.config.today }}. The reader's name is {{ $json.config.recipient_name }}. Their topics of interest: {{ $json.config.topics }}.\\n\\nHere are today's articles:\\n{{ $json.articles.map((a, i) => `[${i+1}] ${a.title}\\nSource: ${a.source}\\nSnippet: ${a.snippet}\\nURL: ${a.link}`).join('\\n\\n') }}\\n\\nReturn a JSON object with these exact fields:\\n{\\n  \\\"subject\\\": \\\"compelling email subject line (max 60 chars)\\\",\\n  \\\"greeting\\\": \\\"personalized 1-sentence opener for {{ $json.config.recipient_name }}\\\",\\n  \\\"top_story\\\": {\\n    \\\"headline\\\": \\\"best story headline\\\",\\n    \\\"why_it_matters\\\": \\\"2-3 sentence sharp take on why this matters\\\",\\n    \\\"url\\\": \\\"story url\\\"\\n  },\\n  \\\"quick_hits\\\": [\\n    { \\\"title\\\": \\\"...\\\", \\\"one_liner\\\": \\\"sharp 1-sentence summary\\\", \\\"url\\\": \\\"...\\\" }\\n  ],\\n  \\\"ai_insight\\\": \\\"1 smart original insight or prediction based on today's news (2-3 sentences)\\\",\\n  \\\"action_item\\\": \\\"1 specific thing the reader should do or check today based on the news\\\",\\n  \\\"article_count\\\": {{ $json.articles.length }},\\n  \\\"topics_covered\\\": [\\\"list\\\", \\\"of\\\", \\\"main\\\", \\\"themes\\\"]\\n}\\nInclude 4-6 items in quick_hits (exclude the top story). Be concise and punchy.\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "id": "node-openai",
+      "name": "GPT-4o-mini — Digest Generator",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1340, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.first().json;\nconst config = $('Normalize & Deduplicate').first().json.config;\n\nlet digest;\ntry {\n  const content = raw.choices?.[0]?.message?.content || '{}';\n  digest = JSON.parse(content);\n} catch (e) {\n  digest = {\n    subject: `Your AI News Digest — ${config.today}`,\n    greeting: `Good morning, ${config.recipient_name}!`,\n    top_story: { headline: 'Top stories today', why_it_matters: 'Check your feeds for today\\'s news.', url: '#' },\n    quick_hits: [],\n    ai_insight: 'Stay tuned for more AI-powered insights.',\n    action_item: 'Review your RSS feeds for the latest updates.',\n    article_count: 0,\n    topics_covered: []\n  };\n}\n\n// Build HTML email\nconst quickHitsHtml = (digest.quick_hits || []).map(h =>\n  `<tr>\n    <td style=\"padding:10px 0; border-bottom:1px solid #f0f0f0;\">\n      <a href=\"${h.url}\" style=\"color:#1a1a2e; font-weight:600; text-decoration:none; font-size:15px;\">${h.title}</a>\n      <p style=\"margin:4px 0 0; color:#555; font-size:14px;\">${h.one_liner}</p>\n    </td>\n  </tr>`\n).join('');\n\nconst topicsHtml = (digest.topics_covered || []).map(t =>\n  `<span style=\"display:inline-block; background:#e8f4fd; color:#1a73e8; padding:3px 10px; border-radius:20px; font-size:12px; margin:3px 3px 0 0;\">${t}</span>`\n).join('');\n\nconst htmlEmail = `<!DOCTYPE html>\n<html>\n<head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"></head>\n<body style=\"margin:0; padding:0; background:#f5f5f5; font-family: 'Segoe UI', Arial, sans-serif;\">\n  <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#f5f5f5; padding:20px 0;\">\n    <tr><td align=\"center\">\n      <table width=\"620\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#ffffff; border-radius:12px; overflow:hidden; box-shadow:0 2px 12px rgba(0,0,0,0.08);\">\n        \n        <!-- Header -->\n        <tr><td style=\"background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding:28px 36px;\">\n          <p style=\"color:#a0cfff; margin:0 0 4px; font-size:12px; text-transform:uppercase; letter-spacing:1px;\">Daily Briefing · ${config.today}</p>\n          <h1 style=\"color:#ffffff; margin:0; font-size:22px; font-weight:700;\">🗞️ Your AI News Digest</h1>\n          <p style=\"color:#8899bb; margin:6px 0 0; font-size:13px;\">Topics: ${config.topics}</p>\n        </td></tr>\n        \n        <!-- Greeting -->\n        <tr><td style=\"padding:24px 36px 0;\">\n          <p style=\"color:#333; font-size:15px; margin:0;\">${digest.greeting}</p>\n        </td></tr>\n        \n        <!-- Top Story -->\n        <tr><td style=\"padding:20px 36px;\">\n          <div style=\"background:#fffbeb; border-left:4px solid #f59e0b; border-radius:0 8px 8px 0; padding:16px 20px;\">\n            <p style=\"margin:0 0 6px; font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#d97706; font-weight:700;\">⭐ Top Story</p>\n            <a href=\"${digest.top_story?.url || '#'}\" style=\"color:#1a1a2e; font-size:17px; font-weight:700; text-decoration:none; display:block; margin-bottom:8px;\">${digest.top_story?.headline || 'Top Story'}</a>\n            <p style=\"margin:0; color:#555; font-size:14px; line-height:1.6;\">${digest.top_story?.why_it_matters || ''}</p>\n          </div>\n        </td></tr>\n        \n        <!-- Quick Hits -->\n        <tr><td style=\"padding:0 36px 20px;\">\n          <p style=\"margin:0 0 12px; font-size:13px; text-transform:uppercase; letter-spacing:1px; color:#888; font-weight:700;\">⚡ Quick Hits</p>\n          <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n            ${quickHitsHtml}\n          </table>\n        </td></tr>\n        \n        <!-- AI Insight -->\n        <tr><td style=\"padding:0 36px 20px;\">\n          <div style=\"background:#f0f9ff; border-radius:8px; padding:16px 20px;\">\n            <p style=\"margin:0 0 6px; font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#0284c7; font-weight:700;\">🤖 AI Insight</p>\n            <p style=\"margin:0; color:#1e3a5f; font-size:14px; line-height:1.7; font-style:italic;\">${digest.ai_insight || ''}</p>\n          </div>\n        </td></tr>\n        \n        <!-- Action Item -->\n        <tr><td style=\"padding:0 36px 20px;\">\n          <div style=\"background:#f0fdf4; border-radius:8px; padding:16px 20px;\">\n            <p style=\"margin:0 0 6px; font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#16a34a; font-weight:700;\">✅ Your Action Item Today</p>\n            <p style=\"margin:0; color:#14532d; font-size:14px; line-height:1.7;\">${digest.action_item || ''}</p>\n          </div>\n        </td></tr>\n        \n        <!-- Topics -->\n        <tr><td style=\"padding:0 36px 20px;\">\n          ${topicsHtml}\n        </td></tr>\n        \n        <!-- Footer -->\n        <tr><td style=\"background:#f9fafb; padding:16px 36px; border-top:1px solid #e5e7eb;\">\n          <p style=\"margin:0; color:#9ca3af; font-size:12px; text-align:center;\">📡 ${digest.article_count || 0} articles scanned · Powered by n8n + GPT-4o-mini · Auto-generated daily</p>\n        </td></tr>\n        \n      </table>\n    </td></tr>\n  </table>\n</body>\n</html>`;\n\nreturn [{ json: { digest, htmlEmail, config } }];\n"
+      },
+      "id": "node-build-email",
+      "name": "Build HTML Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1560, 300]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.config.recipient_email }}",
+        "subject": "={{ $json.digest.subject }}",
+        "message": "={{ $json.htmlEmail }}",
+        "options": {
+          "isHtml": true,
+          "replyTo": ""
+        }
+      },
+      "id": "node-gmail",
+      "name": "Gmail — Send Digest",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [1780, 300],
+      "credentials": {
+        "gmailOAuth2": {
+          "name": "Gmail OAuth2"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          { "node": "Config", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          { "node": "RSS — TechCrunch", "type": "main", "index": 0 },
+          { "node": "RSS — The Verge", "type": "main", "index": 0 },
+          { "node": "RSS — VentureBeat", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "RSS — TechCrunch": {
+      "main": [
+        [
+          { "node": "Merge All Feeds", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "RSS — The Verge": {
+      "main": [
+        [
+          { "node": "Merge All Feeds", "type": "main", "index": 1 }
+        ]
+      ]
+    },
+    "RSS — VentureBeat": {
+      "main": [
+        [
+          { "node": "Merge All Feeds", "type": "main", "index": 2 }
+        ]
+      ]
+    },
+    "Merge All Feeds": {
+      "main": [
+        [
+          { "node": "Normalize & Deduplicate", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Normalize & Deduplicate": {
+      "main": [
+        [
+          { "node": "GPT-4o-mini — Digest Generator", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "GPT-4o-mini — Digest Generator": {
+      "main": [
+        [
+          { "node": "Build HTML Email", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Build HTML Email": {
+      "main": [
+        [
+          { "node": "Gmail — Send Digest", "type": "main", "index": 0 }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    { "name": "30-day-challenge" },
+    { "name": "day-6" },
+    { "name": "news-digest" },
+    { "name": "rss" },
+    { "name": "ai-email" }
+  ],
+  "triggerCount": 0,
+  "updatedAt": "2026-06-05T00:00:00.000Z",
+  "versionId": "day6-v1"
+}

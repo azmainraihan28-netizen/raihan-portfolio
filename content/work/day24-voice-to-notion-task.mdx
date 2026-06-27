@@ -1,0 +1,158 @@
+---
+day: 24
+slug: day24-voice-to-notion-task
+title: "Voice-to-Notion Task"
+tagline: "Telegram bot + n8n workflow that"
+week: 4
+category: "Advanced & Agentic"
+industries: ["Freelancers", "Founders"]
+tools: ["n8n", "OpenAI", "GPT-4o-mini", "Whisper", "Notion", "Telegram"]
+nodes: 12
+costPerRun: "~$0.002 total — Whisper ($0.001) + GPT-4o-mini ($0.001) — effectively free at any volume"
+heroMetric: "~$0.002 total"
+priceLow: 300
+priceHigh: 800
+featured: false
+workflowJson: "/workflows/day24_voice_to_notion_task.json"
+linkedinPost: "/posts/day24"
+targetUsers: "Founders, remote workers, entrepreneurs, product managers, freelancers, anyone who uses voice notes"
+screenshot: "/workflows/shots/day24.png"
+---
+## The Problem
+
+1. People record voice notes on the go but 80%+ are never actioned — they die in WhatsApp/Telegram as unlistened memos
+2. Voice-to-text apps (Otter, Whisper alone) only transcribe — they don't structure, prioritize, or create tasks
+3. Typing tasks into Notion while driving, walking, or mid-meeting is impossible — ideas are lost before you reach a keyboard
+4. Project management tools require manual input — there's no frictionless voice-first capture workflow
+5. Existing tools like Siri Reminders and Google Assistant create basic reminders, not rich, categorized project tasks with priority, tags, and project context
+
+## The Solution
+
+A Telegram bot + n8n workflow that:
+- Listens for voice messages sent to a Telegram bot
+- Calls Telegram's getFile API to retrieve the audio, then downloads the .ogg voice file
+- Sends the file to OpenAI Whisper for accurate multilingual transcription
+- Passes the transcript to GPT-4o-mini which extracts 7 structured fields: title, description, priority, due date, project, tags, estimated time
+- Creates a fully formatted Notion page with all metadata + the original transcript saved as a quote block
+- Replies to the user in Telegram with a confirmation message and a clickable link to the new Notion task
+- Cost: ~$0.002 per voice note
+
+## How It Works
+
+Node-by-node flow:
+
+- **Telegram Trigger** — Listens for incoming messages from the bot
+- **IF** — Checks if the message contains a voice attachment
+- **Set** — Config block: Telegram token, OpenAI key, Notion token, database ID
+- **HTTP Request (Telegram getFile)** — Retrieves file path from Telegram servers
+- **HTTP Request (Telegram download)** — Downloads the raw .ogg audio file (binary)
+- **HTTP Request (OpenAI Whisper)** — Transcribes voice to text via multipart form upload
+- **Code** — Validates and extracts transcript, passes full config context
+- **HTTP Request (OpenAI GPT-4o-mini)** — Extracts 7 task fields as structured JSON
+- **Code** — Safely parses AI JSON with full fallback on parse error
+- **HTTP Request (Notion API)** — Creates formatted Notion page with properties + content blocks
+- **Telegram** — Sends success reply with task summary + Notion link
+- **Telegram** — Sends "please send a voice message" reply for non-voice inputs
+
+## Credentials & Setup
+
+- Telegram Bot Token (create via @BotFather — free)
+- OpenAI API Key (Whisper + GPT-4o-mini)
+- Notion Internal Integration Token
+- Notion Database ID (database must have: Name, Status, Priority, Project, Tags, Source properties)
+
+## Cost Breakdown
+
+~$0.002 total — Whisper ($0.001) + GPT-4o-mini ($0.001) — effectively free at any volume
+
+## Pricing Packages
+
+- Fiverr/Upwork setup: **$300–$800**
+- With WhatsApp Business API integration: **$800–$1,500**
+- Multi-platform version (Telegram + WhatsApp + Slack voice): **$1,500–$3,000**
+- Monthly retainer: **$75–$200/month**
+- Bundle with Day 20 (KB updater) + Day 19 (standup bot) → Full Team Capture + Ops Package: **$1,500–$2,500**
+
+## The Original LinkedIn Post
+
+<details>
+<summary>Read the post that announced this build</summary>
+
+# Day 24 LinkedIn Post — Voice-to-Notion Task (Telegram + Whisper + GPT-4o-mini)
+
+---
+
+🎙️ You send a 10-second voice message.
+
+30 seconds later — a perfectly structured Notion task exists.
+
+Title. Priority. Due date. Project. Tags. The full transcript. Auto-created. Zero typing.
+
+Here's the workflow I built on Day 24 of my 30-day n8n challenge:
+
+→ Send a voice note to a Telegram bot
+→ n8n downloads the file and sends it to OpenAI Whisper
+→ Whisper transcribes it in seconds
+→ GPT-4o-mini extracts: task title, description, priority, due date, project, tags
+→ A fully structured Notion page is created — with the original transcript saved inside
+→ The bot replies with a confirmation + direct link to the task
+
+Cost per task: $0.002
+
+---
+
+Most people lose their best ideas to forgotten voice notes.
+
+You record it while driving. You listen back once. Then it disappears.
+
+This workflow turns every voice note into a trackable action. Instantly.
+
+---
+
+This is Day 24 of my 30-day n8n automation challenge.
+
+One real-world workflow. Every day. From basic to advanced.
+
+The JSON is plug-and-play ready. Add your API keys, activate, done.
+
+If you're building systems like this for clients, this sells for $300–$800 as a done-for-you setup.
+
+---
+
+Drop a 🎙️ in the comments and I'll send you the workflow JSON.
+
+Or DM me if you want a custom automation built for your business.
+
+I help founders and teams save 10+ hours/week with AI workflows — without writing a single line of code.
+
+#n8n #AIAutomation #NoCode #WorkflowAutomation #Notion #OpenAI #Productivity #Whisper #TelegramBot #Automation
+
+---
+
+## Post Variants
+
+### Variant A — Hook on pain
+You've sent yourself 47 voice notes this month.
+
+How many became actual tasks?
+
+I built an n8n workflow that fixes this. Send a voice message to a Telegram bot → Whisper transcribes it → GPT-4o-mini structures it → Notion task created. Automatically.
+
+Day 24 of my 30-day n8n challenge. Drop 🎙️ for the JSON.
+
+#n8n #AIAutomation #Productivity #NoCode
+
+---
+
+### Variant B — Hook on the result
+A client sent me a voice note at 11 PM.
+
+By 11:00:30 PM, it was already a Notion task — with priority, due date, project, and full transcript attached.
+
+They didn't touch their keyboard.
+
+This is what I automate. Day 24 of my n8n challenge 👇
+
+#n8n #AIAutomation #Notion #WorkflowAutomation
+
+</details>

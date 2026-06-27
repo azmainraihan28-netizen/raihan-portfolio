@@ -1,0 +1,170 @@
+---
+day: 6
+slug: day6-daily-news-digest
+title: "Daily AI News Digest"
+tagline: "scheduled n8n workflow (9 nodes) that"
+week: 1
+category: "Foundations"
+industries: ["Agencies", "Freelancers", "Founders", "Marketing"]
+tools: ["n8n", "OpenAI", "GPT-4o-mini", "Gmail", "RSS"]
+nodes: 8
+costPerRun: "~$0.001"
+heroMetric: "~$0.3k peak build value"
+priceLow: 100
+priceHigh: 300
+featured: false
+workflowJson: "/workflows/day6_daily_news_digest.json"
+linkedinPost: "/posts/day6"
+targetUsers: "Founders, marketers, freelancers, agency owners, anyone paying for newsletters they don't read"
+screenshot: "/workflows/shots/day6.png"
+---
+## The Problem
+
+1. Professionals waste 30–45 minutes every morning clicking through Twitter, Reddit, and Google News — mostly noise
+2. Context switching before 9 AM destroys deep work windows for the rest of the day
+3. Generic newsletters (Morning Brew, etc.) cover topics irrelevant to niche professionals like automation experts
+4. Important industry news (funding rounds, tool launches, competitor moves) is missed for days with no proactive monitoring
+5. Manual "read later" curation systems always collapse — nobody maintains them consistently
+
+## The Solution
+
+A scheduled n8n workflow (9 nodes) that:
+- Triggers at 7 AM Mon–Fri via cron schedule
+- Pulls articles from 3 RSS feeds (TechCrunch, The Verge, VentureBeat — swap any URLs)
+- Deduplicates and normalizes all articles into a clean list
+- Sends the batch to GPT-4o-mini: generates top story + analysis, 4–6 quick hits, 1 AI insight, 1 action item
+- Builds a beautiful branded HTML email and delivers it automatically
+- Cost: ~$0.001 per digest (less than 1 cent/day)
+
+## How It Works
+
+Node-by-node flow:
+
+- **Schedule Trigger** — Mon–Fri 7 AM
+- **Set (Config)** — recipient email, name, topics, max articles, OpenAI key
+- **RSS Feed Read (×3)** — TechCrunch + The Verge + VentureBeat
+- **Merge** — Combines all 3 feed streams
+- **Code** — Deduplicates by title, normalizes fields
+- **HTTP Request (OpenAI)** — GPT-4o-mini JSON mode: digest generation
+- **Code** — Builds full branded HTML email
+- **Gmail** — Sends digest to recipient
+
+## Credentials & Setup
+
+- OpenAI API Key
+- Gmail OAuth2
+
+## Pricing Packages
+
+- Fiverr/Upwork setup: **$100–$300**
+- Custom feed + branded template for a business: **$300–$600**
+- Multi-recipient team version: **$600–$1,200**
+- White-label "Daily Intel" product: **$1,000–$2,500**
+- Monthly retainer (feed curation + tuning): **$50–$150/month**
+
+## The Original LinkedIn Post
+
+<details>
+<summary>Read the post that announced this build</summary>
+
+# Day 6 — Daily AI News Digest (RSS + GPT-4o-mini → Email)
+
+---
+
+## 🔥 Pain Points
+
+1. **Information overload kills productivity.** Professionals spend 30–45 minutes every morning clicking through Twitter, Reddit, newsletters, and Google News — most of it noise, very little signal.
+2. **Context switching before 9 AM burns focus.** Opening 10 browser tabs to "stay updated" is the #1 way to destroy your deep work window before it starts.
+3. **Generic newsletters don't match your niche.** Morning Brew and The Hustle are great for some — but if you're in AI, n8n, SaaS, or automation, 80% of it is irrelevant to you.
+4. **You miss things that matter.** An important funding round, a tool launch, a competitor move — it happened yesterday, you found out 3 days later.
+5. **Manual curation doesn't scale.** Building your own "read later" system works for a week, then collapses. Nobody maintains it consistently.
+
+---
+
+## ✅ Solution
+
+A scheduled n8n workflow that:
+- Pulls the latest articles from 3 RSS feeds (TechCrunch, The Verge, VentureBeat — fully customizable)
+- Merges and deduplicates all items into a clean unified list
+- Sends the batch to GPT-4o-mini which reads every headline + snippet and produces: top story with analysis, 4–6 quick hits, one AI insight, and one action item
+- Builds a beautiful branded HTML email and delivers it to your inbox at 7 AM Monday–Friday
+- Cost: ~$0.001 per digest — less than 1 cent per day
+
+### Nodes Used
+- **Schedule Trigger** — Mon–Fri 7 AM (cron: `0 7 * * 1-5`)
+- **Set (Config)** — Single config block: recipient email, name, topics, max articles, OpenAI key
+- **RSS Feed Read (×3)** — TechCrunch + The Verge + VentureBeat (swap any feed URLs)
+- **Merge** — Combines all 3 feed streams into one
+- **Code (Normalize)** — Deduplicates by title, normalizes fields, caps at max_articles
+- **HTTP Request (OpenAI)** — GPT-4o-mini with JSON mode: top story, quick hits, AI insight, action item
+- **Code (Build Email)** — Generates full branded HTML email with dark header, color-coded sections
+- **Gmail** — Delivers digest to configured recipient email
+
+### Credentials Needed
+- OpenAI API Key
+- Gmail OAuth2
+
+### Cost Per Digest
+~$0.001 (GPT-4o-mini) — effectively free at any frequency
+
+### Gig / Sale Value
+- Fiverr/Upwork setup: **$100–$300**
+- Custom feed list + branded email template for a business: **$300–$600**
+- Multi-recipient team digest version: **$600–$1,200**
+- White-label "Daily Intel" product for agencies: **$1,000–$2,500**
+- Monthly retainer (feed curation + topic tuning): **$50–$150/month**
+
+---
+
+## 📢 LinkedIn Caption
+
+---
+
+**I built a workflow that reads the internet and emails me a smart briefing every morning.**
+
+No more doom-scrolling through 10 tabs before 9 AM.
+
+Here's how Day 6 of my 30-day n8n challenge works:
+
+⏰ Triggers at 7 AM Mon–Fri
+📡 Pulls articles from 3 RSS feeds (fully customizable)
+🔄 Deduplicates and normalizes everything
+🤖 Sends it all to GPT-4o-mini
+📧 Delivers a beautiful HTML digest to your inbox
+
+The AI doesn't just summarize headlines.
+
+It gives you:
+→ The #1 story worth reading + why it matters
+→ 4–6 quick hits you shouldn't miss
+→ 1 original insight no newsletter will give you
+→ 1 action item to act on today
+
+Cost per digest: **less than $0.001**
+That's less than 1 cent per day to never miss important news again.
+
+The whole workflow is 9 nodes.
+No database. No API subscriptions. No $50/month tools.
+Just RSS + OpenAI + Gmail.
+
+🎯 Who this sells for:
+→ Busy founders who want signal without noise
+→ Marketing teams tracking industry news
+→ Agencies building custom intelligence feeds for clients
+→ Anyone who pays for newsletters but never reads them
+
+Drop it on Fiverr, set it up for a client in 20 minutes, charge $150–$300.
+
+The JSON is 100% ready to import. Zero setup friction.
+
+---
+
+Day 6/30 ✅
+
+What topics would you want YOUR daily digest to cover?
+
+👇 Comment below — I'll tell you exactly which RSS feeds to add.
+
+#n8n #Automation #AIWorkflow #NoCode #WorkflowAutomation #ProductivityHacks #AITools #BuildInPublic #FreelanceAutomation #LinkedInGrowth
+
+</details>

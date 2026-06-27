@@ -1,0 +1,63 @@
+---
+day: 7
+slug: day7-invoice-receipt-extractor
+title: "Invoice & Receipt Extractor"
+tagline: "Gmail-triggered workflow that"
+week: 1
+category: "Foundations"
+industries: ["Agencies", "Freelancers", "Ops", "Finance"]
+tools: ["n8n", "OpenAI", "GPT-4o-mini", "Gmail", "Google Sheets", "Slack"]
+nodes: 8
+costPerRun: "~$0.001"
+heroMetric: "~$0.6k peak build value"
+priceLow: 200
+priceHigh: 600
+featured: false
+workflowJson: "/workflows/day7_invoice_receipt_extractor.json"
+linkedinPost: "/posts/day7"
+targetUsers: "Freelancers, small business owners, accountants, ops managers, agencies"
+screenshot: "/workflows/shots/day7.png"
+---
+## The Problem
+
+1. Manual data entry from PDF invoices wastes 2–6 hours/month per person
+2. Missed invoices and receipts lead to lost tax deductions
+3. Bookkeeping tools like Dext/Hubdoc cost $50–$300/month
+4. Remote teams have no centralized, automatic way to track vendor expenses
+5. Accountants bill hourly for work that AI can do in seconds
+
+## The Solution
+
+A Gmail-triggered workflow that:
+- Watches for emails with invoice/receipt/bill keywords and downloads attachments
+- Extracts PDF text and sends it to GPT-4o-mini for structured data extraction
+- Pulls 10+ fields: vendor, amount, tax, date, due date, category, payment status
+- Appends a clean, formatted row to Google Sheets automatically
+- Optionally pings Slack with a summary notification
+
+## How It Works
+
+Node-by-node flow:
+
+- **Gmail Trigger** — Polls for unread invoice emails with attachments
+- **IF** — Guards against emails with no attachments
+- **Extract From File** — Pulls raw text from PDF attachments
+- **OpenAI (gpt-4o-mini)** — Structured JSON extraction from document text
+- **Code** — Safely parses AI response, handles edge cases
+- **Google Sheets** — Appends 15 columns of financial data per row
+- **Slack** — Team notification (optional)
+- **No-Op** — Silent skip for emails without attachments
+
+## Credentials & Setup
+
+- Gmail OAuth
+- OpenAI API Key
+- Google Sheets OAuth
+- Slack OAuth (optional)
+
+## Pricing Packages
+
+- Fiverr/Upwork setup: **$200–$600**
+- Premium tier: Add Google Data Studio dashboard for expense visualization → **$800–$1,500**
+- Monthly retainer for support/customization: **$50–$150/month**
+- Bundle with Day 3 (email triage) for a complete inbox automation package

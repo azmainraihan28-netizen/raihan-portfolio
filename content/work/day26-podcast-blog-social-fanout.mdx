@@ -1,0 +1,279 @@
+---
+day: 26
+slug: day26-podcast-blog-social-fanout
+title: "Podcast → Blog + Social Fanout"
+tagline: "webhook-triggered n8n workflow that"
+week: 4
+category: "Advanced & Agentic"
+industries: ["Agencies", "Founders", "Marketing"]
+tools: ["n8n", "OpenAI", "GPT-4o-mini", "Whisper", "Google Sheets", "Slack", "WordPress", "Webhook"]
+nodes: 17
+costPerRun: "~$0.004 total (Whisper $0.001 + GPT-4o-mini $0.003) — effectively free at any podcast volume"
+heroMetric: "~$0.004 total (Whisper $0.001 + GPT-4o-mini $0.003)"
+priceLow: 300
+priceHigh: 800
+featured: true
+workflowJson: "/workflows/day26_podcast_blog_social_fanout.json"
+linkedinPost: "/posts/day26"
+targetUsers: "Podcasters, content agencies, solo founders, course creators, video creators repurposing webinars"
+screenshot: "/workflows/shots/day26.png"
+---
+## The Problem
+
+1. Podcasters spend 60+ minutes recording and 0 minutes distributing — the ratio is backwards
+2. Manual repurposing (blog + tweets + LinkedIn + email + TikTok) takes 4–8 hours per episode
+3. Tool stack (Descript, Buffer, Jasper, ChatGPT) costs $100+/month and still requires manual effort
+4. Most AI tools hallucinate podcast summaries — they need the actual transcript, not just a topic
+5. Publishing cadence breaks across platforms — no unified momentum when episode drops
+
+## The Solution
+
+A webhook-triggered n8n workflow that:
+- Accepts a podcast episode URL + optional transcript via POST
+- If no transcript: downloads audio → sends to OpenAI Whisper for multilingual transcription
+- If transcript provided: skips Whisper entirely (faster, cheaper)
+- Sends transcript to GPT-4o-mini to generate 6 content assets: SEO blog post (HTML), 10-tweet thread, LinkedIn post, 3 email paragraphs, 5 TikTok hooks, 3 key quotes
+- Auto-publishes blog post to WordPress via REST API (draft or live — configurable)
+- Logs 16 fields to Google Sheets content database
+- Posts a rich Slack digest with all assets + WP link + API cost (optional)
+- Returns full JSON with all content for front-end or CMS integration
+- Cost: ~$0.004 per episode (Whisper + GPT-4o-mini)
+
+## How It Works
+
+Node-by-node flow:
+
+- **Webhook** — POST /podcast-fanout
+- **Set** — Normalizes 16 input fields with safe defaults
+- **IF (Validate)** — Guards against missing episode_title or both url+transcript → 400 error
+- **IF (Has Transcript?)** — Routes to transcript path or Whisper transcription path
+- **Code (Use Provided Transcript)** — Passes existing transcript to merge point
+- **HTTP Request (Download Audio)** — Downloads binary audio file from URL
+- **HTTP Request (Whisper)** — Transcribes audio via OpenAI Whisper multipart form upload
+- **Code (Extract Whisper Result)** — Validates and extracts Whisper transcript
+- **Merge** — Unifies both transcript paths into single execution path
+- **HTTP Request (OpenAI GPT-4o-mini)** — Generates all 6 content formats as structured JSON
+- **Code (Parse AI Content)** — Safely parses AI output, computes token cost, builds full record
+- **HTTP Request (WordPress)** — Creates blog post via WP REST API with app password auth
+- **Google Sheets** — Logs 16-column content production record
+- **IF (Slack Enabled?)** — Routes to Slack notification or silent skip
+- **Slack** — Rich block digest: blog link, tweet count, LinkedIn preview, TikTok hooks, cost
+- **No Op** — Silent pass when Slack is disabled
+- **Respond to Webhook (×2)** — Returns full content JSON (200) or validation error (400)
+
+## Credentials & Setup
+
+- OpenAI API Key (Whisper + GPT-4o-mini — passed in payload)
+- WordPress Application Password (built-in WP feature, no plugin needed)
+- Google Sheets OAuth2
+- Slack OAuth2 (optional — for team content digest)
+
+## Cost Breakdown
+
+~$0.004 total (Whisper $0.001 + GPT-4o-mini $0.003) — effectively free at any podcast volume
+
+## Pricing Packages
+
+- Fiverr/Upwork setup: **$300–$800**
+- With auto-publish + social scheduling: **$800–$1,500**
+- Full content pipeline (transcribe + repurpose + schedule + report): **$2,000–$4,000**
+- Multi-show agency version: **$3,000–$5,000**
+- Monthly retainer: **$75–$200/month**
+- Bundle with Day 11 (SEO Brief) + Day 23 (Research Agent) → Full Content Intelligence Package: **$1,500–$2,500**
+
+## The Original LinkedIn Post
+
+<details>
+<summary>Read the post that announced this build</summary>
+
+# Day 26 LinkedIn Post — Podcast → Blog + Social Fanout
+
+---
+
+## 🎙️ POST (Copy-paste ready)
+
+You recorded a 60-minute podcast episode.
+
+Your blog got nothing from it.
+Your Twitter got nothing.
+Your LinkedIn got nothing.
+Your email list got nothing.
+
+That's not a content problem. That's a distribution problem.
+
+I built an n8n workflow that fixes it automatically.
+
+**Drop in your episode URL (or transcript). Get back:**
+
+→ 1,000-word SEO blog post (auto-published to WordPress as draft)
+→ 10-tweet thread, ready to schedule
+→ Full LinkedIn post
+→ 5 TikTok/Reel hooks
+→ 3 email newsletter paragraphs
+→ Key quotes extracted
+→ Everything logged to Google Sheets
+
+**One webhook call. 90 seconds. $0.004 in API costs.**
+
+No Descript subscription. No Buffer. No freelancer. No re-listening to your own voice.
+
+The workflow handles two paths:
+→ Have a transcript? It uses it directly
+→ No transcript? It sends your audio to OpenAI Whisper first, then fans out
+
+This is Day 26 of my 30-day n8n automation challenge.
+
+I'm posting one production-ready workflow every day — from basic to advanced, all real-world use cases, all sellable as gigs.
+
+Comment **"FANOUT"** and I'll send you the JSON.
+
+---
+
+🔁 Repost if you know a podcaster wasting their content.
+
+#n8n #AIAutomation #ContentMarketing #PodcastMarketing #WorkflowAutomation #NoCode #ContentStrategy #OpenAI #DigitalMarketing #Automation
+
+---
+
+## 📌 POST VARIANT (Shorter — better for reach)
+
+Podcast episode → 6 pieces of content.
+Automatically. In 90 seconds.
+
+Blog post ✅
+Twitter thread ✅
+LinkedIn post ✅
+Email newsletter ✅
+TikTok hooks ✅
+Google Sheets log ✅
+
+I built an n8n workflow that does it all from a single webhook.
+
+Drop the episode URL → OpenAI Whisper transcribes it → GPT-4o-mini repurposes everything → WordPress gets the blog post automatically.
+
+Cost per episode: $0.004.
+
+Day 26 of my 30-day n8n automation challenge.
+
+Comment **"FANOUT"** for the JSON. 👇
+
+#n8n #Automation #ContentMarketing #AIAutomation #Podcast
+
+---
+
+## 🧵 TWITTER/X THREAD VERSION
+
+**Tweet 1 (Hook):**
+Podcasters record gold and bury it.
+Every episode should be:
+→ A blog post
+→ A tweet thread
+→ A LinkedIn post
+→ An email
+→ 5 TikTok hooks
+
+I built an n8n workflow that turns 1 episode into all 6. Automatically. 🧵
+
+**Tweet 2:**
+The problem isn't lack of content.
+It's that repurposing takes 4–8 hours per episode.
+Writers, editors, Descript, Buffer, ChatGPT...
+Most podcasters give up and only post the episode link.
+
+**Tweet 3:**
+Here's how the n8n workflow runs:
+→ You POST the episode URL (or transcript)
+→ Whisper transcribes the audio if needed
+→ GPT-4o-mini generates all 6 content formats
+→ Blog auto-publishes to WordPress (as draft)
+→ Everything logs to Google Sheets
+
+**Tweet 4:**
+The AI generates:
+• SEO blog title + meta description
+• 800–1,000 word HTML blog post
+• 10-tweet thread
+• Full LinkedIn post
+• 3 email newsletter paragraphs
+• 5 TikTok/Reel hooks
+• 3 key quotes
+• Episode summary
+
+**Tweet 5:**
+Smart routing built in:
+If you paste a transcript → skips Whisper (faster, cheaper)
+If you only have an audio URL → Whisper transcribes first
+Either way, same output. Same $0.004 cost per run.
+
+**Tweet 6:**
+The WordPress integration uses the REST API + app password.
+Posts go up as "draft" by default — you review before publishing.
+Set publish_status: "publish" to go fully automatic.
+
+**Tweet 7:**
+The Slack digest is optional but 🔥
+It posts a rich summary to your #content channel:
+• Blog title + WP link
+• Tweet count
+• LinkedIn preview
+• TikTok hooks
+• SEO keywords
+• API cost per run
+
+**Tweet 8:**
+Gig value breakdown:
+• Basic setup: $300–$800
+• Add scheduling + auto-publish: $800–$1,500
+• Full content pipeline (record → publish → social schedule): $2,000–$4,000
+• Monthly retainer: $75–$200/month
+
+**Tweet 9:**
+This is Day 26 of my 30-day n8n challenge.
+One real-world workflow. Every day.
+Basic → Advanced. All sellable as gigs.
+
+**Tweet 10 (CTA):**
+Comment "FANOUT" for the full workflow JSON.
+18 nodes. Works out of the box.
+Just add your API keys.
+Follow for Day 27 tomorrow. 🔁
+
+---
+
+## 📊 PAIN POINTS RESEARCHED
+
+### Who this is for:
+- Podcasters with 10+ episodes who aren't repurposing content
+- Content agencies managing podcasts for clients
+- Solo founders who record but never distribute
+- Video creators who want blog + social from transcripts
+- Course creators turning webinars into blog content
+
+### Pain Points:
+1. Podcasters spend 60+ minutes creating content and 0 minutes distributing it — the ratio is backwards
+2. Manual repurposing takes 4–8 hours per episode (writing, formatting, scheduling across 5 platforms)
+3. Tools like Descript ($24/mo), Buffer ($18/mo), Jasper ($49/mo) add up to $100+/month and still require manual effort
+4. Most AI writing tools hallucinate when summarizing podcasts — they need the actual transcript, not just a topic
+5. Publishing cadence breaks: episode drops Monday, blog goes up Thursday, tweets on Saturday — no unified momentum
+
+### Solution Summary:
+Single webhook → Whisper (optional) → GPT-4o-mini → WordPress + Sheets + Slack
+6 content assets in 90 seconds for $0.004.
+
+### Gig/Sale Value:
+- Fiverr/Upwork setup: **$300–$800**
+- Full content pipeline (transcribe + repurpose + auto-schedule): **$1,500–$3,000**
+- Multi-show agency version: **$3,000–$5,000**
+- Monthly retainer: **$75–$200/month**
+- Bundle with Day 11 (SEO Brief) + Day 23 (Research Agent) → **Full Content Intelligence Package: $1,500–$2,500**
+
+### Credentials Needed:
+- OpenAI API Key (Whisper + GPT-4o-mini)
+- WordPress Application Password (free, built-in)
+- Google Sheets OAuth2
+- Slack OAuth2 (optional)
+
+### Cost Per Episode:
+~$0.004 total — effectively free at any podcast volume
+
+</details>

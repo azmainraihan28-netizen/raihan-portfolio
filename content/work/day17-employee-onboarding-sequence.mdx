@@ -1,0 +1,184 @@
+---
+day: 17
+slug: day17-employee-onboarding-sequence
+title: "AI Employee Onboarding Sequence"
+tagline: "webhook-triggered n8n workflow that"
+week: 3
+category: "Internal Ops"
+industries: ["Agencies", "Founders", "Startups", "HR", "Recruiting", "Ops"]
+tools: ["n8n", "OpenAI", "GPT-4o-mini", "Gmail", "Google Sheets", "Slack", "Webhook"]
+nodes: 13
+costPerRun: "~$0.001 (GPT-4o-mini) — essentially free at any hiring volume"
+heroMetric: "~$0.001 (GPT-4o-mini)"
+priceLow: 300
+priceHigh: 800
+featured: false
+workflowJson: "/workflows/day17_employee_onboarding_sequence.json"
+linkedinPost: "/posts/day17"
+targetUsers: "HR teams, startup founders, ops managers, recruitment agencies, fast-scaling companies"
+screenshot: "/workflows/shots/day17.png"
+---
+## The Problem
+
+1. HR manually writes the same onboarding emails for every new hire — 45–90 minutes of repetitive work per person
+2. Generic "Welcome to the team!" emails feel cold and impersonal — new hires disengage in their first week
+3. Follow-up check-ins (Day 7, Day 30) are forgotten 60–70% of the time under busy ops schedules
+4. Managers get zero structured briefing — new hires flounder because nobody told the manager what to do on Day 1
+5. Platforms like BambooHR, Workday, and Monday cost $300–$2,000+/month for features n8n handles for $0.001 per hire
+
+## The Solution
+
+A webhook-triggered n8n workflow that:
+- Accepts new hire data via POST (name, email, role, department, start date, manager info)
+- Uses GPT-4o-mini to generate a full personalized onboarding package: 3 email bodies (Day 0/7/30), Slack announcement, manager briefing, 8-item checklist, buddy suggestion, 3 first-week goals
+- Sends warm, personalized welcome email instantly on trigger
+- Automatically sends Day 7 check-in and Day 30 milestone emails via n8n Wait nodes — no cron job needed
+- Posts a Slack team announcement in the configured channel
+- Emails the manager a structured first-week action briefing with checklist and goals
+- Logs all 14 fields to Google Sheets for a permanent new hire database
+
+## How It Works
+
+Node-by-node flow:
+
+- **Webhook** — POST /new-employee-onboarding
+- **Set** — Normalizes 11 input fields with safe defaults
+- **IF** — Guards against missing email/name → 400 error
+- **OpenAI (gpt-4o-mini)** — Generates full personalized onboarding package as structured JSON
+- **Code** — Safely parses AI JSON with full fallback template
+- **Gmail (×3)** — Welcome email (Day 0), Check-in email (Day 7), Milestone email (Day 30)
+- **Wait (×2)** — 7-day delay, then 23-day delay (total: Day 30)
+- **Slack** — Team announcement for new hire
+- **IF** — Routes to manager email or silent skip
+- **Gmail** — Manager briefing with checklist + goals
+- **No Op** — Silent pass when no manager email
+- **Google Sheets** — 14-column new hire log
+- **Respond to Webhook (×2)** — Returns success JSON or 400 error
+
+## Credentials & Setup
+
+- OpenAI API Key
+- Gmail OAuth2
+- Google Sheets OAuth2
+- Slack OAuth2 (optional — for team announcements)
+
+## Cost Breakdown
+
+~$0.001 (GPT-4o-mini) — essentially free at any hiring volume
+
+## Pricing Packages
+
+- Fiverr/Upwork setup: **$300–$800**
+- With custom branding + multi-department routing: **$800–$1,500**
+- Full hiring automation suite (JD → screening → onboarding): **$2,000–$4,000**
+- Monthly retainer: **$75–$200/month**
+- Bundle with Day 16 (resume screener) → Complete Hiring Automation Package: **$1,000–$2,000**
+
+## The Original LinkedIn Post
+
+<details>
+<summary>Read the post that announced this build</summary>
+
+# Day 17 LinkedIn Post — AI Employee Onboarding Sequence
+
+---
+
+## 🔥 POST COPY
+
+Your new hire just signed their offer letter.
+
+Now HR is manually:
+→ Drafting a welcome email
+→ Emailing the manager a checklist
+→ Announcing the hire in Slack
+→ Scheduling a 7-day check-in
+→ Scheduling a 30-day milestone email
+→ Logging everything in a spreadsheet
+
+All of that?
+
+**One webhook trigger. Fully automated in n8n.**
+
+---
+
+Here's what this workflow does the moment a new employee is added:
+
+✅ GPT-4o-mini generates a **fully personalized onboarding package** — not a template. A real, warm, role-specific welcome email written for *that* person in *that* role.
+
+✅ **Day 0:** Welcome email fires instantly
+
+✅ **Day 7:** Check-in email sends automatically — asking how their first week went
+
+✅ **Day 30:** Milestone email celebrates their progress and sets 60-day goals
+
+✅ **Slack** gets a team announcement — so nobody misses it
+
+✅ **Manager** gets a briefing email with a first-week action checklist, buddy suggestion, and the new hire's 3 first-week goals
+
+✅ **Google Sheets** logs every hire — name, role, department, goals, checklist, status
+
+All from one POST request. No HR tool subscription. No Zapier tax.
+
+---
+
+🧠 What GPT-4o-mini generates per hire:
+- Personalized subject lines for all 3 emails
+- Full HTML email bodies (Day 0, 7, 30)
+- Slack announcement copy
+- 8-item onboarding checklist
+- Buddy hiring suggestion
+- 3 first-week goals tailored to the role
+
+Cost per new hire: **~$0.001**
+Setup time: **under 2 hours**
+Platforms it replaces: **BambooHR, Workday, Monday, Zapier sequences**
+
+---
+
+💼 I build these automations as a service.
+
+If your company is still manually onboarding employees — you're wasting HR hours that compound every single quarter.
+
+Drop a comment or DM me **"ONBOARD"** and I'll show you how this works for your team.
+
+🔗 Full workflow JSON in the comments.
+
+---
+
+**#n8n #AIAutomation #HRAutomation #EmployeeOnboarding #WorkflowAutomation #NoCode #OpenAI #HRTech #StartupOps #AutomationExpert**
+
+---
+
+## 💬 FIRST COMMENT (Pin this)
+
+📎 **Day 17 — n8n Employee Onboarding Sequence (Free JSON)**
+
+This workflow:
+→ Sends a personalized 3-email onboarding sequence (Day 0 / 7 / 30)
+→ Announces the new hire in Slack
+→ Emails the manager a first-week briefing + checklist
+→ Logs everything to Google Sheets
+
+**To use it:**
+1. Import the JSON into n8n
+2. Add your OpenAI API key
+3. Connect Gmail + Google Sheets + Slack OAuth
+4. Replace `YOUR_GOOGLE_SHEETS_ID` with your sheet
+5. Copy your webhook URL → send a POST with: `employee_name`, `employee_email`, `role`, `department`, `start_date`, `manager_name`, `manager_email`, `company_name`
+
+One trigger. Entire onboarding sequence. Zero manual work.
+
+Want me to customize this for your company? DM me.
+
+---
+
+## 📊 POST METADATA
+
+- **Best posting time:** Tuesday–Thursday, 8–10 AM local time
+- **Format:** Text post (no image needed — the copy sells itself)
+- **CTA:** "DM me ONBOARD" — drives direct messages
+- **Hook style:** Problem list → one-liner flip → solution reveal
+- **Target audience:** HR managers, startup founders, ops leads, agency owners
+- **Gig value this post signals:** $300–$800 setup / $75–$200/month retainer
+
+</details>

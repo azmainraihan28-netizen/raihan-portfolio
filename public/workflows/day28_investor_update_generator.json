@@ -1,0 +1,352 @@
+{
+  "name": "Day 28 — AI Investor Update Generator",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "investor-update",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "node-webhook",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "id": "a1", "name": "company_name",     "value": "={{ $json.body.company_name || 'Your Company' }}", "type": "string" },
+            { "id": "a2", "name": "founder_name",     "value": "={{ $json.body.founder_name || 'Founder' }}", "type": "string" },
+            { "id": "a3", "name": "period",           "value": "={{ $json.body.period || 'Q2 2025' }}", "type": "string" },
+            { "id": "a4", "name": "mrr",              "value": "={{ $json.body.mrr || 0 }}", "type": "number" },
+            { "id": "a5", "name": "mrr_prev",         "value": "={{ $json.body.mrr_prev || 0 }}", "type": "number" },
+            { "id": "a6", "name": "arr",              "value": "={{ $json.body.arr || 0 }}", "type": "number" },
+            { "id": "a7", "name": "customers",        "value": "={{ $json.body.customers || 0 }}", "type": "number" },
+            { "id": "a8", "name": "customers_prev",   "value": "={{ $json.body.customers_prev || 0 }}", "type": "number" },
+            { "id": "a9", "name": "churn_rate",       "value": "={{ $json.body.churn_rate || 0 }}", "type": "number" },
+            { "id": "a10","name": "burn_rate",        "value": "={{ $json.body.burn_rate || 0 }}", "type": "number" },
+            { "id": "a11","name": "runway_months",    "value": "={{ $json.body.runway_months || 0 }}", "type": "number" },
+            { "id": "a12","name": "cash_on_hand",     "value": "={{ $json.body.cash_on_hand || 0 }}", "type": "number" },
+            { "id": "a13","name": "top_wins",         "value": "={{ $json.body.top_wins || '' }}", "type": "string" },
+            { "id": "a14","name": "challenges",       "value": "={{ $json.body.challenges || '' }}", "type": "string" },
+            { "id": "a15","name": "next_milestones",  "value": "={{ $json.body.next_milestones || '' }}", "type": "string" },
+            { "id": "a16","name": "asks",             "value": "={{ $json.body.asks || '' }}", "type": "string" },
+            { "id": "a17","name": "investor_emails",  "value": "={{ $json.body.investor_emails || '' }}", "type": "string" },
+            { "id": "a18","name": "openai_key",       "value": "={{ $json.body.openai_key || 'YOUR_OPENAI_API_KEY' }}", "type": "string" },
+            { "id": "a19","name": "sheet_id",         "value": "={{ $json.body.sheet_id || 'YOUR_GOOGLE_SHEET_ID' }}", "type": "string" },
+            { "id": "a20","name": "slack_enabled",    "value": "={{ $json.body.slack_enabled || false }}", "type": "boolean" },
+            { "id": "a21","name": "slack_channel",    "value": "={{ $json.body.slack_channel || '#investor-updates' }}", "type": "string" },
+            { "id": "a22","name": "timestamp",        "value": "={{ new Date().toISOString() }}", "type": "string" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node-set",
+      "name": "Set Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "cond1",
+              "leftValue": "={{ $json.company_name }}",
+              "rightValue": "Your Company",
+              "operator": { "type": "string", "operation": "notEquals" }
+            },
+            {
+              "id": "cond2",
+              "leftValue": "={{ $json.mrr }}",
+              "rightValue": 0,
+              "operator": { "type": "number", "operation": "gt" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "node-validate",
+      "name": "Validate Inputs",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={ \"success\": false, \"error\": \"Missing required fields: company_name and mrr must be provided\" }",
+        "options": { "responseCode": 400 }
+      },
+      "id": "node-error-400",
+      "name": "Return 400 Error",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [900, 460]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $json.openai_key }}" },
+            { "name": "Content-Type",  "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "body",
+              "value": "={\n  \"model\": \"gpt-4o-mini\",\n  \"response_format\": { \"type\": \"json_object\" },\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are an expert startup CFO and investor relations writer. Generate professional, concise investor updates in plain English. Avoid jargon. Be transparent. Format: JSON only.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Generate a complete investor update for {{ $json.company_name }} for {{ $json.period }}.\\n\\nMETRICS:\\n- MRR: ${{ $json.mrr }} (prev: ${{ $json.mrr_prev }})\\n- ARR: ${{ $json.arr }}\\n- Customers: {{ $json.customers }} (prev: {{ $json.customers_prev }})\\n- Churn Rate: {{ $json.churn_rate }}%\\n- Burn Rate: ${{ $json.burn_rate }}/mo\\n- Runway: {{ $json.runway_months }} months\\n- Cash on Hand: ${{ $json.cash_on_hand }}\\n\\nFOUNDER INPUT:\\n- Top Wins: {{ $json.top_wins }}\\n- Challenges: {{ $json.challenges }}\\n- Next Milestones: {{ $json.next_milestones }}\\n- Asks: {{ $json.asks }}\\n\\nReturn JSON with these fields:\\n1. subject_line: Professional email subject line (e.g. \\\"[Company] Investor Update — Q2 2025\\\")\\n2. email_body: Full HTML investor update email (750–1,000 words, structured with sections: Headline Number, Business Overview, Key Metrics Table, Wins, Challenges & How We're Addressing Them, Next 90 Days, Asks, Closing Note)\\n3. executive_summary: 3-sentence plain-text summary for Slack/quick read\\n4. health_score: Overall business health score 1–10 (10 = exceptional)\\n5. health_label: One of: Critical / Struggling / Stable / Growing / Thriving\\n6. mrr_growth_pct: MRR growth % vs prior period (number)\\n7. customer_growth_pct: Customer growth % vs prior period (number)\\n8. key_insight: One bold 1-sentence insight investors should focus on\\n9. risk_flag: Biggest risk visible in the data (1 sentence) or null if no obvious risk\\n10. next_raise_signal: One of: Not Now / 6 Months / 3 Months / Raising Now — based on runway and growth\"\n    }\n  ],\n  \"max_tokens\": 2000,\n  \"temperature\": 0.4\n}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node-openai",
+      "name": "OpenAI — Generate Investor Update",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\nconst raw = item.choices?.[0]?.message?.content || '{}';\n\nlet parsed;\ntry {\n  parsed = JSON.parse(raw);\n} catch(e) {\n  parsed = {\n    subject_line: `[${item.company_name}] Investor Update — ${item.period}`,\n    email_body: '<p>Investor update content could not be generated. Please retry.</p>',\n    executive_summary: 'Update generation failed. Please retry.',\n    health_score: 5,\n    health_label: 'Stable',\n    mrr_growth_pct: 0,\n    customer_growth_pct: 0,\n    key_insight: 'Unable to generate insight.',\n    risk_flag: null,\n    next_raise_signal: 'Not Now'\n  };\n}\n\n// Pull prev item data back\nconst prev = $('Set Fields').first().json;\n\nreturn [{\n  json: {\n    ...prev,\n    subject_line:         parsed.subject_line || '',\n    email_body:           parsed.email_body || '',\n    executive_summary:    parsed.executive_summary || '',\n    health_score:         parsed.health_score || 5,\n    health_label:         parsed.health_label || 'Stable',\n    mrr_growth_pct:       parsed.mrr_growth_pct || 0,\n    customer_growth_pct:  parsed.customer_growth_pct || 0,\n    key_insight:          parsed.key_insight || '',\n    risk_flag:            parsed.risk_flag || 'None identified',\n    next_raise_signal:    parsed.next_raise_signal || 'Not Now',\n    tokens_used:          item.usage?.total_tokens || 0,\n    estimated_cost_usd:   ((item.usage?.total_tokens || 0) * 0.00000015).toFixed(5)\n  }\n}];\n"
+      },
+      "id": "node-parse",
+      "name": "Parse AI Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": { "value": "={{ $json.sheet_id }}", "__rl": true, "mode": "id" },
+        "sheetName": { "value": "Investor Updates", "__rl": true, "mode": "name" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp":             "={{ $json.timestamp }}",
+            "Company":               "={{ $json.company_name }}",
+            "Founder":               "={{ $json.founder_name }}",
+            "Period":                "={{ $json.period }}",
+            "MRR ($)":               "={{ $json.mrr }}",
+            "MRR Prev ($)":          "={{ $json.mrr_prev }}",
+            "MRR Growth (%)":        "={{ $json.mrr_growth_pct }}",
+            "ARR ($)":               "={{ $json.arr }}",
+            "Customers":             "={{ $json.customers }}",
+            "Customer Growth (%)":   "={{ $json.customer_growth_pct }}",
+            "Churn Rate (%)":        "={{ $json.churn_rate }}",
+            "Burn Rate ($)":         "={{ $json.burn_rate }}",
+            "Runway (Mo)":           "={{ $json.runway_months }}",
+            "Cash on Hand ($)":      "={{ $json.cash_on_hand }}",
+            "Health Score":          "={{ $json.health_score }}",
+            "Health Label":          "={{ $json.health_label }}",
+            "Key Insight":           "={{ $json.key_insight }}",
+            "Risk Flag":             "={{ $json.risk_flag }}",
+            "Next Raise Signal":     "={{ $json.next_raise_signal }}",
+            "Subject Line":          "={{ $json.subject_line }}",
+            "Investor Emails":       "={{ $json.investor_emails }}",
+            "Tokens Used":           "={{ $json.tokens_used }}",
+            "Cost (USD)":            "={{ $json.estimated_cost_usd }}"
+          }
+        },
+        "options": {}
+      },
+      "id": "node-sheets",
+      "name": "Google Sheets — Log Update",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [1340, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {},
+          "conditions": [
+            {
+              "id": "email-cond",
+              "leftValue": "={{ $json.investor_emails }}",
+              "rightValue": "",
+              "operator": { "type": "string", "operation": "notEmpty" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "node-if-email",
+      "name": "Has Investor Emails?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1560, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Split comma-separated investor emails into individual items\nconst item = $input.first().json;\nconst emails = item.investor_emails\n  .split(',')\n  .map(e => e.trim())\n  .filter(e => e.includes('@'));\n\nreturn emails.map(email => ({\n  json: { ...item, send_to_email: email }\n}));\n"
+      },
+      "id": "node-split-emails",
+      "name": "Split Investor Emails",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1780, 220]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.send_to_email }}",
+        "subject": "={{ $json.subject_line }}",
+        "message": "={{ $json.email_body }}",
+        "options": {
+          "isHtml": true,
+          "emailType": "html"
+        }
+      },
+      "id": "node-gmail",
+      "name": "Gmail — Send to Investor",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [2000, 220],
+      "credentials": { "gmailOAuth2": { "id": "gmail-credential-id", "name": "Gmail OAuth2" } }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "node-noop-email",
+      "name": "No Email — Skip",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1780, 380]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {},
+          "conditions": [
+            {
+              "id": "slack-cond",
+              "leftValue": "={{ $json.slack_enabled }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "equals" }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "node-if-slack",
+      "name": "Slack Enabled?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1560, 500]
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": { "value": "={{ $json.slack_channel }}", "__rl": true, "mode": "name" },
+        "blocksUi": "=[\n  {\n    \"type\": \"header\",\n    \"text\": { \"type\": \"plain_text\", \"text\": \"📊 Investor Update Sent — {{ $json.period }}\" }\n  },\n  {\n    \"type\": \"section\",\n    \"fields\": [\n      { \"type\": \"mrkdwn\", \"text\": \"*Company:*\\n{{ $json.company_name }}\" },\n      { \"type\": \"mrkdwn\", \"text\": \"*Period:*\\n{{ $json.period }}\" },\n      { \"type\": \"mrkdwn\", \"text\": \"*Health:*\\n{{ $json.health_score }}/10 — {{ $json.health_label }}\" },\n      { \"type\": \"mrkdwn\", \"text\": \"*MRR Growth:*\\n{{ $json.mrr_growth_pct }}%\" },\n      { \"type\": \"mrkdwn\", \"text\": \"*Runway:*\\n{{ $json.runway_months }} months\" },\n      { \"type\": \"mrkdwn\", \"text\": \"*Next Raise:*\\n{{ $json.next_raise_signal }}\" }\n    ]\n  },\n  {\n    \"type\": \"section\",\n    \"text\": { \"type\": \"mrkdwn\", \"text\": \"*💡 Key Insight:*\\n{{ $json.key_insight }}\" }\n  },\n  {\n    \"type\": \"section\",\n    \"text\": { \"type\": \"mrkdwn\", \"text\": \"*⚠️ Risk Flag:*\\n{{ $json.risk_flag }}\" }\n  },\n  {\n    \"type\": \"section\",\n    \"text\": { \"type\": \"mrkdwn\", \"text\": \"*📝 Summary:*\\n{{ $json.executive_summary }}\" }\n  },\n  {\n    \"type\": \"context\",\n    \"elements\": [\n      { \"type\": \"mrkdwn\", \"text\": \"Sent to: {{ $json.investor_emails }} | Cost: ${{ $json.estimated_cost_usd }} | Tokens: {{ $json.tokens_used }}\" }\n    ]\n  }\n]",
+        "otherOptions": {}
+      },
+      "id": "node-slack",
+      "name": "Slack — Team Digest",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [1780, 500],
+      "credentials": { "slackApi": { "id": "slack-credential-id", "name": "Slack OAuth2" } }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "node-noop-slack",
+      "name": "No Slack — Skip",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1780, 640]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": true,\n  \"company\": \"{{ $json.company_name }}\",\n  \"period\": \"{{ $json.period }}\",\n  \"subject_line\": \"{{ $json.subject_line }}\",\n  \"health_score\": {{ $json.health_score }},\n  \"health_label\": \"{{ $json.health_label }}\",\n  \"mrr_growth_pct\": {{ $json.mrr_growth_pct }},\n  \"customer_growth_pct\": {{ $json.customer_growth_pct }},\n  \"key_insight\": \"{{ $json.key_insight }}\",\n  \"risk_flag\": \"{{ $json.risk_flag }}\",\n  \"next_raise_signal\": \"{{ $json.next_raise_signal }}\",\n  \"executive_summary\": \"{{ $json.executive_summary }}\",\n  \"investors_notified\": \"{{ $json.investor_emails }}\",\n  \"tokens_used\": {{ $json.tokens_used }},\n  \"estimated_cost_usd\": \"{{ $json.estimated_cost_usd }}\"\n}",
+        "options": { "responseCode": 200 }
+      },
+      "id": "node-respond-200",
+      "name": "Return 200 Success",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [2220, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [[{ "node": "Set Fields", "type": "main", "index": 0 }]]
+    },
+    "Set Fields": {
+      "main": [[{ "node": "Validate Inputs", "type": "main", "index": 0 }]]
+    },
+    "Validate Inputs": {
+      "main": [
+        [{ "node": "OpenAI — Generate Investor Update", "type": "main", "index": 0 }],
+        [{ "node": "Return 400 Error", "type": "main", "index": 0 }]
+      ]
+    },
+    "OpenAI — Generate Investor Update": {
+      "main": [[{ "node": "Parse AI Response", "type": "main", "index": 0 }]]
+    },
+    "Parse AI Response": {
+      "main": [[{ "node": "Google Sheets — Log Update", "type": "main", "index": 0 }]]
+    },
+    "Google Sheets — Log Update": {
+      "main": [[
+        { "node": "Has Investor Emails?", "type": "main", "index": 0 },
+        { "node": "Slack Enabled?", "type": "main", "index": 0 }
+      ]]
+    },
+    "Has Investor Emails?": {
+      "main": [
+        [{ "node": "Split Investor Emails", "type": "main", "index": 0 }],
+        [{ "node": "No Email — Skip", "type": "main", "index": 0 }]
+      ]
+    },
+    "Split Investor Emails": {
+      "main": [[{ "node": "Gmail — Send to Investor", "type": "main", "index": 0 }]]
+    },
+    "Gmail — Send to Investor": {
+      "main": [[{ "node": "Return 200 Success", "type": "main", "index": 0 }]]
+    },
+    "No Email — Skip": {
+      "main": [[{ "node": "Return 200 Success", "type": "main", "index": 0 }]]
+    },
+    "Slack Enabled?": {
+      "main": [
+        [{ "node": "Slack — Team Digest", "type": "main", "index": 0 }],
+        [{ "node": "No Slack — Skip", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": ["day28", "investor-update", "ai-automation", "startup", "finance"],
+  "triggerCount": 0,
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "n8n-day28-investor-update"
+  },
+  "id": "day28-investor-update-generator",
+  "versionId": "1.0.0"
+}

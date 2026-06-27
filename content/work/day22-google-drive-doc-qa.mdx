@@ -1,0 +1,239 @@
+---
+day: 22
+slug: day22-google-drive-doc-qa
+title: "AI Document Q&A over Google Drive"
+tagline: "webhook-triggered n8n workflow that"
+week: 4
+category: "Advanced & Agentic"
+industries: ["SaaS", "Agencies", "HR", "Sales", "Legal"]
+tools: ["n8n", "OpenAI", "GPT-4o-mini", "Google Sheets", "Google Drive", "Google Docs", "Slack", "Webhook"]
+nodes: 16
+costPerRun: "~$0.001 (GPT-4o-mini) — effectively free at any query volume"
+heroMetric: "~$0.001 (GPT-4o-mini)"
+priceLow: 250
+priceHigh: 800
+featured: true
+workflowJson: "/workflows/day22_google_drive_doc_qa.json"
+linkedinPost: "/posts/day22"
+targetUsers: "SaaS companies, HR teams, law firms, agencies, sales teams, any business with Google Workspace"
+screenshot: "/workflows/shots/day22.png"
+---
+## The Problem
+
+1. Teams waste 30–60 minutes/day searching Drive for information that already exists in documents
+2. New employees have no intelligent way to query internal knowledge — they ask colleagues instead of reading docs
+3. Sales reps can't instantly find product specs, pricing, or case studies during live customer calls
+4. Enterprise search tools (Guru, Notion AI, Confluence AI) cost $300–$2,000/month — overkill for most teams
+5. Answers given without citing sources are inconsistent — different team members say different things
+6. Most teams think RAG requires engineers and vector databases — n8n makes it zero-infrastructure
+
+## The Solution
+
+A webhook-triggered n8n workflow that:
+- Accepts a plain-English question via POST request
+- Uses Google Drive's native full-text search API to find relevant documents (no vector DB needed)
+- Exports content from Google Docs, Sheets, Slides, PDFs, and text files automatically
+- Truncates and aggregates up to 5 documents into a structured GPT-4o-mini context prompt
+- Returns a JSON answer with: full answer, source citations, confidence level, follow-up questions
+- Logs every Q&A pair to Google Sheets for a searchable team knowledge history
+- Optional Slack alert with the answer summary
+
+## How It Works
+
+Node-by-node flow:
+
+- **Webhook** — POST /doc-qa with question, folder_id, max_docs, asked_by, sheet_id, slack_enabled
+- **Set** — Normalizes all 8 input fields with safe defaults
+- **IF** — Validates question not empty → 400 error on missing
+- **HTTP Request (Drive Files API)** — Searches Google Drive with full-text query + optional folder scope
+- **Code** — Parses Drive results, filters supported file types, returns N items for loop
+- **HTTP Request (Drive Export)** — Exports Google Workspace files as text OR downloads PDFs
+- **Code** — Re-attaches file metadata, cleans and truncates text to 3,500 chars per doc
+- **Aggregate** — Collects all document excerpts into a single item
+- **Code** — Builds structured RAG context prompt with document separators
+- **HTTP Request (OpenAI)** — GPT-4o-mini with JSON mode: answer + sources + confidence + follow-ups
+- **Code** — Safe JSON parser with fallback on parse error
+- **Google Sheets** — Logs 12-column Q&A history (question, answer, sources, confidence, tokens, cost)
+- **IF** — Routes Slack-enabled vs. silent
+- **Slack** — Rich block message with full answer, sources, follow-up questions
+- **No Op** — Silent pass when Slack disabled
+- **Respond to Webhook (×2)** — Returns structured JSON answer (200) or validation error (400)
+
+## Credentials & Setup
+
+- Google Drive OAuth2 (googleDriveOAuth2Api)
+- Google Sheets OAuth2 (googleSheetsOAuth2Api)
+- OpenAI API Key (openAiApi)
+- Slack OAuth (slackApi) — optional
+
+## Cost Breakdown
+
+~$0.001 (GPT-4o-mini) — effectively free at any query volume
+
+## Pricing Packages
+
+- Fiverr/Upwork setup: **$250–$800**
+- With custom folder routing + web UI: **$800–$1,500**
+- Full internal knowledge base system (multi-team, analytics dashboard): **$2,000–$3,500**
+- Monthly retainer: **$75–$200/month**
+- Bundle with Day 16 (HR screener) + Day 17 (onboarding) → Full HR Knowledge System: **$1,500–$2,500**
+
+## The Original LinkedIn Post
+
+<details>
+<summary>Read the post that announced this build</summary>
+
+# Day 22 LinkedIn Post — AI Document Q&A over Google Drive (RAG)
+
+---
+
+## 📝 CAPTION
+
+Your team has 500 Google Drive docs.
+Nobody reads them.
+Everyone asks the same questions anyway.
+
+I built an n8n workflow that changes that.
+
+**Ask a question → get an AI answer, cited from your actual Drive documents.**
+
+No hallucinations. No vector database. No $500/month tool.
+Just n8n + Google Drive + GPT-4o-mini.
+
+Here's how it works 👇
+
+---
+
+**The Problem:**
+
+Every company has a "knowledge problem."
+SOPs nobody reads. Contracts buried in folders. Policy docs from 2022.
+
+Your team wastes 30-60 minutes/day searching for information that already exists — just scattered across 200+ Drive files.
+
+Enterprise search tools like Guru and Confluence AI charge $300–$2,000/month.
+
+I built the same thing in n8n for ~$0.001 per question.
+
+---
+
+**The Workflow (17 nodes, zero vector DB):**
+
+```
+POST /doc-qa
+  → Normalize inputs
+  → Validate question
+  → Google Drive search (full-text API)
+  → Loop each result file
+  → Export content as plain text
+  → Truncate + clean text
+  → Aggregate all docs
+  → Build RAG context prompt
+  → GPT-4o-mini answers with citations
+  → Log to Google Sheets
+  → Slack alert (optional)
+  → Return structured JSON
+```
+
+**Sample input:**
+```json
+{
+  "question": "What is the refund policy for enterprise customers?",
+  "max_docs": 5,
+  "asked_by": "alice@company.com",
+  "slack_enabled": true
+}
+```
+
+**Sample output:**
+```json
+{
+  "answer": "Enterprise customers are eligible for a full refund within 30 days if SLA benchmarks are not met — per the Enterprise Agreement Q1 2024.",
+  "sources": ["Enterprise Agreement Q1 2024", "Refund Policy SOP"],
+  "confidence": "high",
+  "follow_up_questions": [
+    "What are the SLA benchmark definitions?",
+    "How do I initiate a refund request?"
+  ],
+  "tokens_used": 847,
+  "estimated_cost_usd": "0.000638"
+}
+```
+
+Cost per question: **$0.0006**
+Typical enterprise tool cost: **$16.67/day**
+
+---
+
+**Who buys this:**
+
+→ SaaS companies (support & sales teams answering from SOPs)
+→ Law firms (query contracts and agreements)
+→ HR teams (policy Q&A bot for employees)
+→ Agencies (client knowledge base per project)
+→ Any business with more than 50 Google Drive docs
+
+**Gig pricing:**
+- Basic setup: $250–$500
+- Custom UI + folder routing: $800–$1,500
+- Full internal knowledge base system: $2,000–$3,500
+- Monthly retainer: $75–$200/month
+
+---
+
+**Day 22 of my 30-day n8n automation challenge.**
+
+Every day: 1 real-world workflow. Ready-to-import JSON. Free.
+
+Drop a 🤖 in the comments and I'll DM you the workflow file.
+
+Follow me so you don't miss Days 23–30 — we're going full agentic from here.
+
+---
+
+#n8n #AIAutomation #WorkflowAutomation #NoCode #RAG #GoogleDrive #OpenAI #AITools #Productivity #Automation #LinkedInChallenge #FreelanceAutomation #SaaS
+
+---
+
+## 📊 POST METADATA
+
+- **Day:** 22 / 30
+- **Workflow:** AI Document Q&A over Google Drive (RAG)
+- **Difficulty:** Intermediate-Advanced
+- **Nodes:** 17
+- **Category:** Week 4 — Advanced & Agentic
+- **Credentials needed:** Google Drive OAuth, Google Sheets OAuth, OpenAI API Key, Slack OAuth (optional)
+- **Cost per run:** ~$0.001
+- **Gig value:** $250–$3,500 setup
+
+---
+
+## 🎯 PAIN POINTS ADDRESSED
+
+| # | Pain Point | Impact |
+|---|-----------|--------|
+| 1 | Teams waste 30–60 min/day searching Drive for answers | High |
+| 2 | New employees have no way to query internal docs intelligently | High |
+| 3 | Sales reps can't find product specs/pricing mid-call | Critical |
+| 4 | Enterprise search tools (Guru, Notion AI) cost $300–$2,000/month | High |
+| 5 | Answers given verbally are inconsistent — nobody cites the source | Medium |
+| 6 | RAG systems sound complex — most teams think they need engineers & vector DBs | High |
+
+---
+
+## ✅ SOLUTION SUMMARY
+
+**Pattern:** Lightweight RAG using Google Drive's native full-text search — no Pinecone, no Weaviate, no embeddings pipeline needed.
+
+**Key innovations in this workflow:**
+1. Uses Google Drive's built-in full-text search API (free, always up-to-date)
+2. Handles both Google Workspace files (Docs, Sheets, Slides) AND PDFs/text files
+3. Multi-doc context window: pulls up to 5 docs, truncates to 3,500 chars each
+4. GPT-4o-mini returns JSON with: answer + sources + confidence + follow-up questions
+5. Logs every Q&A pair to Sheets → searchable Q&A history database
+6. Optional folder scoping (point at one specific Drive folder)
+7. `asked_by` field → track who's querying what (team analytics)
+
+**Sellability:** Works out-of-the-box for any company with Google Workspace. Zero infrastructure. Import JSON → add credentials → activate → done.
+
+</details>

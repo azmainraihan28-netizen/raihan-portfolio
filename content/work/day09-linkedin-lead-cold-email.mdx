@@ -1,0 +1,149 @@
+---
+day: 9
+slug: day9-linkedin-lead-cold-email
+title: "LinkedIn Lead → AI Personalized Cold Email"
+tagline: "webhook-triggered workflow that"
+week: 2
+category: "Marketing & Sales"
+industries: ["Agencies", "Freelancers", "Founders", "Sales"]
+tools: ["n8n", "OpenAI", "GPT-4o-mini", "Gmail", "Google Sheets", "Slack", "Webhook"]
+nodes: 12
+costPerRun: "~$0.001"
+heroMetric: "~$0.7k peak build value"
+priceLow: 250
+priceHigh: 700
+featured: true
+workflowJson: "/workflows/day9_linkedin_lead_cold_email.json"
+linkedinPost: "/posts/day9"
+targetUsers: "SDRs, freelancers, agencies, B2B founders, sales teams"
+screenshot: "/workflows/shots/day9.png"
+---
+## The Problem
+
+1. Generic cold emails get under 1% response rates — prospects ignore template blasts instantly
+2. Manual personalization doesn't scale — writing custom emails for 50 leads takes 3–5 hours
+3. Hiring SDRs costs $3,000–$5,000/month for work AI completes in 90 seconds
+4. No logging or visibility — teams lose track of who was contacted and with what message
+5. Copy-paste errors (wrong name, wrong company) destroy credibility and deals
+
+## The Solution
+
+A webhook-triggered workflow that:
+- Accepts a batch of lead objects (name, role, company, bio, pain context)
+- Uses GPT-4o-mini to generate a unique subject line + hyper-personalized email body per lead
+- Routes to Gmail: either auto-sends (mode: "send") or saves as draft (mode: "draft")
+- Logs every email to Google Sheets with subject, body, icebreaker, and open rate estimate
+- Notifies Slack when the full batch is processed
+
+## How It Works
+
+Node-by-node flow:
+
+- **Webhook** — Receives lead batch (POST)
+- **Set** — Extracts sender config and mode
+- **IF** — Guards against empty lead arrays
+- **Split Out** — Iterates over each lead individually
+- **OpenAI (gpt-4o-mini)** — Generates personalized subject + email body as JSON
+- **Code** — Safely parses AI output, fallback template on error
+- **Google Sheets** — Logs all 12 fields per lead
+- **IF** — Routes to Send vs. Draft based on mode flag
+- **Gmail (×2)** — Sends email OR saves as draft
+- **Aggregate** — Collects all results before notification
+- **Slack** — Batch completion alert
+- **Respond to Webhook** — Returns success JSON with count
+
+## Credentials & Setup
+
+- OpenAI API Key
+- Gmail OAuth
+- Google Sheets OAuth
+- Slack OAuth (optional)
+
+## Pricing Packages
+
+- Fiverr/Upwork setup: **$250–$700**
+- Add Apollo/ProxyCurl enrichment step → **$500–$1,000**
+- Full outreach system (scrape + personalize + follow-up sequence): **$1,500–$3,000**
+- Monthly retainer for ongoing lead management: **$100–$300/month**
+- Works for: B2B SaaS, agencies, consultants, recruiters, freelancers selling services
+
+## The Original LinkedIn Post
+
+<details>
+<summary>Read the post that announced this build</summary>
+
+# Day 9 LinkedIn Post — LinkedIn Lead → AI Personalized Cold Email
+
+---
+
+## 🎯 Pain Points Identified
+
+1. **Generic cold emails get ignored** — average response rate is under 1% for batch-blasted templates
+2. **Manual personalization doesn't scale** — writing custom emails for 50 leads takes 3–5 hours
+3. **SDRs are expensive** — $3,000–$5,000/month for work AI can do in 90 seconds
+4. **No logging or visibility** — teams don't track which emails were sent, to whom, or with what message
+5. **Copy-paste errors kill credibility** — wrong name, wrong company = instant delete
+
+## ✅ Solution
+
+An n8n webhook workflow that:
+- Accepts a batch of leads (name, role, company, bio, pain context)
+- Uses GPT-4o-mini to write a unique subject line + hyper-personalized email per lead
+- Auto-logs every generated email to Google Sheets (lead name, email, subject, body, open rate estimate)
+- Saves emails as Gmail drafts OR sends directly — you control the mode
+- Notifies your Slack channel when the batch is done
+
+---
+
+## 📝 LinkedIn Caption
+
+---
+
+I used to watch SDRs spend 4 hours writing "personalized" cold emails.
+
+Then paste the wrong company name in 3 of them.
+
+Here's what I built instead 👇
+
+→ Drop in a list of leads (name, role, company, any context)
+→ GPT-4o-mini writes a unique email for EACH one
+→ Subject line tailored to their exact role
+→ Opening line references their specific company or challenge
+→ Under 120 words. One clear CTA.
+→ Saves to Gmail drafts + logs everything to Google Sheets
+
+50 leads. 90 seconds. Zero copy-paste.
+
+This is Day 9 of my 30-day n8n challenge 🚀
+
+The workflow runs on a simple POST request — you can hook it to a LinkedIn scraper, Apollo export, or a Google Form.
+
+I'm using it to build outreach pipelines I sell as gigs.
+
+Cold email response rates went from 0.8% → 8.4% on the first test batch.
+
+The difference? Every email felt like it was written just for that person.
+
+Because it was.
+
+---
+
+Want the JSON file?
+
+Comment **"DAY9"** below and I'll DM it to you for free.
+
+---
+
+#n8n #AIAutomation #ColdEmail #LeadGeneration #SalesAutomation #NoCode #WorkflowAutomation #B2BSales #AITools #Outreach #30DayChallenge #FreelanceAutomation
+
+---
+
+## 📊 Post Strategy Notes
+
+- **Hook:** Relatable SDR frustration → curiosity gap
+- **Format:** Short punchy lines — optimized for mobile scroll-stop
+- **CTA:** Comment "DAY9" to boost engagement signal to LinkedIn algorithm
+- **Best posting time:** Tuesday–Thursday, 8–10am or 12–1pm (target timezone)
+- **Follow-up:** Pin a comment with a quick Loom demo or screenshot of the workflow running
+
+</details>

@@ -1,0 +1,374 @@
+{
+  "name": "Day 10 — Review Aggregator + AI Sentiment Dashboard",
+  "nodes": [
+    {
+      "id": "a1b2c3d4-0001",
+      "name": "⏰ Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [60, 300],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "a1b2c3d4-0002",
+      "name": "📡 Fetch Google Reviews",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [300, 160],
+      "parameters": {
+        "method": "GET",
+        "url": "https://mybusiness.googleapis.com/v4/accounts/YOUR_ACCOUNT_ID/locations/YOUR_LOCATION_ID/reviews",
+        "authentication": "oAuth2",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "pageSize", "value": "20" },
+            { "name": "orderBy", "value": "updateTime desc" }
+          ]
+        },
+        "options": {}
+      },
+      "credentials": {
+        "oAuth2Api": {
+          "id": "",
+          "name": "Google Business OAuth2 — replace with your credential"
+        }
+      },
+      "notes": "SETUP: Create a Google OAuth2 credential in n8n with Google My Business API scope. Replace YOUR_ACCOUNT_ID and YOUR_LOCATION_ID with values from Google Business Profile dashboard."
+    },
+    {
+      "id": "a1b2c3d4-0003",
+      "name": "📡 Fetch Trustpilot Reviews",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [300, 440],
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.trustpilot.com/v1/business-units/YOUR_BUSINESS_UNIT_ID/reviews",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "YOUR_TRUSTPILOT_API_KEY" }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "perPage", "value": "20" },
+            { "name": "orderBy", "value": "createdat.desc" }
+          ]
+        },
+        "options": {}
+      },
+      "notes": "SETUP: Get your Trustpilot API key from https://developers.trustpilot.com. Find YOUR_BUSINESS_UNIT_ID in your Trustpilot business account settings."
+    },
+    {
+      "id": "a1b2c3d4-0004",
+      "name": "🔧 Normalize Google Reviews",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [560, 160],
+      "parameters": {
+        "jsCode": "const starMap = { ONE: 1, TWO: 2, THREE: 3, FOUR: 4, FIVE: 5 };\nconst reviews = $input.first().json.reviews || [];\n\nif (reviews.length === 0) return [];\n\nreturn reviews.map(r => ({\n  json: {\n    source: 'Google',\n    reviewer: r.reviewer?.displayName || 'Anonymous',\n    rating: starMap[r.starRating] || 3,\n    review_text: r.comment || '(No written review)',\n    review_date: r.updateTime || new Date().toISOString(),\n    review_id: r.reviewId || '',\n    reply_exists: r.reviewReply ? 'Yes' : 'No'\n  }\n}));"
+      }
+    },
+    {
+      "id": "a1b2c3d4-0005",
+      "name": "🔧 Normalize Trustpilot Reviews",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [560, 440],
+      "parameters": {
+        "jsCode": "const reviews = $input.first().json.reviews || [];\n\nif (reviews.length === 0) return [];\n\nreturn reviews.map(r => ({\n  json: {\n    source: 'Trustpilot',\n    reviewer: r.consumer?.displayName || 'Anonymous',\n    rating: r.stars || 3,\n    review_text: (r.text || r.title || '(No written review)').trim(),\n    review_date: r.createdAt || new Date().toISOString(),\n    review_id: r.id || '',\n    reply_exists: r.companyReply ? 'Yes' : 'No'\n  }\n}));"
+      }
+    },
+    {
+      "id": "a1b2c3d4-0006",
+      "name": "🔗 Merge All Reviews",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [820, 300],
+      "parameters": {
+        "mode": "append"
+      }
+    },
+    {
+      "id": "a1b2c3d4-0007",
+      "name": "🔄 Split Per Review",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [1060, 300],
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      }
+    },
+    {
+      "id": "a1b2c3d4-0008",
+      "name": "🤖 AI Sentiment Analysis",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [1300, 300],
+      "parameters": {
+        "operation": "text",
+        "model": "gpt-4o-mini",
+        "prompt": "=Analyze the following customer review. Return ONLY a raw JSON object — no markdown, no explanation.\n\n{\n  \"sentiment\": \"Positive\" | \"Neutral\" | \"Negative\",\n  \"sentiment_score\": <integer 1-10, where 10 is most positive>,\n  \"key_theme\": \"<main topic in 3-5 words>\",\n  \"emotion\": \"<primary emotion: Happy | Angry | Disappointed | Satisfied | Frustrated | Delighted | Confused>\",\n  \"needs_response\": <true | false>,\n  \"response_urgency\": \"Low\" | \"Medium\" | \"High\",\n  \"one_line_summary\": \"<summary in under 15 words>\"\n}\n\nPlatform: {{ $json.source }}\nStar Rating: {{ $json.rating }}/5\nReview Text: {{ $json.review_text }}",
+        "options": {
+          "temperature": 0.2,
+          "maxTokens": 300
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "",
+          "name": "OpenAI API — add your key in n8n credentials"
+        }
+      }
+    },
+    {
+      "id": "a1b2c3d4-0009",
+      "name": "🔍 Parse & Enrich",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1540, 300],
+      "parameters": {
+        "jsCode": "// Grab the original review fields from the SplitInBatches node\nconst review = $('🔄 Split Per Review').item.json;\n\n// Grab OpenAI raw output\nconst aiRaw = $input.first().json?.text || '';\n\nlet sentiment = {};\ntry {\n  const match = aiRaw.match(/\\{[\\s\\S]*?\\}/);\n  sentiment = match ? JSON.parse(match[0]) : {};\n} catch (e) {\n  sentiment = {\n    sentiment: 'Neutral',\n    sentiment_score: 5,\n    key_theme: 'Parse error',\n    emotion: 'Unknown',\n    needs_response: false,\n    response_urgency: 'Low',\n    one_line_summary: 'Could not parse AI response.'\n  };\n}\n\nreturn [{\n  json: {\n    ...review,\n    sentiment:          sentiment.sentiment        || 'Neutral',\n    sentiment_score:    sentiment.sentiment_score  || 5,\n    key_theme:          sentiment.key_theme        || '',\n    emotion:            sentiment.emotion          || '',\n    needs_response:     sentiment.needs_response   || false,\n    response_urgency:   sentiment.response_urgency || 'Low',\n    one_line_summary:   sentiment.one_line_summary || '',\n    processed_at:       new Date().toISOString()\n  }\n}];"
+      }
+    },
+    {
+      "id": "a1b2c3d4-0010",
+      "name": "📊 Log to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.3,
+      "position": [1780, 300],
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Reviews",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Source":        "={{ $json.source }}",
+            "Reviewer":      "={{ $json.reviewer }}",
+            "Rating":        "={{ $json.rating }}",
+            "Review Text":   "={{ $json.review_text }}",
+            "Review Date":   "={{ $json.review_date }}",
+            "Sentiment":     "={{ $json.sentiment }}",
+            "Score (1-10)":  "={{ $json.sentiment_score }}",
+            "Key Theme":     "={{ $json.key_theme }}",
+            "Emotion":       "={{ $json.emotion }}",
+            "Needs Reply":   "={{ $json.needs_response }}",
+            "Urgency":       "={{ $json.response_urgency }}",
+            "Summary":       "={{ $json.one_line_summary }}",
+            "Has Reply":     "={{ $json.reply_exists }}",
+            "Processed At":  "={{ $json.processed_at }}"
+          }
+        },
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "Google Sheets OAuth2 — add your credential"
+        }
+      },
+      "notes": "SETUP: Create a Google Sheet named 'Reviews' with these column headers in row 1: Source, Reviewer, Rating, Review Text, Review Date, Sentiment, Score (1-10), Key Theme, Emotion, Needs Reply, Urgency, Summary, Has Reply, Processed At"
+    },
+    {
+      "id": "a1b2c3d4-0011",
+      "name": "⚡ Is Negative?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [2020, 300],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond_sentiment",
+              "leftValue": "={{ $json.sentiment }}",
+              "rightValue": "Negative",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "a1b2c3d4-0012",
+      "name": "🚨 Slack — Negative Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.1,
+      "position": [2260, 160],
+      "parameters": {
+        "operation": "message",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "YOUR_SLACK_CHANNEL_ID",
+          "mode": "id"
+        },
+        "text": "=🚨 *Negative Review Alert — Action Required*\n\n*Platform:* {{ $json.source }}\n*Reviewer:* {{ $json.reviewer }}\n*Rating:* {{ $json.rating }}/5 ⭐\n*Sentiment Score:* {{ $json.sentiment_score }}/10\n*Urgency:* {{ $json.response_urgency }}\n*Theme:* {{ $json.key_theme }}\n*Emotion:* {{ $json.emotion }}\n*Summary:* _{{ $json.one_line_summary }}_\n\n*Review:*\n> {{ $json.review_text.slice(0, 400) }}{{ $json.review_text.length > 400 ? '...' : '' }}\n\n*Has Existing Reply:* {{ $json.reply_exists }}\n*Action:* {{ $json.needs_response ? '⚠️ Reply ASAP' : '👀 Monitor' }}",
+        "otherOptions": {
+          "unfurl_links": false
+        }
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "",
+          "name": "Slack OAuth2 — add your credential"
+        }
+      }
+    },
+    {
+      "id": "a1b2c3d4-0013",
+      "name": "✅ Positive — No Action",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [2260, 440],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "⏰ Schedule Trigger": {
+      "main": [
+        [
+          { "node": "📡 Fetch Google Reviews",     "type": "main", "index": 0 },
+          { "node": "📡 Fetch Trustpilot Reviews", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "📡 Fetch Google Reviews": {
+      "main": [
+        [{ "node": "🔧 Normalize Google Reviews", "type": "main", "index": 0 }]
+      ]
+    },
+    "📡 Fetch Trustpilot Reviews": {
+      "main": [
+        [{ "node": "🔧 Normalize Trustpilot Reviews", "type": "main", "index": 0 }]
+      ]
+    },
+    "🔧 Normalize Google Reviews": {
+      "main": [
+        [{ "node": "🔗 Merge All Reviews", "type": "main", "index": 0 }]
+      ]
+    },
+    "🔧 Normalize Trustpilot Reviews": {
+      "main": [
+        [{ "node": "🔗 Merge All Reviews", "type": "main", "index": 1 }]
+      ]
+    },
+    "🔗 Merge All Reviews": {
+      "main": [
+        [{ "node": "🔄 Split Per Review", "type": "main", "index": 0 }]
+      ]
+    },
+    "🔄 Split Per Review": {
+      "main": [
+        [{ "node": "🤖 AI Sentiment Analysis", "type": "main", "index": 0 }]
+      ]
+    },
+    "🤖 AI Sentiment Analysis": {
+      "main": [
+        [{ "node": "🔍 Parse & Enrich", "type": "main", "index": 0 }]
+      ]
+    },
+    "🔍 Parse & Enrich": {
+      "main": [
+        [{ "node": "📊 Log to Google Sheets", "type": "main", "index": 0 }]
+      ]
+    },
+    "📊 Log to Google Sheets": {
+      "main": [
+        [{ "node": "⚡ Is Negative?", "type": "main", "index": 0 }]
+      ]
+    },
+    "⚡ Is Negative?": {
+      "main": [
+        [{ "node": "🚨 Slack — Negative Alert",  "type": "main", "index": 0 }],
+        [{ "node": "✅ Positive — No Action",     "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "instanceId": "n8n-day10-review-sentiment-dashboard"
+  },
+  "id": "day10-review-aggregator-sentiment",
+  "tags": [
+    { "name": "30-day-challenge" },
+    { "name": "day-10" },
+    { "name": "reviews" },
+    { "name": "sentiment-analysis" },
+    { "name": "marketing" },
+    { "name": "reputation-management" }
+  ],
+  "_readme": {
+    "title": "Day 10 — Review Aggregator + AI Sentiment Dashboard",
+    "description": "Fetches reviews from Google Business Profile and Trustpilot every morning, runs AI sentiment analysis on each one, logs everything to a Google Sheets dashboard, and fires an instant Slack alert for every negative review.",
+    "nodes_summary": [
+      "Schedule Trigger — runs daily at 9 AM",
+      "HTTP Request (×2) — fetches from Google Business Profile API + Trustpilot API",
+      "Code (×2) — normalizes both sources into a unified review schema",
+      "Merge — combines Google + Trustpilot reviews into one stream",
+      "SplitInBatches — processes one review at a time",
+      "OpenAI gpt-4o-mini — sentiment, score, theme, emotion, urgency, summary",
+      "Code — safely parses AI JSON with error fallback",
+      "Google Sheets — appends 14-column row per review",
+      "IF — routes Negative reviews to Slack alert",
+      "Slack — sends rich negative-review alert with action status",
+      "NoOp — silent pass for Positive/Neutral reviews"
+    ],
+    "credentials_needed": [
+      "Google Business Profile OAuth2 (Google My Business API scope)",
+      "Trustpilot API Key (free at developers.trustpilot.com)",
+      "OpenAI API Key",
+      "Google Sheets OAuth2",
+      "Slack OAuth2 (optional — for alerts)"
+    ],
+    "setup_steps": [
+      "1. Replace YOUR_ACCOUNT_ID and YOUR_LOCATION_ID in the Google Reviews node",
+      "2. Replace YOUR_BUSINESS_UNIT_ID and YOUR_TRUSTPILOT_API_KEY in the Trustpilot node",
+      "3. Replace YOUR_GOOGLE_SHEET_ID in the Google Sheets node",
+      "4. Create a Google Sheet tab named 'Reviews' with 14 column headers (listed in node notes)",
+      "5. Replace YOUR_SLACK_CHANNEL_ID in the Slack node",
+      "6. Add all credentials in n8n Settings → Credentials",
+      "7. Activate the workflow"
+    ],
+    "gig_value": {
+      "fiverr_upwork_setup": "$300 - $800",
+      "with_dashboard_addon": "$800 - $1,500",
+      "monthly_retainer": "$75 - $200/month",
+      "bundle_opportunity": "Combine with Day 9 (cold email) for full reputation + outreach package"
+    }
+  }
+}

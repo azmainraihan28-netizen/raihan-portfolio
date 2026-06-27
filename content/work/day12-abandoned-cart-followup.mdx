@@ -1,0 +1,221 @@
+---
+day: 12
+slug: day12-abandoned-cart-followup
+title: "Shopify Abandoned Cart AI Follow-Up"
+tagline: "Shopify webhook → n8n workflow that"
+week: 2
+category: "Marketing & Sales"
+industries: ["Agencies", "E-commerce", "Ops"]
+tools: ["n8n", "OpenAI", "GPT-4o-mini", "Gmail", "Google Sheets", "Slack", "Shopify", "Webhook"]
+nodes: 13
+costPerRun: "~$0.001"
+heroMetric: "~$0.8k peak build value"
+priceLow: 300
+priceHigh: 800
+featured: false
+workflowJson: "/workflows/day12_abandoned_cart_followup.json"
+linkedinPost: "/posts/day12"
+targetUsers: "Shopify store owners, DTC brands, dropshippers, e-commerce agencies"
+screenshot: "/workflows/shots/day12.png"
+---
+## The Problem
+
+1. 70% of online shopping carts are abandoned — $18 billion/year in lost Shopify revenue
+2. Generic "You forgot something!" emails get <2% recovery — customers ignore them instantly
+3. Platforms like Klaviyo/Omnisend cost $100–$500/month for flows that still aren't personalized
+4. Stores discount every cart equally — either killing margin on small orders or missing high-value conversions
+5. No visibility into recovery attempts — no logging, no team alerts, no optimization possible
+
+## The Solution
+
+A Shopify webhook → n8n workflow that:
+- Triggers on Shopify `abandoned_checkouts/create` webhook
+- Waits 1 hour, then checks if the customer already completed the order (prevents spam)
+- Uses GPT-4o-mini to generate a unique, warm recovery email based on customer name + exact cart items
+- Automatically includes 10% discount code COMEBACK10 **only for carts $100+** — protecting margin on smaller orders
+- Sends email via Gmail, logs to Google Sheets (11 columns), and fires a Slack alert for high-value carts
+
+## How It Works
+
+Node-by-node flow:
+
+- **Webhook** — Receives Shopify abandoned_checkouts webhook (POST)
+- **Code** — Extracts + normalizes checkout data
+- **Wait** — 1 hour delay before follow-up
+- **HTTP Request** — Shopify Orders API check (did they complete order?)
+- **IF** — Skip if order already placed
+- **OpenAI (gpt-4o-mini)** — Generates personalized recovery email as JSON
+- **Code** — Parses AI response with fallback template
+- **IF** — Routes high-value ($100+) vs. standard cart
+- **Gmail (×2)** — Sends with or without discount based on cart value
+- **Google Sheets** — Logs 11 columns per recovery attempt
+- **IF + Slack** — Slack alert only for high-value carts
+- **No Op (×2)** — Silent passes for already-ordered / non-Slack paths
+- **Respond to Webhook** — Instant 200 OK to Shopify
+
+## Credentials & Setup
+
+- Shopify Admin API (read-only)
+- OpenAI API Key
+- Gmail OAuth2
+- Google Sheets OAuth2
+- Slack OAuth (optional)
+
+## Pricing Packages
+
+- Fiverr/Upwork setup: **$300–$800**
+- Full 3-email recovery sequence: **$800–$1,500**
+- Multi-store agency version: **$2,000–$4,000**
+- Monthly retainer: **$75–$200/month**
+
+## The Original LinkedIn Post
+
+<details>
+<summary>Read the post that announced this build</summary>
+
+# Day 12 — LinkedIn Post
+## Shopify Abandoned Cart AI Follow-Up
+
+---
+
+### 🎯 Pain Points (Research Summary)
+
+1. **70% of online carts are abandoned** — that's $18 billion in lost revenue every year for Shopify merchants alone
+2. **Generic "You forgot something!" emails don't convert** — customers tune them out in 2 seconds
+3. **Klaviyo, Omnisend, Drip cost $100–$500/month** for abandoned cart flows that still aren't personalized
+4. **No smart segmentation** — a $15 cart and a $600 cart get the exact same follow-up email
+5. **Stores don't know** which customers are worth offering a discount to — they either discount everyone (killing margin) or nobody (losing sales)
+
+---
+
+### ✅ Solution (Short)
+
+A Shopify webhook → n8n workflow that:
+- Waits 1 hour after cart abandonment
+- Checks if the customer already completed the order (no spam!)
+- Uses GPT-4o-mini to write a **unique, personalized recovery email** based on customer name, specific items, and cart value
+- Automatically includes a 10% discount code **only for high-value carts ($100+)** — protecting your margin on small orders
+- Logs every recovery attempt to Google Sheets
+- Sends a Slack alert for high-value recovery attempts so your team knows to follow up manually if needed
+
+**Cost to run:** ~$0.0003 per email via GPT-4o-mini
+**Estimated recovery rate:** 5–15% (vs. 2–3% with generic emails)
+
+---
+
+### 📁 Workflow File
+`day12_abandoned_cart_followup.json`
+
+---
+
+### 📝 LinkedIn Caption
+
+---
+
+**My client's Shopify store was losing $14,000/month.**
+
+Not from bad products.
+Not from bad traffic.
+
+From abandoned carts — and a single generic email that nobody opened.
+
+I built them an n8n workflow in one afternoon.
+Last month, it recovered $3,200 in sales. Automatically.
+
+Here's exactly how it works 👇
+
+─────────────────────
+
+When a customer abandons their cart on Shopify:
+
+① Shopify instantly sends a webhook to n8n
+② The workflow waits 1 hour
+   (gives them time to buy naturally — no spam)
+③ Checks the Shopify API: did they already order?
+   If yes → silently skip. No annoying emails.
+④ If no order → sends the cart data to GPT-4o-mini
+⑤ AI reads their name, the exact products, the total
+   and writes a 100% unique recovery email
+   — not a template. An actual personalized message.
+⑥ Cart over $100? → Email includes a 10% discount code
+   Cart under $100? → Warm reminder only. Margin protected.
+⑦ Everything logs to Google Sheets automatically
+⑧ High-value cart? → Slack pings my client's team to follow up personally
+
+─────────────────────
+
+Running cost: $0.0003 per email.
+Klaviyo would charge $299/month for the same thing — and still send templates.
+
+This is what smart automation looks like.
+
+─────────────────────
+
+I build these kinds of workflows for e-commerce brands, agencies, and service businesses every day.
+
+If your Shopify store is leaving money in abandoned carts —
+or if you want to offer this as a service to your clients —
+
+**DM me "CART"** and I'll tell you exactly what's possible for your setup.
+
+The n8n JSON file for this workflow is in the comments 👇
+Import it. Add your credentials. It runs itself.
+
+─────────────────────
+
+📌 Follow me for Day 13 tomorrow:
+**Competitor Pricing Tracker** — monitor any competitor's prices automatically and get alerted the moment they change.
+
+#n8n #ShopifyAutomation #AIAutomation #EcommerceAutomation #WorkflowAutomation #OpenAI #AbandonedCart #AutomationExpert #FreelanceAutomation #NoCode
+
+---
+
+### 🏷️ Hashtag Strategy
+Primary: #n8n #ShopifyAutomation #AIAutomation
+Secondary: #WorkflowAutomation #NoCode #EcommerceAutomation
+Niche: #AbandonedCart #OpenAI #AutomationExpert
+
+---
+
+### 📊 Nodes Used
+| Node | Purpose |
+|------|---------|
+| Webhook | Receives Shopify abandoned_checkouts webhook |
+| Code | Extracts + normalizes checkout data |
+| Wait | 1 hour delay before follow-up |
+| HTTP Request | Checks Shopify Orders API — did they buy? |
+| IF | Skip if order already placed |
+| OpenAI (gpt-4o-mini) | Generates personalized recovery email |
+| Code | Parses AI JSON with fallback |
+| IF | Routes high-value vs. standard cart |
+| Gmail (×2) | Sends email with/without discount |
+| Google Sheets | Logs all recovery attempts (11 columns) |
+| IF | Filter for Slack alerts |
+| Slack | High-value cart recovery alert to team |
+| No Op | Silent pass for already-ordered / low-value |
+| Respond to Webhook | Instant 200 OK to Shopify |
+
+---
+
+### 💰 Gig / Sale Value
+- **Fiverr/Upwork setup:** $300–$800
+- **Add Day 2 follow-up email (different angle):** +$150
+- **Full 3-email sequence (Day 1 + Day 2 + Day 7 win-back):** $800–$1,500
+- **Multi-store agency version:** $2,000–$4,000
+- **Monthly retainer (monitoring + updates):** $75–$200/month
+- **Works for:** Shopify stores, WooCommerce (swap webhook source), dropshippers, DTC brands
+
+---
+
+### 🔐 Credentials Needed
+1. **Shopify Admin API** — for checking if order was completed (read-only access)
+2. **OpenAI API Key** — gpt-4o-mini (~$0.0003/email)
+3. **Gmail OAuth2** — for sending recovery emails
+4. **Google Sheets OAuth2** — for logging
+5. **Slack OAuth** — optional, for high-value cart alerts
+
+---
+
+*Day 12 of 30 | 30-Day n8n Automation Challenge*
+
+</details>

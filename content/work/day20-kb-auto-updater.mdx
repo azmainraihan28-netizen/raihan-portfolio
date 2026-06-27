@@ -1,0 +1,197 @@
+---
+day: 20
+slug: day20-kb-auto-updater
+title: "Knowledge Base Auto-Updater"
+tagline: "webhook-triggered n8n workflow that"
+week: 3
+category: "Internal Ops"
+industries: ["SaaS", "Agencies", "E-commerce", "Startups", "Customer Support"]
+tools: ["n8n", "OpenAI", "GPT-4o-mini", "Google Sheets", "Slack", "Notion", "Webhook"]
+nodes: 11
+costPerRun: "~$0.001 (GPT-4o-mini) — effectively free at any support volume"
+heroMetric: "~$0.001 (GPT-4o-mini)"
+priceLow: 200
+priceHigh: 600
+featured: false
+workflowJson: "/workflows/day20_kb_auto_updater.json"
+linkedinPost: "/posts/day20"
+targetUsers: "SaaS companies, support teams, agencies, startups, e-commerce brands"
+screenshot: "/workflows/shots/day20.png"
+---
+## The Problem
+
+1. Support teams manually update KB articles — wastes 2–4 hours per article; documentation is always 3–6 months behind the product
+2. Customers read outdated docs and file repeat tickets — a self-reinforcing cycle that grows support load over time
+3. No system to track which articles need updating based on ticket volume or new product features
+4. KB management tools (Guru, Tettra, Document360) cost $100–$500/month — plus human time to write the content
+5. New support agents have nothing useful to learn from — stale KB, patchy coverage, and slow onboarding
+
+## The Solution
+
+A webhook-triggered n8n workflow that:
+- Receives any resolved support ticket via POST (compatible with Zendesk, Freshdesk, HelpDesk, or manual POST)
+- Uses GPT-4o-mini to decide: Create new article / Update existing article / Skip (too specific) — with a 1–10 confidence score
+- Generates a full markdown KB article: intro, problem, step-by-step solution, tips, related topics (300–500 words)
+- Creates a new Notion page or updates an existing one automatically via Notion API
+- Logs every action to Google Sheets (action type, confidence, article metadata, skip reason)
+- Notifies the team in Slack with a preview of the drafted article
+
+## How It Works
+
+Node-by-node flow:
+
+- **Webhook** — POST /kb-auto-updater
+- **Set** — Normalizes 11 input fields with safe defaults
+- **IF** — Validates required fields (ticket_title + resolution) → 400 error on missing
+- **OpenAI (gpt-4o-mini)** — Decides Create/Update/Skip + drafts full article as JSON
+- **Code** — Safely parses AI JSON with full fallback on parse error
+- **IF (×2)** — Routes to Create path, Update path, or Skip path
+- **HTTP Request (Notion API ×2)** — POST to create new page / PATCH to update existing page
+- **No Op (×2)** — Silent passes for skip and non-update paths
+- **Google Sheets** — 15-column KB action log
+- **Slack** — Team notification with article preview and action taken
+- **Respond to Webhook (×2)** — Returns 200 success JSON or 400 validation error
+
+## Credentials & Setup
+
+- OpenAI API Key
+- Notion Internal Integration Token
+- Google Sheets OAuth2
+- Slack OAuth2 (optional — for team notifications)
+
+## Cost Breakdown
+
+~$0.001 (GPT-4o-mini) — effectively free at any support volume
+
+## Pricing Packages
+
+- Fiverr/Upwork setup: **$200–$600**
+- With custom article templates + category routing: **$600–$1,200**
+- Full support automation suite (triage + screener + KB updater): **$1,500–$3,000**
+- Monthly retainer: **$75–$200/month**
+- Bundle with Day 19 (standup bot) + Day 16 (resume screener) → Full Internal Ops Package: **$1,500–$2,500**
+
+## The Original LinkedIn Post
+
+<details>
+<summary>Read the post that announced this build</summary>
+
+# Day 20/30 — LinkedIn Post
+## Workflow: Knowledge Base Auto-Updater
+
+---
+
+### 🎯 CAPTION
+
+🧠 Day 20/30: I built an AI that writes your Knowledge Base articles automatically.
+
+Every time your support team resolves a ticket, this n8n workflow decides:
+
+→ Does this warrant a new KB article?
+→ Should an existing article be updated?
+→ Or is it too specific to be reusable?
+
+Then GPT-4o-mini writes the full article — and saves it straight to Notion. No copy-paste. No extra work. Zero manual effort.
+
+---
+
+Here's the real problem most businesses ignore:
+
+Your knowledge base is always 6 months behind your product.
+
+Not because your team doesn't care.
+Because nobody has time to sit down and write documentation after closing a ticket.
+
+So customers keep asking the same questions.
+Your support team keeps answering the same questions.
+And the cycle never ends.
+
+---
+
+Here's what this workflow does in ~30 seconds:
+
+✅ Receives a resolved support ticket via webhook
+✅ GPT-4o-mini analyzes: Create / Update / Skip — with a confidence score
+✅ Writes a full, properly formatted KB article in markdown
+✅ Creates a new Notion page (or updates the existing one)
+✅ Logs every action to Google Sheets
+✅ Pings your team in Slack: "New article ready for review"
+
+---
+
+The result?
+
+📉 Fewer repeat tickets (customers find answers themselves)
+⚡ Faster onboarding (new support agents learn from a real KB)
+📈 Higher CSAT scores (customers don't wait — they self-serve)
+🧹 A KB that actually stays updated with your product
+
+---
+
+And it costs ~$0.001 per ticket to run.
+
+Not $299/month for a documentation tool.
+Not 3 hours of a writer's time per article.
+
+$0.001 — and your KB grows on its own.
+
+---
+
+📁 Free JSON file in the comments — drop it into n8n and connect your Notion + OpenAI.
+
+🔁 Repost this if your support team is stuck answering the same questions every week.
+
+---
+
+Want this running for your business in 24 hours?
+
+DM me "KB20" — I'll set it up, customize the article format, and connect it to your support stack.
+
+This is exactly the kind of automation I build for clients worldwide. 🌍
+
+#n8n #AIAutomation #WorkflowAutomation #KnowledgeBase #NoCode #CustomerSupport #SupportOps #NotionWorkflow #OpenAI #ProductivityHack
+
+---
+
+### 📊 PAIN POINTS & SOLUTION SUMMARY
+
+**Target Users:** SaaS companies, support teams, agencies, startups, e-commerce brands
+
+#### Pain Points
+1. Support teams manually update KB articles — wastes 2–4 hours per article, documentation is always 3–6 months behind the product
+2. Customers read outdated docs and file more tickets — a self-reinforcing cycle that grows support load over time
+3. No system to track which articles need updating based on ticket volume or product changes
+4. KB management tools (Guru, Tettra, Document360) cost $100–$500/month — plus human time to actually write the content
+5. New support agents have nothing useful to learn from — KB is stale, coverage is patchy, and onboarding takes weeks
+
+#### Solution
+A webhook-triggered n8n workflow that:
+- Receives any resolved support ticket via POST (compatible with Zendesk, Freshdesk, HelpDesk, or manual POST)
+- Uses GPT-4o-mini to decide: Create new article / Update existing article / Skip (too specific)
+- Generates a full markdown KB article with intro, problem description, step-by-step solution, tips, and related topics
+- Creates a new Notion page or updates an existing one automatically via Notion API
+- Logs every action (create/update/skip) to Google Sheets with confidence score and metadata
+- Notifies the team in Slack with a preview of the drafted article
+
+#### Credentials Needed
+- OpenAI API Key
+- Notion Internal Integration Token
+- Google Sheets OAuth2
+- Slack OAuth2 (optional)
+
+#### Cost Per Ticket
+~$0.001 (GPT-4o-mini) — effectively free at any support volume
+
+#### Gig / Sale Value
+- Fiverr/Upwork setup: **$200–$600**
+- With custom article templates + category routing: **$600–$1,200**
+- Full support automation suite (triage + screener + KB updater): **$1,500–$3,000**
+- Monthly retainer: **$75–$200/month**
+- Bundle with Day 19 (standup bot) + Day 16 (resume screener) → Full Internal Ops Package: **$1,500–$2,500**
+
+---
+
+*Day 20/30 — 30-Day n8n Automation Challenge*
+*Workflow file: day20_kb_auto_updater.json*
+
+</details>

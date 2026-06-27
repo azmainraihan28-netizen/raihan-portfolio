@@ -1,0 +1,153 @@
+---
+day: 8
+slug: day8-ai-meeting-notes-action-items
+title: "AI Meeting Notes → Action Items → Asana/Trello"
+tagline: "webhook-triggered workflow that"
+week: 2
+category: "Marketing & Sales"
+industries: ["Agencies", "Startups", "Consulting"]
+tools: ["n8n", "OpenAI", "GPT-4o-mini", "Slack", "Asana", "Trello", "Webhook"]
+nodes: 12
+costPerRun: "~$0.001"
+heroMetric: "~$0.8k peak build value"
+priceLow: 300
+priceHigh: 800
+featured: false
+workflowJson: "/workflows/day8_ai_meeting_notes_action_items.json"
+linkedinPost: "/posts/day8"
+targetUsers: "Agencies, startups, remote teams, consultants, project managers"
+screenshot: "/workflows/shots/day8.png"
+---
+## The Problem
+
+1. 50–70% of meeting action items are never completed — they get lost in messy notes
+2. Writing and distributing meeting summaries wastes 15–30 minutes after every call
+3. Manually creating tasks in Asana/Trello from meeting notes is tedious and error-prone
+4. Attendees forget context by the time they see the task — leading to poor execution
+5. People who miss the meeting have no quick way to get up to speed
+
+## The Solution
+
+A webhook-triggered workflow that:
+- Accepts raw meeting transcript (from Zoom, Fireflies, Otter, or manual paste)
+- Uses GPT-4o-mini to extract every action item with assignee, due date, priority, and context
+- Creates tasks/cards directly in Asana OR Trello (single toggle to switch)
+- Posts a meeting summary + key decisions to Slack automatically
+- Returns a structured JSON response for front-end or Zapier integration
+
+## How It Works
+
+Node-by-node flow:
+
+- **Webhook** — Receives meeting transcript (POST)
+- **Set** — Normalizes and extracts fields
+- **IF** — Guards against empty transcripts
+- **OpenAI (gpt-4o-mini)** — Structured action item extraction
+- **Code** — Safely parses AI JSON, handles edge cases
+- **Split Out** — Loops over each action item individually
+- **IF** — Routes to Asana vs. Trello based on payload flag
+- **Asana** — Creates tasks with notes, due date, assignee
+- **Trello** — Creates cards with description, due date, priority label
+- **Aggregate** — Collects all created tasks before notification
+- **Slack** — Posts meeting summary + error alerts
+- **Respond to Webhook** — Returns confirmation JSON (×2)
+
+## Credentials & Setup
+
+- OpenAI API Key
+- Asana API Key (or Personal Access Token)
+- Trello API Key + Token
+- Slack OAuth (optional — for summary notifications)
+
+## Pricing Packages
+
+- Fiverr/Upwork setup fee: **$300–$800**
+- Add Fireflies/Otter native trigger + Google Calendar integration: **$1,000–$1,500**
+- Bundle with Day 3 (email triage) + Day 7 (invoice extractor) → **$1,500 ops package**
+- Monthly retainer for maintenance + new integrations: **$75–$200/month**
+
+## The Original LinkedIn Post
+
+<details>
+<summary>Read the post that announced this build</summary>
+
+# Day 8 of 30 — AI Meeting Notes → Action Items → Asana/Trello (n8n)
+
+---
+
+Every team has this problem.
+
+Meeting ends.
+Everyone says "great call!"
+Nobody actually knows what they're supposed to do next.
+
+A week later: "Wait, who was supposed to handle that?"
+
+I built a workflow that fixes this permanently.
+
+---
+
+**Here's what Day 8 does:**
+
+You paste your meeting transcript (or pipe it straight from Fireflies/Otter/Zoom) into a webhook → GPT-4o-mini reads the whole thing and extracts every action item with:
+
+→ Task title (verb-first, ready to assign)
+→ Who owns it
+→ Due date (inferred from context)
+→ Priority (high / medium / low)
+→ 2-sentence context blurb so assignees know *why* it matters
+
+Then it creates tasks directly in **Asana OR Trello** — whichever your team uses.
+
+And it fires a Slack message with the full meeting summary + key decisions so anyone who missed the call is instantly caught up.
+
+No copy-paste. No "I'll send the notes later." No dropped balls.
+
+---
+
+**Nodes used (10 total):**
+
+• Webhook — receives transcript
+• Set — normalizes fields
+• IF — validates input
+• OpenAI (gpt-4o-mini) — extracts structured action items
+• Code — safely parses AI JSON response
+• Split Out — loops over each action item
+• IF — routes to Asana vs. Trello
+• Asana / Trello — creates tasks/cards
+• Slack — posts summary + error alerts
+• Respond to Webhook — returns confirmation JSON
+
+---
+
+**Real numbers:**
+
+The average professional spends 31 hours per month in meetings.
+Studies estimate 50–70% of meeting action items are never completed.
+
+This workflow doesn't just save time — it changes meeting culture entirely.
+
+Cost to run: ~$0.001 per meeting (GPT-4o-mini is absurdly cheap for this).
+Gig value: **$300–$800 setup** on Fiverr/Upwork.
+Bundle with Day 3 (email triage) + Day 7 (invoice extractor) → sell as a **$1,500 ops package**.
+
+---
+
+**Who needs this?**
+
+→ Agencies running weekly client calls
+→ Startups with async remote teams
+→ Consultants who bill by deliverables
+→ Project managers drowning in follow-up emails
+
+If you're manually writing meeting recaps in 2026, you're leaving money and time on the table.
+
+---
+
+Workflow JSON dropping in the comments 👇
+
+Follow along — 22 more automations to go.
+
+#n8n #AIAutomation #Productivity #NoCode #WorkflowAutomation #Asana #Trello #MeetingNotes #30DayChallenge #BuildInPublic
+
+</details>

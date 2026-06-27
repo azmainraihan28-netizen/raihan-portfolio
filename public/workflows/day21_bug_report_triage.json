@@ -1,0 +1,402 @@
+{
+  "name": "Day 21 — Bug Report Triage (GitHub Issue → AI Severity + Label + Slack)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "github-issue-webhook",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "node-001",
+      "name": "GitHub Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "notes": "Set this URL as your GitHub repo webhook. Event: Issues → opened, reopened"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.body.action }}",
+              "operation": "equal",
+              "value2": "opened"
+            }
+          ]
+        }
+      },
+      "id": "node-002",
+      "name": "Filter — New Issues Only",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [460, 300],
+      "notes": "Only process newly opened issues, ignore edits/deletions"
+    },
+    {
+      "parameters": {
+        "jsCode": "const issue = $input.first().json.body.issue;\nconst repo = $input.first().json.body.repository;\n\nreturn [{\n  json: {\n    issue_number: issue.number,\n    issue_title: issue.title,\n    issue_body: issue.body || '(no description provided)',\n    issue_url: issue.html_url,\n    issue_author: issue.user.login,\n    repo_full_name: repo.full_name,\n    repo_owner: repo.owner.login,\n    repo_name: repo.name,\n    existing_labels: issue.labels.map(l => l.name).join(', ') || 'none',\n    created_at: issue.created_at\n  }\n}];"
+      },
+      "id": "node-003",
+      "name": "Extract Issue Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 220],
+      "notes": "Parses all relevant fields from the GitHub webhook payload"
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o-mini",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are a senior software engineering lead responsible for triaging GitHub bug reports. Your job is to analyze each issue and return a structured JSON response.\n\nSeverity Levels:\n- P0 (Critical): System down, data loss, security breach, affects all users\n- P1 (High): Major feature broken, significant user impact, no workaround\n- P2 (Medium): Feature partially broken, workaround exists, moderate impact\n- P3 (Low): Minor bug, cosmetic issue, edge case, low user impact\n\nAssignee Areas (suggest based on issue content):\n- frontend: UI/UX bugs, CSS, React/Vue components, browser issues\n- backend: API errors, database issues, server crashes, logic bugs\n- devops: deployment, CI/CD, infrastructure, environment issues\n- security: auth failures, data exposure, XSS, injection vulnerabilities\n- mobile: iOS/Android specific bugs\n- general: unclear or cross-cutting issues\n\nReturn ONLY valid JSON, no markdown, no explanation:\n{\n  \"severity\": \"P0|P1|P2|P3\",\n  \"severity_reason\": \"One sentence explaining why\",\n  \"assignee_area\": \"frontend|backend|devops|security|mobile|general\",\n  \"assignee_reason\": \"One sentence explaining why\",\n  \"suggested_labels\": [\"label1\", \"label2\"],\n  \"summary\": \"One sentence plain-English summary of the bug\",\n  \"needs_immediate_alert\": true|false\n}"
+            },
+            {
+              "role": "user",
+              "content": "=Triage this GitHub issue:\n\nTitle: {{ $json.issue_title }}\n\nDescription:\n{{ $json.issue_body }}\n\nExisting labels: {{ $json.existing_labels }}\nAuthor: {{ $json.issue_author }}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.2,
+          "maxTokens": 400
+        }
+      },
+      "id": "node-004",
+      "name": "AI Triage — GPT-4o-mini",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1,
+      "position": [900, 220],
+      "credentials": {
+        "openAiApi": {
+          "name": "OpenAI API"
+        }
+      },
+      "notes": "Uses GPT-4o-mini for cost-efficient triage. Swap to GPT-4o for higher accuracy."
+    },
+    {
+      "parameters": {
+        "jsCode": "const aiRaw = $input.first().json.message.content;\nlet triage;\n\ntry {\n  triage = JSON.parse(aiRaw);\n} catch(e) {\n  // Fallback if JSON parse fails\n  triage = {\n    severity: 'P2',\n    severity_reason: 'Could not parse AI response — defaulting to P2',\n    assignee_area: 'general',\n    assignee_reason: 'Could not parse AI response',\n    suggested_labels: ['needs-triage'],\n    summary: 'Manual review required',\n    needs_immediate_alert: false\n  };\n}\n\n// Bring forward the issue context from previous node\nconst issue = $('Extract Issue Data').first().json;\n\nreturn [{\n  json: {\n    ...issue,\n    severity: triage.severity,\n    severity_reason: triage.severity_reason,\n    assignee_area: triage.assignee_area,\n    assignee_reason: triage.assignee_reason,\n    suggested_labels: triage.suggested_labels || [],\n    summary: triage.summary,\n    needs_immediate_alert: triage.needs_immediate_alert || false,\n    slack_color: triage.severity === 'P0' ? '#FF0000' :\n                 triage.severity === 'P1' ? '#FF8C00' :\n                 triage.severity === 'P2' ? '#FFD700' : '#36a64f'\n  }\n}];"
+      },
+      "id": "node-005",
+      "name": "Parse AI Triage Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1120, 220],
+      "notes": "Safely parses AI JSON output with fallback. Merges with issue data."
+    },
+    {
+      "parameters": {
+        "authentication": "accessToken",
+        "resource": "issue",
+        "operation": "addLabels",
+        "owner": "={{ $json.repo_owner }}",
+        "repository": "={{ $json.repo_name }}",
+        "issueNumber": "={{ $json.issue_number }}",
+        "labels": {
+          "values": [
+            {
+              "label": "={{ $json.severity }}"
+            },
+            {
+              "label": "={{ $json.assignee_area }}"
+            }
+          ]
+        }
+      },
+      "id": "node-006",
+      "name": "Add Labels to GitHub Issue",
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1,
+      "position": [1340, 120],
+      "credentials": {
+        "githubApi": {
+          "name": "GitHub API"
+        }
+      },
+      "notes": "Adds severity (P0-P3) and area labels. Create these labels in your repo first."
+    },
+    {
+      "parameters": {
+        "authentication": "accessToken",
+        "resource": "issue",
+        "operation": "addAssignees",
+        "owner": "={{ $json.repo_owner }}",
+        "repository": "={{ $json.repo_name }}",
+        "issueNumber": "={{ $json.issue_number }}",
+        "assignees": {
+          "values": [
+            {
+              "username": "={{ $json.assignee_area }}-team"
+            }
+          ]
+        }
+      },
+      "id": "node-007",
+      "name": "Assign Team on GitHub",
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1,
+      "position": [1340, 280],
+      "credentials": {
+        "githubApi": {
+          "name": "GitHub API"
+        }
+      },
+      "notes": "Assigns a team member based on area. Map assignee_area to real GitHub usernames in the Code node above."
+    },
+    {
+      "parameters": {
+        "authentication": "accessToken",
+        "resource": "issue",
+        "operation": "createComment",
+        "owner": "={{ $json.repo_owner }}",
+        "repository": "={{ $json.repo_name }}",
+        "issueNumber": "={{ $json.issue_number }}",
+        "body": "=## 🤖 Auto-Triage Report\n\n| Field | Value |\n|-------|-------|\n| **Severity** | `{{ $json.severity }}` |\n| **Area** | `{{ $json.assignee_area }}` |\n| **Summary** | {{ $json.summary }} |\n\n**Severity Reason:** {{ $json.severity_reason }}\n\n**Assignment Reason:** {{ $json.assignee_reason }}\n\n---\n*Triaged automatically by n8n AI Bug Triage Bot. If incorrect, update labels manually.*"
+      },
+      "id": "node-008",
+      "name": "Post Triage Comment on Issue",
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1,
+      "position": [1340, 440],
+      "credentials": {
+        "githubApi": {
+          "name": "GitHub API"
+        }
+      },
+      "notes": "Posts a formatted triage summary as a comment on the GitHub issue"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.needs_immediate_alert }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "node-009",
+      "name": "Is P0 or P1?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1560, 300],
+      "notes": "Only sends Slack alert for critical/high severity issues"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "channel": "#engineering-alerts",
+        "text": "=🚨 *{{ $json.severity }} Bug Alert — Immediate Attention Required*",
+        "attachments": [
+          {
+            "color": "={{ $json.slack_color }}",
+            "fields": {
+              "item": [
+                {
+                  "title": "Issue",
+                  "value": "={{ $json.issue_title }}",
+                  "short": false
+                },
+                {
+                  "title": "Summary",
+                  "value": "={{ $json.summary }}",
+                  "short": false
+                },
+                {
+                  "title": "Severity",
+                  "value": "={{ $json.severity }}",
+                  "short": true
+                },
+                {
+                  "title": "Area",
+                  "value": "={{ $json.assignee_area }}",
+                  "short": true
+                },
+                {
+                  "title": "Reporter",
+                  "value": "={{ $json.issue_author }}",
+                  "short": true
+                },
+                {
+                  "title": "Repo",
+                  "value": "={{ $json.repo_full_name }}",
+                  "short": true
+                },
+                {
+                  "title": "Link",
+                  "value": "={{ $json.issue_url }}",
+                  "short": false
+                }
+              ]
+            }
+          }
+        ],
+        "otherOptions": {
+          "mrkdwn": true
+        }
+      },
+      "id": "node-010",
+      "name": "Slack Alert — Critical Bug",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1780, 200],
+      "credentials": {
+        "slackOAuth2Api": {
+          "name": "Slack OAuth2"
+        }
+      },
+      "notes": "Sends a rich Slack alert for P0/P1 issues. Change #engineering-alerts to your channel."
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ status: 'triaged', issue: $('Extract Issue Data').first().json.issue_number, severity: $('Parse AI Triage Result').first().json.severity }) }}"
+      },
+      "id": "node-011",
+      "name": "Webhook Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1780, 420],
+      "notes": "Returns triage result to GitHub webhook for confirmation"
+    }
+  ],
+  "connections": {
+    "GitHub Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Filter — New Issues Only",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter — New Issues Only": {
+      "main": [
+        [
+          {
+            "node": "Extract Issue Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Extract Issue Data": {
+      "main": [
+        [
+          {
+            "node": "AI Triage — GPT-4o-mini",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Triage — GPT-4o-mini": {
+      "main": [
+        [
+          {
+            "node": "Parse AI Triage Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse AI Triage Result": {
+      "main": [
+        [
+          {
+            "node": "Add Labels to GitHub Issue",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Assign Team on GitHub",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Post Triage Comment on Issue",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Is P0 or P1?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is P0 or P1?": {
+      "main": [
+        [
+          {
+            "node": "Slack Alert — Critical Bug",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack Alert — Critical Bug": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": ""
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "day21-bug-triage-workflow"
+  },
+  "pinData": {},
+  "versionId": "day21-v1",
+  "triggerCount": 0,
+  "tags": [
+    {
+      "name": "engineering",
+      "createdAt": "2026-05-26"
+    },
+    {
+      "name": "ai-triage",
+      "createdAt": "2026-05-26"
+    },
+    {
+      "name": "github",
+      "createdAt": "2026-05-26"
+    },
+    {
+      "name": "30-day-challenge",
+      "createdAt": "2026-05-26"
+    }
+  ]
+}

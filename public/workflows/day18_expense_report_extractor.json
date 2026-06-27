@@ -1,0 +1,519 @@
+{
+  "name": "Day 18 — AI Expense Report Extractor & Categorizer",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "expense-report",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "a1b2c3d4-0001-0001-0001-000000000001",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f1",
+              "name": "employee_name",
+              "value": "={{ $json.body.employee_name || 'Unknown Employee' }}",
+              "type": "string"
+            },
+            {
+              "id": "f2",
+              "name": "employee_email",
+              "value": "={{ $json.body.employee_email || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "f3",
+              "name": "department",
+              "value": "={{ $json.body.department || 'General' }}",
+              "type": "string"
+            },
+            {
+              "id": "f4",
+              "name": "manager_email",
+              "value": "={{ $json.body.manager_email || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "f5",
+              "name": "receipt_text",
+              "value": "={{ $json.body.receipt_text || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "f6",
+              "name": "currency",
+              "value": "={{ $json.body.currency || 'USD' }}",
+              "type": "string"
+            },
+            {
+              "id": "f7",
+              "name": "budget_limit",
+              "value": "={{ $json.body.budget_limit || 500 }}",
+              "type": "number"
+            },
+            {
+              "id": "f8",
+              "name": "submission_date",
+              "value": "={{ new Date().toISOString().split('T')[0] }}",
+              "type": "string"
+            },
+            {
+              "id": "f9",
+              "name": "slack_channel",
+              "value": "={{ $json.body.slack_channel || '#finance-approvals' }}",
+              "type": "string"
+            },
+            {
+              "id": "f10",
+              "name": "sheets_id",
+              "value": "={{ $json.body.sheets_id || 'YOUR_GOOGLE_SHEET_ID' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a1b2c3d4-0002-0002-0002-000000000002",
+      "name": "Set — Normalize Inputs",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [440, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.receipt_text }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            },
+            {
+              "id": "c2",
+              "leftValue": "={{ $json.employee_email }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "a1b2c3d4-0003-0003-0003-000000000003",
+      "name": "IF — Valid Submission?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [660, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: false, error: 'Missing required fields: receipt_text and employee_email are required.' }) }}",
+        "options": {
+          "responseCode": 400
+        }
+      },
+      "id": "a1b2c3d4-0004-0004-0004-000000000004",
+      "name": "Respond — 400 Error",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [880, 480]
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "operation": "create",
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "You are an expert finance AI that extracts and categorizes expense data from receipt text.\n\nAnalyze the following receipt/expense text and return ONLY a valid JSON object with no markdown, no explanation.\n\nReceipt text:\n{{ $json.receipt_text }}\n\nEmployee: {{ $json.employee_name }}\nDepartment: {{ $json.department }}\nCurrency: {{ $json.currency }}\nBudget Limit: {{ $json.budget_limit }} {{ $json.currency }}\n\nReturn this exact JSON structure:\n{\n  \"vendor_name\": \"string — name of vendor/merchant\",\n  \"transaction_date\": \"string — date of transaction (YYYY-MM-DD or as found)\",\n  \"total_amount\": \"number — total amount paid\",\n  \"tax_amount\": \"number — tax amount (0 if not found)\",\n  \"subtotal\": \"number — amount before tax\",\n  \"currency\": \"string — currency code\",\n  \"category\": \"string — one of: Meals & Entertainment, Travel & Transport, Accommodation, Software & Subscriptions, Office Supplies, Marketing & Advertising, Training & Education, Medical, Utilities, Other\",\n  \"subcategory\": \"string — more specific category (e.g., Business Lunch, Uber, Flight, Hotel, SaaS Tool)\",\n  \"payment_method\": \"string — Card/Cash/Online/Unknown\",\n  \"business_purpose\": \"string — inferred business purpose in one sentence\",\n  \"is_billable\": \"boolean — is this likely a client-billable expense?\",\n  \"policy_flag\": \"string — 'APPROVED', 'NEEDS_REVIEW', or 'OVER_LIMIT' — flag OVER_LIMIT if total_amount exceeds budget_limit\",\n  \"policy_reason\": \"string — brief reason for flag (empty string if APPROVED)\",\n  \"reimbursable\": \"boolean — is this likely reimbursable to the employee?\",\n  \"confidence_score\": \"number — 1-10, how confident you are in the extraction\",\n  \"notes\": \"string — any important notes or warnings about this receipt\"\n}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a1b2c3d4-0005-0005-0005-000000000005",
+      "name": "OpenAI — Extract & Categorize Expense",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [880, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nconst aiRaw = input.message?.content || input.choices?.[0]?.message?.content || '';\n\n// Clean and parse AI JSON\nlet expense = {};\ntry {\n  const cleaned = aiRaw.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n  expense = JSON.parse(cleaned);\n} catch (e) {\n  // Fallback if AI response can't be parsed\n  expense = {\n    vendor_name: 'Unknown Vendor',\n    transaction_date: new Date().toISOString().split('T')[0],\n    total_amount: 0,\n    tax_amount: 0,\n    subtotal: 0,\n    currency: input.currency || 'USD',\n    category: 'Other',\n    subcategory: 'Unknown',\n    payment_method: 'Unknown',\n    business_purpose: 'Unable to extract — please review manually',\n    is_billable: false,\n    policy_flag: 'NEEDS_REVIEW',\n    policy_reason: 'AI extraction failed — manual review required',\n    reimbursable: true,\n    confidence_score: 1,\n    notes: 'Parse error: ' + e.message\n  };\n}\n\n// Apply budget limit check (override AI if needed)\nconst budgetLimit = parseFloat(input.budget_limit) || 500;\nif (parseFloat(expense.total_amount) > budgetLimit && expense.policy_flag !== 'OVER_LIMIT') {\n  expense.policy_flag = 'OVER_LIMIT';\n  expense.policy_reason = `Amount ${expense.total_amount} ${expense.currency} exceeds limit of ${budgetLimit} ${input.currency}`;\n}\n\n// Build the full expense record\nconst record = {\n  // Employee info\n  employee_name: input.employee_name,\n  employee_email: input.employee_email,\n  department: input.department,\n  manager_email: input.manager_email,\n  submission_date: input.submission_date,\n  // Extracted expense data\n  vendor_name: expense.vendor_name || 'Unknown',\n  transaction_date: expense.transaction_date || input.submission_date,\n  total_amount: expense.total_amount || 0,\n  subtotal: expense.subtotal || 0,\n  tax_amount: expense.tax_amount || 0,\n  currency: expense.currency || input.currency,\n  category: expense.category || 'Other',\n  subcategory: expense.subcategory || '',\n  payment_method: expense.payment_method || 'Unknown',\n  business_purpose: expense.business_purpose || '',\n  is_billable: expense.is_billable ? 'Yes' : 'No',\n  policy_flag: expense.policy_flag || 'APPROVED',\n  policy_reason: expense.policy_reason || '',\n  reimbursable: expense.reimbursable !== false ? 'Yes' : 'No',\n  confidence_score: expense.confidence_score || 5,\n  notes: expense.notes || '',\n  slack_channel: input.slack_channel,\n  sheets_id: input.sheets_id,\n  // Derived helpers\n  needs_approval: expense.policy_flag !== 'APPROVED',\n  expense_id: 'EXP-' + Date.now()\n};\n\nreturn [{ json: record }];\n"
+      },
+      "id": "a1b2c3d4-0006-0006-0006-000000000006",
+      "name": "Code — Parse & Enrich Expense",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1100, 300]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $json.sheets_id }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Expenses",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Expense ID": "={{ $json.expense_id }}",
+            "Submission Date": "={{ $json.submission_date }}",
+            "Employee Name": "={{ $json.employee_name }}",
+            "Employee Email": "={{ $json.employee_email }}",
+            "Department": "={{ $json.department }}",
+            "Vendor": "={{ $json.vendor_name }}",
+            "Transaction Date": "={{ $json.transaction_date }}",
+            "Category": "={{ $json.category }}",
+            "Subcategory": "={{ $json.subcategory }}",
+            "Total Amount": "={{ $json.total_amount }}",
+            "Subtotal": "={{ $json.subtotal }}",
+            "Tax Amount": "={{ $json.tax_amount }}",
+            "Currency": "={{ $json.currency }}",
+            "Payment Method": "={{ $json.payment_method }}",
+            "Business Purpose": "={{ $json.business_purpose }}",
+            "Billable": "={{ $json.is_billable }}",
+            "Reimbursable": "={{ $json.reimbursable }}",
+            "Policy Status": "={{ $json.policy_flag }}",
+            "Policy Note": "={{ $json.policy_reason }}",
+            "Confidence Score": "={{ $json.confidence_score }}",
+            "Notes": "={{ $json.notes }}"
+          },
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {
+          "cellFormat": "USER_ENTERED"
+        }
+      },
+      "id": "a1b2c3d4-0007-0007-0007-000000000007",
+      "name": "Google Sheets — Log Expense",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [1320, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.needs_approval }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "a1b2c3d4-0008-0008-0008-000000000008",
+      "name": "IF — Needs Approval?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1540, 300]
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $json.slack_channel }}",
+          "mode": "name"
+        },
+        "text": "🚨 *Expense Approval Required*",
+        "otherOptions": {
+          "blocks": [
+            {
+              "type": "section",
+              "text": {
+                "type": "mrkdwn",
+                "text": "🚨 *Expense Requires Review — {{ $json.policy_flag }}*"
+              }
+            },
+            {
+              "type": "section",
+              "fields": [
+                {
+                  "type": "mrkdwn",
+                  "text": "*Employee:*\n{{ $json.employee_name }} ({{ $json.department }})"
+                },
+                {
+                  "type": "mrkdwn",
+                  "text": "*Expense ID:*\n{{ $json.expense_id }}"
+                },
+                {
+                  "type": "mrkdwn",
+                  "text": "*Vendor:*\n{{ $json.vendor_name }}"
+                },
+                {
+                  "type": "mrkdwn",
+                  "text": "*Amount:*\n{{ $json.total_amount }} {{ $json.currency }}"
+                },
+                {
+                  "type": "mrkdwn",
+                  "text": "*Category:*\n{{ $json.category }} › {{ $json.subcategory }}"
+                },
+                {
+                  "type": "mrkdwn",
+                  "text": "*Policy Flag:*\n{{ $json.policy_flag }}"
+                }
+              ]
+            },
+            {
+              "type": "section",
+              "text": {
+                "type": "mrkdwn",
+                "text": "*Reason:* {{ $json.policy_reason }}\n*Business Purpose:* {{ $json.business_purpose }}\n*Confidence Score:* {{ $json.confidence_score }}/10"
+              }
+            },
+            {
+              "type": "divider"
+            },
+            {
+              "type": "context",
+              "elements": [
+                {
+                  "type": "mrkdwn",
+                  "text": "📊 Logged to Google Sheets | ✉️ Employee: {{ $json.employee_email }} | 👔 Manager: {{ $json.manager_email || 'Not set' }}"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "id": "a1b2c3d4-0009-0009-0009-000000000009",
+      "name": "Slack — Approval Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [1760, 180]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.employee_email }}",
+        "subject": "⚠️ Expense {{ $json.expense_id }} — Pending Approval",
+        "emailType": "html",
+        "message": "<!DOCTYPE html><html><body style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;color:#333'><div style='background:#fff3cd;border-left:4px solid #ffc107;padding:15px;border-radius:4px;margin-bottom:20px'><h2 style='margin:0;color:#856404'>⚠️ Expense Pending Review</h2></div><p>Hi <strong>{{ $json.employee_name }}</strong>,</p><p>Your expense submission has been received but requires <strong>{{ $json.policy_flag === 'OVER_LIMIT' ? 'manager approval (over budget limit)' : 'finance team review' }}</strong>.</p><table style='width:100%;border-collapse:collapse;margin:20px 0'><tr style='background:#f8f9fa'><td style='padding:10px;border:1px solid #dee2e6'><strong>Expense ID</strong></td><td style='padding:10px;border:1px solid #dee2e6'>{{ $json.expense_id }}</td></tr><tr><td style='padding:10px;border:1px solid #dee2e6'><strong>Vendor</strong></td><td style='padding:10px;border:1px solid #dee2e6'>{{ $json.vendor_name }}</td></tr><tr style='background:#f8f9fa'><td style='padding:10px;border:1px solid #dee2e6'><strong>Amount</strong></td><td style='padding:10px;border:1px solid #dee2e6'>{{ $json.total_amount }} {{ $json.currency }}</td></tr><tr><td style='padding:10px;border:1px solid #dee2e6'><strong>Category</strong></td><td style='padding:10px;border:1px solid #dee2e6'>{{ $json.category }} › {{ $json.subcategory }}</td></tr><tr style='background:#f8f9fa'><td style='padding:10px;border:1px solid #dee2e6'><strong>Status</strong></td><td style='padding:10px;border:1px solid #dee2e6'><span style='color:#856404;font-weight:bold'>{{ $json.policy_flag }}</span></td></tr><tr><td style='padding:10px;border:1px solid #dee2e6'><strong>Reason</strong></td><td style='padding:10px;border:1px solid #dee2e6'>{{ $json.policy_reason }}</td></tr></table><p>Your manager ({{ $json.manager_email || 'Finance Team' }}) has been notified and will review this shortly.</p><p style='font-size:12px;color:#6c757d;margin-top:30px'>This is an automated message from your expense management system.</p></body></html>",
+        "options": {}
+      },
+      "id": "a1b2c3d4-0010-0010-0010-000000000010",
+      "name": "Gmail — Pending Approval Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [1980, 180]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.employee_email }}",
+        "subject": "✅ Expense {{ $json.expense_id }} — Auto-Approved",
+        "emailType": "html",
+        "message": "<!DOCTYPE html><html><body style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;color:#333'><div style='background:#d4edda;border-left:4px solid #28a745;padding:15px;border-radius:4px;margin-bottom:20px'><h2 style='margin:0;color:#155724'>✅ Expense Auto-Approved</h2></div><p>Hi <strong>{{ $json.employee_name }}</strong>,</p><p>Great news! Your expense has been <strong>automatically approved</strong> and is being processed for reimbursement.</p><table style='width:100%;border-collapse:collapse;margin:20px 0'><tr style='background:#f8f9fa'><td style='padding:10px;border:1px solid #dee2e6'><strong>Expense ID</strong></td><td style='padding:10px;border:1px solid #dee2e6'>{{ $json.expense_id }}</td></tr><tr><td style='padding:10px;border:1px solid #dee2e6'><strong>Vendor</strong></td><td style='padding:10px;border:1px solid #dee2e6'>{{ $json.vendor_name }}</td></tr><tr style='background:#f8f9fa'><td style='padding:10px;border:1px solid #dee2e6'><strong>Date</strong></td><td style='padding:10px;border:1px solid #dee2e6'>{{ $json.transaction_date }}</td></tr><tr><td style='padding:10px;border:1px solid #dee2e6'><strong>Amount</strong></td><td style='padding:10px;border:1px solid #dee2e6'><strong>{{ $json.total_amount }} {{ $json.currency }}</strong></td></tr><tr style='background:#f8f9fa'><td style='padding:10px;border:1px solid #dee2e6'><strong>Category</strong></td><td style='padding:10px;border:1px solid #dee2e6'>{{ $json.category }} › {{ $json.subcategory }}</td></tr><tr><td style='padding:10px;border:1px solid #dee2e6'><strong>Business Purpose</strong></td><td style='padding:10px;border:1px solid #dee2e6'>{{ $json.business_purpose }}</td></tr><tr style='background:#f8f9fa'><td style='padding:10px;border:1px solid #dee2e6'><strong>Reimbursable</strong></td><td style='padding:10px;border:1px solid #dee2e6'>{{ $json.reimbursable }}</td></tr></table><p style='color:#28a745;font-weight:bold'>Your expense has been logged to the finance tracker. Reimbursement will be processed in the next payment cycle.</p><p style='font-size:12px;color:#6c757d;margin-top:30px'>This is an automated message from your expense management system.</p></body></html>",
+        "options": {}
+      },
+      "id": "a1b2c3d4-0011-0011-0011-000000000011",
+      "name": "Gmail — Auto-Approved Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [1760, 420]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: true, expense_id: $json.expense_id, status: $json.policy_flag, vendor: $json.vendor_name, amount: $json.total_amount, currency: $json.currency, category: $json.category, subcategory: $json.subcategory, reimbursable: $json.reimbursable, message: $json.policy_flag === 'APPROVED' ? 'Expense auto-approved and logged.' : 'Expense logged and sent for approval.' }) }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "a1b2c3d4-0012-0012-0012-000000000012",
+      "name": "Respond — 200 Success",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [2200, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Set — Normalize Inputs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set — Normalize Inputs": {
+      "main": [
+        [
+          {
+            "node": "IF — Valid Submission?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF — Valid Submission?": {
+      "main": [
+        [
+          {
+            "node": "OpenAI — Extract & Categorize Expense",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond — 400 Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI — Extract & Categorize Expense": {
+      "main": [
+        [
+          {
+            "node": "Code — Parse & Enrich Expense",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code — Parse & Enrich Expense": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets — Log Expense",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets — Log Expense": {
+      "main": [
+        [
+          {
+            "node": "IF — Needs Approval?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF — Needs Approval?": {
+      "main": [
+        [
+          {
+            "node": "Slack — Approval Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Gmail — Auto-Approved Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack — Approval Alert": {
+      "main": [
+        [
+          {
+            "node": "Gmail — Pending Approval Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail — Pending Approval Email": {
+      "main": [
+        [
+          {
+            "node": "Respond — 200 Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail — Auto-Approved Email": {
+      "main": [
+        [
+          {
+            "node": "Respond — 200 Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": ""
+  },
+  "staticData": null,
+  "tags": [
+    { "id": "tag-day18", "name": "Day 18" },
+    { "id": "tag-finance", "name": "Finance" },
+    { "id": "tag-expense", "name": "Expense" },
+    { "id": "tag-ai", "name": "AI Automation" }
+  ],
+  "triggerCount": 0,
+  "updatedAt": "2026-05-23T00:00:00.000Z",
+  "versionId": "day18-v1"
+}

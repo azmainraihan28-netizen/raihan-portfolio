@@ -1,0 +1,413 @@
+{
+  "name": "Day 12 — Shopify Abandoned Cart AI Follow-Up",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "shopify-abandoned-cart",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "node-webhook",
+      "name": "Shopify Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract checkout data from Shopify abandoned_checkouts/create webhook\nconst body = $input.first().json;\n\nconst checkout = body;\n\nconst cartItems = (checkout.line_items || []).map(item => ({\n  title: item.title || 'Unknown Product',\n  quantity: item.quantity || 1,\n  price: parseFloat(item.price || 0)\n}));\n\nconst totalValue = parseFloat(checkout.total_price || 0);\nconst currency = checkout.currency || 'USD';\nconst customerEmail = checkout.email || '';\nconst customerName = (checkout.billing_address?.first_name || checkout.shipping_address?.first_name || 'there');\nconst checkoutUrl = checkout.abandoned_checkout_url || '#';\nconst checkoutId = checkout.id || '';\nconst shopDomain = checkout.domain || '';\n\nif (!customerEmail) {\n  throw new Error('NO_EMAIL: Customer email missing — skipping follow-up');\n}\n\nreturn [{\n  json: {\n    checkoutId,\n    shopDomain,\n    customerEmail,\n    customerName,\n    cartItems,\n    totalValue,\n    currency,\n    checkoutUrl,\n    isHighValue: totalValue >= 100,\n    cartSummary: cartItems.map(i => `${i.quantity}x ${i.title} ($${i.price})`).join(', '),\n    itemCount: cartItems.length\n  }\n}];\n"
+      },
+      "id": "node-extract",
+      "name": "Extract Checkout Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "hours"
+      },
+      "id": "node-wait",
+      "name": "Wait 1 Hour",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [680, 300],
+      "webhookId": "wait-webhook-id"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://{{ $json.shopDomain }}/admin/api/2024-01/orders.json?email={{ $json.customerEmail }}&status=any&created_at_min={{ new Date(Date.now() - 2*60*60*1000).toISOString() }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "node-check-order",
+      "name": "Check If Order Placed",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [900, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "shopify-admin-api-cred",
+          "name": "Shopify Admin API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond-order-check",
+              "leftValue": "={{ $json.orders.length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "node-if-order",
+      "name": "Order Already Placed?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "resource": "chat",
+        "operation": "create",
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list"
+        },
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are an expert e-commerce copywriter who writes short, warm, and highly personalized abandoned cart recovery emails. You write as if you're a friendly human from the store — never robotic or salesy. Keep it under 150 words."
+            },
+            {
+              "role": "user",
+              "content": "=Write an abandoned cart recovery email for:\n\nCustomer Name: {{ $('Extract Checkout Data').first().json.customerName }}\nCart Items: {{ $('Extract Checkout Data').first().json.cartSummary }}\nCart Total: {{ $('Extract Checkout Data').first().json.currency }} {{ $('Extract Checkout Data').first().json.totalValue }}\nCheckout Link: {{ $('Extract Checkout Data').first().json.checkoutUrl }}\nHigh Value Cart (100+): {{ $('Extract Checkout Data').first().json.isHighValue }}\n\nIf high value cart, include a 10% off discount code: COMEBACK10\nIf not high value, just remind them warmly without a discount.\n\nReturn ONLY valid JSON in this exact format:\n{\n  \"subject\": \"...\",\n  \"preheader\": \"...\",\n  \"body_html\": \"...\",\n  \"icebreaker\": \"one personalized opening sentence only\"\n}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node-openai",
+      "name": "AI Writes Recovery Email",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [1340, 160],
+      "credentials": {
+        "openAiApi": {
+          "id": "openai-api-cred",
+          "name": "OpenAI API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.first().json.message?.content || $input.first().json.choices?.[0]?.message?.content || '';\n\nlet parsed;\ntry {\n  const jsonMatch = raw.match(/\\{[\\s\\S]*\\}/);\n  parsed = JSON.parse(jsonMatch ? jsonMatch[0] : raw);\n} catch(e) {\n  // Fallback email if AI parsing fails\n  parsed = {\n    subject: `Hey {{ $('Extract Checkout Data').first().json.customerName }}, you forgot something!`,\n    preheader: 'Your cart is waiting for you...',\n    body_html: `<p>Hi {{ $('Extract Checkout Data').first().json.customerName }},</p><p>You left some great items in your cart. Come back and complete your order!</p><p><a href='{{ $('Extract Checkout Data').first().json.checkoutUrl }}'>Complete My Order</a></p>`,\n    icebreaker: 'We noticed you left something behind.'\n  };\n}\n\nconst checkoutData = $('Extract Checkout Data').first().json;\n\nreturn [{\n  json: {\n    ...checkoutData,\n    emailSubject: parsed.subject,\n    emailPreheader: parsed.preheader,\n    emailBodyHtml: parsed.body_html,\n    icebreaker: parsed.icebreaker,\n    generatedAt: new Date().toISOString()\n  }\n}];\n"
+      },
+      "id": "node-parse",
+      "name": "Parse AI Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1560, 160]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond-highvalue",
+              "leftValue": "={{ $json.isHighValue }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "node-if-highvalue",
+      "name": "High Value Cart?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1780, 160]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.customerEmail }}",
+        "subject": "={{ $json.emailSubject }} 🎁 + 10% Off Just For You",
+        "emailType": "html",
+        "message": "={{ $json.emailBodyHtml }}",
+        "options": {
+          "replyTo": "support@yourstore.com"
+        }
+      },
+      "id": "node-gmail-high",
+      "name": "Send Recovery Email (High Value + Discount)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [2000, 60],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gmail-oauth-cred",
+          "name": "Gmail OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.customerEmail }}",
+        "subject": "={{ $json.emailSubject }}",
+        "emailType": "html",
+        "message": "={{ $json.emailBodyHtml }}",
+        "options": {
+          "replyTo": "support@yourstore.com"
+        }
+      },
+      "id": "node-gmail-low",
+      "name": "Send Recovery Email (Standard)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [2000, 280],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gmail-oauth-cred",
+          "name": "Gmail OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Sheet1",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date": "={{ $json.generatedAt }}",
+            "Customer Email": "={{ $json.customerEmail }}",
+            "Customer Name": "={{ $json.customerName }}",
+            "Cart Total": "={{ $json.currency }} {{ $json.totalValue }}",
+            "Cart Items": "={{ $json.cartSummary }}",
+            "Item Count": "={{ $json.itemCount }}",
+            "High Value": "={{ $json.isHighValue ? 'YES' : 'NO' }}",
+            "Email Subject": "={{ $json.emailSubject }}",
+            "Icebreaker": "={{ $json.icebreaker }}",
+            "Checkout URL": "={{ $json.checkoutUrl }}",
+            "Status": "Email Sent"
+          }
+        },
+        "options": {}
+      },
+      "id": "node-sheets",
+      "name": "Log to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [2220, 160],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "google-sheets-cred",
+          "name": "Google Sheets OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false
+          },
+          "conditions": [
+            {
+              "id": "cond-slack-alert",
+              "leftValue": "={{ $('Parse AI Email').first().json.isHighValue }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "node-if-slack",
+      "name": "Alert Slack (High Value Only)?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [2440, 160]
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C_YOUR_SLACK_CHANNEL_ID",
+          "mode": "id"
+        },
+        "text": "=🛒 *High-Value Cart Recovery Triggered!*\n\n👤 *Customer:* {{ $('Parse AI Email').first().json.customerName }} ({{ $('Parse AI Email').first().json.customerEmail }})\n💰 *Cart Value:* {{ $('Parse AI Email').first().json.currency }} {{ $('Parse AI Email').first().json.totalValue }}\n🛍️ *Items:* {{ $('Parse AI Email').first().json.cartSummary }}\n📧 *Email Subject:* {{ $('Parse AI Email').first().json.emailSubject }}\n🔗 *Checkout:* {{ $('Parse AI Email').first().json.checkoutUrl }}\n\n✅ Discount code COMEBACK10 included in email.",
+        "otherOptions": {}
+      },
+      "id": "node-slack",
+      "name": "Slack Alert (High Value Recovery)",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [2660, 60],
+      "credentials": {
+        "slackApi": {
+          "id": "slack-oauth-cred",
+          "name": "Slack OAuth"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "node-noop-slack",
+      "name": "No Slack Alert Needed",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [2660, 280]
+    },
+    {
+      "parameters": {},
+      "id": "node-noop-ordered",
+      "name": "Order Already Placed — Skip",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1340, 440]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={ \"status\": \"accepted\", \"message\": \"Abandoned cart recovery workflow started\", \"checkoutId\": \"{{ $('Extract Checkout Data').first().json.checkoutId }}\" }",
+        "options": {}
+      },
+      "id": "node-respond",
+      "name": "Respond to Shopify",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [680, 500]
+    }
+  ],
+  "connections": {
+    "Shopify Webhook": {
+      "main": [
+        [
+          { "node": "Extract Checkout Data", "type": "main", "index": 0 },
+          { "node": "Respond to Shopify", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Extract Checkout Data": {
+      "main": [
+        [{ "node": "Wait 1 Hour", "type": "main", "index": 0 }]
+      ]
+    },
+    "Wait 1 Hour": {
+      "main": [
+        [{ "node": "Check If Order Placed", "type": "main", "index": 0 }]
+      ]
+    },
+    "Check If Order Placed": {
+      "main": [
+        [{ "node": "Order Already Placed?", "type": "main", "index": 0 }]
+      ]
+    },
+    "Order Already Placed?": {
+      "main": [
+        [{ "node": "AI Writes Recovery Email", "type": "main", "index": 0 }],
+        [{ "node": "Order Already Placed — Skip", "type": "main", "index": 0 }]
+      ]
+    },
+    "AI Writes Recovery Email": {
+      "main": [
+        [{ "node": "Parse AI Email", "type": "main", "index": 0 }]
+      ]
+    },
+    "Parse AI Email": {
+      "main": [
+        [{ "node": "High Value Cart?", "type": "main", "index": 0 }]
+      ]
+    },
+    "High Value Cart?": {
+      "main": [
+        [{ "node": "Send Recovery Email (High Value + Discount)", "type": "main", "index": 0 }],
+        [{ "node": "Send Recovery Email (Standard)", "type": "main", "index": 0 }]
+      ]
+    },
+    "Send Recovery Email (High Value + Discount)": {
+      "main": [
+        [{ "node": "Log to Google Sheets", "type": "main", "index": 0 }]
+      ]
+    },
+    "Send Recovery Email (Standard)": {
+      "main": [
+        [{ "node": "Log to Google Sheets", "type": "main", "index": 0 }]
+      ]
+    },
+    "Log to Google Sheets": {
+      "main": [
+        [{ "node": "Alert Slack (High Value Only)?", "type": "main", "index": 0 }]
+      ]
+    },
+    "Alert Slack (High Value Only)?": {
+      "main": [
+        [{ "node": "Slack Alert (High Value Recovery)", "type": "main", "index": 0 }],
+        [{ "node": "No Slack Alert Needed", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": ""
+  },
+  "staticData": null,
+  "tags": ["ecommerce", "shopify", "abandoned-cart", "ai", "gmail", "day12"],
+  "triggerCount": 1,
+  "updatedAt": "2026-05-17T00:00:00.000Z",
+  "versionId": "day12-v1"
+}

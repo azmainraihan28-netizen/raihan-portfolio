@@ -1,0 +1,177 @@
+---
+day: 14
+slug: day14-social-listening-ai
+title: "AI Social Listening"
+tagline: "scheduled n8n workflow that"
+week: 2
+category: "Marketing & Sales"
+industries: ["SaaS", "Agencies", "E-commerce", "Founders", "Consulting"]
+tools: ["n8n", "OpenAI", "GPT-4o-mini", "Google Sheets", "Slack", "Reddit", "NewsAPI"]
+nodes: 12
+costPerRun: "~$0.001"
+heroMetric: "~$0.8k peak build value"
+priceLow: 300
+priceHigh: 800
+featured: false
+workflowJson: "/workflows/day14_social_listening_ai.json"
+linkedinPost: "/posts/day14"
+targetUsers: "SaaS founders, e-commerce brands, agencies, consultants, local businesses"
+screenshot: "/workflows/shots/day14.png"
+---
+## The Problem
+
+1. Brand mentions go unnoticed for 72+ hours — viral complaints damage reputation before anyone responds
+2. Manual monitoring of Reddit, news, and review sites wastes 30–60 mins/day
+3. Enterprise tools (Brandwatch, Mention.com) cost $300–$1,000+/month for features most teams use 20% of
+4. Generic alerts say "someone mentioned you" — no context, no urgency, no action guidance
+5. No team awareness system — the right person finds out last when something blows up
+
+## The Solution
+
+A scheduled n8n workflow that:
+- Pulls up to 50 brand mentions from Reddit + NewsAPI every 6 hours (100% free sources)
+- Normalizes both sources into a single unified mention schema
+- Runs each mention through GPT-4o-mini: 10 intelligence fields including sentiment, urgency, intent, emotion, priority score (1–10), and a pre-written suggested response
+- Logs a 20-column intelligence database to Google Sheets automatically
+- Fires a rich Slack alert for every high-urgency mention — with the draft response already written
+- Secondary Slack "response queue" for any mention flagged as needing a reply
+
+## How It Works
+
+Node-by-node flow:
+
+- **Schedule Trigger** — runs every 6 hours
+- **Set** — single config block (brand, API keys, Sheets ID, Slack channel)
+- **HTTP Request (×2)** — Reddit API + NewsAPI
+- **Code (×2)** — Normalizes both sources into unified schema
+- **Merge** — combines both streams
+- **SplitInBatches** — processes one mention at a time
+- **HTTP Request (OpenAI)** — GPT-4o-mini: sentiment, intent, urgency, emotion, priority, suggested response
+- **Code** — safe JSON parser with fallback on error
+- **Google Sheets** — 20-column intelligence row per mention
+- **IF (×2)** — routes high urgency and response-needed mentions
+- **Slack (×2)** — urgent alert + response queue channel
+- **No Op** — silent pass for monitor/ignore actions
+
+## Credentials & Setup
+
+- NewsAPI Key (free at newsapi.org — 100 requests/day)
+- OpenAI API Key
+- Google Sheets OAuth2
+- Slack OAuth2 (optional but recommended)
+
+## Pricing Packages
+
+- Fiverr/Upwork setup: **$300–$800**
+- Multi-brand agency version: **$1,500–$3,000**
+- Add Twitter/X + Instagram via Apify: **$800–$1,500**
+- Monthly retainer: **$100–$300/month**
+- Bundle with Day 9 + Day 10 → Full Reputation + Outreach package: **$1,500–$2,500**
+
+## The Original LinkedIn Post
+
+<details>
+<summary>Read the post that announced this build</summary>
+
+# Day 14 LinkedIn Post — AI Social Listening
+
+---
+
+## 📌 Pain Points Identified
+
+**Target Users:** SaaS founders, e-commerce brands, agencies, consultants, local businesses
+
+1. **Mentions go unnoticed for days** — brands discover a viral complaint thread 72 hours after it exploded, when the damage is already done
+2. **Manual monitoring doesn't scale** — scrolling Reddit, Google News, and review sites every morning wastes 30–60 minutes of ops/marketing time per day
+3. **Enterprise tools are overkill** — Brandwatch, Sprout Social, and Mention.com cost $300–$1,000+/month for features most small teams use 20% of
+4. **Generic alerts are useless** — getting an email that says "someone mentioned you" tells you nothing; you need urgency, sentiment, intent, and a draft response — instantly
+5. **No team awareness** — when something goes viral, the right person finds out last because there's no centralized alert system
+
+---
+
+## ✅ Solution (30-second version)
+
+A scheduled n8n workflow that pulls brand mentions from **Reddit + NewsAPI every 6 hours**, runs each through **GPT-4o-mini** for 10-field intelligence enrichment (sentiment, urgency, intent, emotion, priority score, draft response), logs a **20-column intelligence database** to Google Sheets, and fires a **rich Slack alert** for every high-urgency mention — pre-written response already included.
+
+Cost: ~$0.0003 per mention analyzed. No monthly SaaS subscription needed.
+
+---
+
+## 🔧 Workflow Summary
+
+| Node | Function |
+|------|----------|
+| Schedule Trigger | Runs every 6 hours automatically |
+| Set Config | Single block to configure brand, API keys, sheet ID |
+| Reddit Search | Pulls last 25 mentions sorted by new |
+| NewsAPI Search | Pulls last 25 news articles mentioning brand |
+| Normalize Reddit/News | Converts both into a unified schema |
+| Merge + SplitInBatches | Combines streams, processes 1 mention at a time |
+| AI Analyze Mention | GPT-4o-mini: sentiment, intent, urgency, emotion, priority score, suggested response |
+| Parse AI Analysis | Safe JSON parser with fallback on error |
+| Log to Google Sheets | 20-column intelligence row per mention |
+| Is High Urgency? | Routes to Slack alert if urgency = high |
+| Slack Urgent Alert | Rich formatted alert with draft response + original link |
+| Needs Response? | Secondary route for any mention flagged needs_response |
+| Slack Response Queue | Posts draft to team for quick copy-paste reply |
+
+---
+
+## 💰 Gig / Sale Value
+
+- **Fiverr / Upwork setup:** $300–$800
+- **Multi-brand agency version:** $1,500–$3,000
+- **Add Twitter/X + Instagram (Apify) sources:** $800–$1,500
+- **Monthly retainer** (monitoring + reporting): $100–$300/month
+- **Bundle with Day 9 (cold email) + Day 10 (review aggregator):** Full Reputation + Outreach package at $1,500–$2,500
+
+---
+
+## 📣 LinkedIn Caption
+
+---
+
+**Your brand is being talked about right now. Are you the last to know? 🔍**
+
+Most businesses find out about a viral Reddit thread or a damaging news article 3 days after it happens.
+
+By then, the narrative is set. The damage is done.
+
+I built a fully automated AI Social Listening engine in n8n — it runs every 6 hours, monitors Reddit + News, and sends a rich Slack alert the moment something needs your attention.
+
+With a **pre-written response draft already included.**
+
+Here's what it does:
+
+→ Pulls brand mentions from Reddit + NewsAPI automatically
+→ GPT-4o-mini classifies each: sentiment, intent, emotion, urgency (scored 1–10)
+→ Logs a 20-column intelligence database to Google Sheets
+→ Fires a priority Slack alert for anything that needs immediate action
+→ Includes a suggested response — copy, personalize, post. Done.
+
+All of this costs roughly **$0.0003 per mention** analyzed.
+
+Brandwatch charges $800/month for the same outcome.
+
+This is **Day 14** of my 30-day n8n automation challenge — building 1 sellable, real-world workflow every single day.
+
+Every workflow is:
+✅ Ready to import (JSON in comments)
+✅ Built for global use — any business, any industry
+✅ Designed to sell as a gig or client deliverable
+
+Want this set up for your brand or your clients?
+
+👇 Drop "LISTEN" in the comments and I'll send you the JSON file.
+
+---
+
+🔁 Repost if you know a founder who's flying blind on their brand reputation.
+
+#n8n #AIAutomation #SocialListening #BrandMonitoring #WorkflowAutomation #NoCode #AITools #Automation #GrowthHacking #DigitalMarketing #FreelanceAutomation
+
+---
+
+*Post tip: Add a screenshot of the n8n workflow canvas as the image. The visual complexity signals expertise without needing explanation.*
+
+</details>

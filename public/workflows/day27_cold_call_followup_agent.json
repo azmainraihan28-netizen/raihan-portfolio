@@ -1,0 +1,481 @@
+{
+  "name": "Day 27 — AI Cold-Call Follow-Up Agent (Twilio)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "twilio-call-status",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "node_webhook",
+      "name": "Webhook (Twilio Call Status)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [100, 300]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "call_sid",
+              "value": "={{ $json.body.CallSid || $json.CallSid || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "a2",
+              "name": "call_status",
+              "value": "={{ $json.body.CallStatus || $json.CallStatus || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "a3",
+              "name": "call_duration",
+              "value": "={{ parseInt($json.body.CallDuration || $json.CallDuration || '0') }}",
+              "type": "number"
+            },
+            {
+              "id": "a4",
+              "name": "from_number",
+              "value": "={{ $json.body.From || $json.From || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "a5",
+              "name": "to_number",
+              "value": "={{ $json.body.To || $json.To || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "a6",
+              "name": "prospect_name",
+              "value": "={{ $json.body.prospect_name || $json.prospect_name || 'Valued Prospect' }}",
+              "type": "string"
+            },
+            {
+              "id": "a7",
+              "name": "prospect_email",
+              "value": "={{ $json.body.prospect_email || $json.prospect_email || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "a8",
+              "name": "prospect_company",
+              "value": "={{ $json.body.prospect_company || $json.prospect_company || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "a9",
+              "name": "call_notes",
+              "value": "={{ $json.body.call_notes || $json.call_notes || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "a10",
+              "name": "rep_name",
+              "value": "={{ $json.body.rep_name || $json.rep_name || 'Your Sales Team' }}",
+              "type": "string"
+            },
+            {
+              "id": "a11",
+              "name": "product_name",
+              "value": "={{ $json.body.product_name || $json.product_name || 'our solution' }}",
+              "type": "string"
+            },
+            {
+              "id": "a12",
+              "name": "min_duration_seconds",
+              "value": "=60",
+              "type": "number"
+            },
+            {
+              "id": "a13",
+              "name": "twilio_account_sid",
+              "value": "={{ $json.body.twilio_account_sid || $json.twilio_account_sid || 'YOUR_TWILIO_ACCOUNT_SID' }}",
+              "type": "string"
+            },
+            {
+              "id": "a14",
+              "name": "twilio_auth_token",
+              "value": "={{ $json.body.twilio_auth_token || $json.twilio_auth_token || 'YOUR_TWILIO_AUTH_TOKEN' }}",
+              "type": "string"
+            },
+            {
+              "id": "a15",
+              "name": "openai_key",
+              "value": "={{ $json.body.openai_key || $json.openai_key || 'YOUR_OPENAI_API_KEY' }}",
+              "type": "string"
+            },
+            {
+              "id": "a16",
+              "name": "sheet_id",
+              "value": "={{ $json.body.sheet_id || $json.sheet_id || 'YOUR_GOOGLE_SHEET_ID' }}",
+              "type": "string"
+            },
+            {
+              "id": "a17",
+              "name": "slack_enabled",
+              "value": "={{ $json.body.slack_enabled === true || $json.slack_enabled === true || false }}",
+              "type": "boolean"
+            },
+            {
+              "id": "a18",
+              "name": "slack_channel",
+              "value": "={{ $json.body.slack_channel || $json.slack_channel || '#sales' }}",
+              "type": "string"
+            },
+            {
+              "id": "a19",
+              "name": "timestamp",
+              "value": "={{ new Date().toISOString() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node_set",
+      "name": "Set — Normalize Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [320, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.call_status }}",
+              "rightValue": "completed",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "c2",
+              "leftValue": "={{ $json.call_duration }}",
+              "rightValue": "={{ $json.min_duration_seconds }}",
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "node_if_qualify",
+      "name": "IF — Qualifying Call?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [540, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ status: 'skipped', reason: 'Call too short or not completed', call_sid: $json.call_sid, duration: $json.call_duration }) }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "node_respond_skip",
+      "name": "Respond — Skip (Short/Incomplete)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [760, 480]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.openai_key }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": []
+        },
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"gpt-4o-mini\",\n  \"response_format\": { \"type\": \"json_object\" },\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are an expert B2B sales follow-up copywriter. Generate personalized, warm, concise follow-up messages after a sales call. Output must be valid JSON.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Generate a follow-up package for a completed sales call.\\n\\nCall Details:\\n- Prospect Name: {{ $json.prospect_name }}\\n- Prospect Company: {{ $json.prospect_company }}\\n- Call Duration: {{ $json.call_duration }} seconds\\n- Sales Rep: {{ $json.rep_name }}\\n- Product/Service: {{ $json.product_name }}\\n- Call Notes: {{ $json.call_notes || 'No notes provided' }}\\n\\nGenerate a JSON object with these exact fields:\\n{\\n  \\\"sms_message\\\": \\\"A warm, friendly SMS follow-up (max 160 characters). Reference the call. No generic templates. Sound human.\\\",\\n  \\\"email_subject\\\": \\\"A compelling email subject line (max 60 chars). Reference the call.\\\",\\n  \\\"email_body_html\\\": \\\"A personalized HTML email body. 3-4 short paragraphs. Reference specific topics from call notes if available. Include a clear CTA. Professional but warm tone. No fluff.\\\",\\n  \\\"next_step\\\": \\\"Recommended next action (e.g. 'Schedule demo', 'Send proposal', 'Follow up in 3 days')\\\",\\n  \\\"lead_temperature\\\": \\\"hot | warm | cold — based on call duration and notes\\\",\\n  \\\"follow_up_day\\\": \\\"Number of days until next follow-up (1, 3, 5, or 7)\\\",\\n  \\\"talking_points_summary\\\": \\\"2-3 sentence summary of what was likely discussed based on notes\\\",\\n  \\\"urgency_score\\\": \\\"1-10 integer — how urgently should the rep follow up?\\\"\\\n}\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "id": "node_openai",
+      "name": "OpenAI — Generate Follow-Up Package",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [760, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\n\nlet parsed = {};\ntry {\n  const raw = item.choices?.[0]?.message?.content || '{}';\n  parsed = JSON.parse(raw);\n} catch (e) {\n  parsed = {\n    sms_message: `Hi ${item.prospect_name || 'there'}, great speaking with you! I'll send over the details we discussed. Let me know if you have any questions.`,\n    email_subject: `Great speaking with you today, ${item.prospect_name || 'there'}!`,\n    email_body_html: `<p>Hi ${item.prospect_name || 'there'},</p><p>It was a pleasure speaking with you today about ${item.product_name || 'our solution'}. I wanted to follow up and share some additional information.</p><p>Please don't hesitate to reach out if you have any questions. I look forward to our next conversation.</p><p>Best regards,<br>${item.rep_name || 'Your Sales Team'}</p>`,\n    next_step: 'Follow up in 3 days',\n    lead_temperature: 'warm',\n    follow_up_day: 3,\n    talking_points_summary: 'General product discussion.',\n    urgency_score: 5\n  };\n}\n\nreturn [{\n  json: {\n    // Pass through all previous fields\n    call_sid: item.call_sid,\n    call_status: item.call_status,\n    call_duration: item.call_duration,\n    from_number: item.from_number,\n    to_number: item.to_number,\n    prospect_name: item.prospect_name,\n    prospect_email: item.prospect_email,\n    prospect_company: item.prospect_company,\n    call_notes: item.call_notes,\n    rep_name: item.rep_name,\n    product_name: item.product_name,\n    twilio_account_sid: item.twilio_account_sid,\n    twilio_auth_token: item.twilio_auth_token,\n    openai_key: item.openai_key,\n    sheet_id: item.sheet_id,\n    slack_enabled: item.slack_enabled,\n    slack_channel: item.slack_channel,\n    timestamp: item.timestamp,\n    // AI outputs\n    sms_message: (parsed.sms_message || '').substring(0, 160),\n    email_subject: parsed.email_subject || 'Great speaking with you today!',\n    email_body_html: parsed.email_body_html || '',\n    next_step: parsed.next_step || 'Follow up in 3 days',\n    lead_temperature: parsed.lead_temperature || 'warm',\n    follow_up_day: parseInt(parsed.follow_up_day) || 3,\n    talking_points_summary: parsed.talking_points_summary || '',\n    urgency_score: parseInt(parsed.urgency_score) || 5\n  }\n}];"
+      },
+      "id": "node_code_parse",
+      "name": "Code — Parse AI Output",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [980, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.twilio.com/2010-04-01/Accounts/{{ $json.twilio_account_sid }}/Messages.json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendHeaders": false,
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "To",
+              "value": "={{ $json.to_number }}"
+            },
+            {
+              "name": "From",
+              "value": "={{ $json.from_number }}"
+            },
+            {
+              "name": "Body",
+              "value": "={{ $json.sms_message }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node_twilio_sms",
+      "name": "Twilio — Send Follow-Up SMS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1200, 180]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.prospect_email }}",
+        "subject": "={{ $json.email_subject }}",
+        "emailType": "html",
+        "message": "={{ $json.email_body_html }}",
+        "options": {}
+      },
+      "id": "node_gmail",
+      "name": "Gmail — Send Follow-Up Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [1200, 340],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gmail_cred",
+          "name": "Gmail OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $json.sheet_id }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Call Log",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $json.timestamp }}",
+            "Call SID": "={{ $json.call_sid }}",
+            "Prospect Name": "={{ $json.prospect_name }}",
+            "Prospect Email": "={{ $json.prospect_email }}",
+            "Prospect Company": "={{ $json.prospect_company }}",
+            "From Number": "={{ $json.from_number }}",
+            "To Number": "={{ $json.to_number }}",
+            "Call Duration (s)": "={{ $json.call_duration }}",
+            "Sales Rep": "={{ $json.rep_name }}",
+            "Call Notes": "={{ $json.call_notes }}",
+            "SMS Sent": "={{ $json.sms_message }}",
+            "Email Subject": "={{ $json.email_subject }}",
+            "Lead Temperature": "={{ $json.lead_temperature }}",
+            "Urgency Score": "={{ $json.urgency_score }}",
+            "Next Step": "={{ $json.next_step }}",
+            "Follow Up In (Days)": "={{ $json.follow_up_day }}",
+            "Talking Points Summary": "={{ $json.talking_points_summary }}"
+          }
+        },
+        "options": {}
+      },
+      "id": "node_sheets",
+      "name": "Google Sheets — Log Call + Follow-Up",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [1200, 500],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "sheets_cred",
+          "name": "Google Sheets OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "s1",
+              "leftValue": "={{ $json.slack_enabled }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "node_if_slack",
+      "name": "IF — Slack Enabled?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1420, 300]
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $json.slack_channel }}",
+          "mode": "name"
+        },
+        "blocksUi": "=[\n  {\n    \"type\": \"header\",\n    \"text\": {\n      \"type\": \"plain_text\",\n      \"text\": \"📞 Call Follow-Up Sent\",\n      \"emoji\": true\n    }\n  },\n  {\n    \"type\": \"section\",\n    \"fields\": [\n      { \"type\": \"mrkdwn\", \"text\": \"*Prospect:*\\n{{ $json.prospect_name }} @ {{ $json.prospect_company }}\" },\n      { \"type\": \"mrkdwn\", \"text\": \"*Call Duration:*\\n{{ Math.floor($json.call_duration / 60) }}m {{ $json.call_duration % 60 }}s\" },\n      { \"type\": \"mrkdwn\", \"text\": \"*Lead Temperature:*\\n{{ $json.lead_temperature === 'hot' ? '🔥 Hot' : $json.lead_temperature === 'warm' ? '☀️ Warm' : '❄️ Cold' }}\" },\n      { \"type\": \"mrkdwn\", \"text\": \"*Urgency Score:*\\n{{ $json.urgency_score }}/10\" }\n    ]\n  },\n  {\n    \"type\": \"section\",\n    \"text\": {\n      \"type\": \"mrkdwn\",\n      \"text\": \"*📋 Summary:*\\n{{ $json.talking_points_summary }}\"\n    }\n  },\n  {\n    \"type\": \"section\",\n    \"text\": {\n      \"type\": \"mrkdwn\",\n      \"text\": \"*✅ Next Step:* {{ $json.next_step }}\\n*📅 Follow Up In:* {{ $json.follow_up_day }} days\"\n    }\n  },\n  {\n    \"type\": \"section\",\n    \"text\": {\n      \"type\": \"mrkdwn\",\n      \"text\": \"*📱 SMS Sent:*\\n_{{ $json.sms_message }}_\"\n    }\n  },\n  {\n    \"type\": \"context\",\n    \"elements\": [\n      {\n        \"type\": \"mrkdwn\",\n        \"text\": \"Rep: {{ $json.rep_name }} | Call SID: {{ $json.call_sid }} | {{ $json.timestamp }}\"\n      }\n    ]\n  }\n]",
+        "otherOptions": {}
+      },
+      "id": "node_slack",
+      "name": "Slack — Manager Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [1640, 200],
+      "credentials": {
+        "slackApi": {
+          "id": "slack_cred",
+          "name": "Slack OAuth"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "node_noop",
+      "name": "No Op — Skip Slack",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1640, 400]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"status\": \"success\",\n  \"call_sid\": \"{{ $json.call_sid }}\",\n  \"prospect\": \"{{ $json.prospect_name }}\",\n  \"sms_sent\": true,\n  \"email_sent\": {{ $json.prospect_email ? 'true' : 'false' }},\n  \"lead_temperature\": \"{{ $json.lead_temperature }}\",\n  \"urgency_score\": {{ $json.urgency_score }},\n  \"next_step\": \"{{ $json.next_step }}\",\n  \"follow_up_in_days\": {{ $json.follow_up_day }}\n}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "node_respond_success",
+      "name": "Respond — Success",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1860, 300]
+    }
+  ],
+  "connections": {
+    "Webhook (Twilio Call Status)": {
+      "main": [
+        [{ "node": "Set — Normalize Fields", "type": "main", "index": 0 }]
+      ]
+    },
+    "Set — Normalize Fields": {
+      "main": [
+        [{ "node": "IF — Qualifying Call?", "type": "main", "index": 0 }]
+      ]
+    },
+    "IF — Qualifying Call?": {
+      "main": [
+        [{ "node": "OpenAI — Generate Follow-Up Package", "type": "main", "index": 0 }],
+        [{ "node": "Respond — Skip (Short/Incomplete)", "type": "main", "index": 0 }]
+      ]
+    },
+    "OpenAI — Generate Follow-Up Package": {
+      "main": [
+        [{ "node": "Code — Parse AI Output", "type": "main", "index": 0 }]
+      ]
+    },
+    "Code — Parse AI Output": {
+      "main": [
+        [
+          { "node": "Twilio — Send Follow-Up SMS", "type": "main", "index": 0 },
+          { "node": "Gmail — Send Follow-Up Email", "type": "main", "index": 0 },
+          { "node": "Google Sheets — Log Call + Follow-Up", "type": "main", "index": 0 },
+          { "node": "IF — Slack Enabled?", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "IF — Slack Enabled?": {
+      "main": [
+        [{ "node": "Slack — Manager Alert", "type": "main", "index": 0 }],
+        [{ "node": "No Op — Skip Slack", "type": "main", "index": 0 }]
+      ]
+    },
+    "Slack — Manager Alert": {
+      "main": [
+        [{ "node": "Respond — Success", "type": "main", "index": 0 }]
+      ]
+    },
+    "No Op — Skip Slack": {
+      "main": [
+        [{ "node": "Respond — Success", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "pinData": {},
+  "versionId": "day27-v1",
+  "triggerCount": 1,
+  "tags": [
+    { "createdAt": "2026-06-01", "updatedAt": "2026-06-01", "id": "tag1", "name": "sales-automation" },
+    { "createdAt": "2026-06-01", "updatedAt": "2026-06-01", "id": "tag2", "name": "twilio" },
+    { "createdAt": "2026-06-01", "updatedAt": "2026-06-01", "id": "tag3", "name": "30-day-challenge" }
+  ]
+}

@@ -1,0 +1,412 @@
+{
+  "name": "Day 16 – AI HR Resume Screener",
+  "nodes": [
+    {
+      "id": "d16-node-0001",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "hr-resume-screener",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "webhookId": "hr-resume-screener-d16"
+    },
+    {
+      "id": "d16-node-0002",
+      "name": "Extract Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [460, 300],
+      "parameters": {
+        "mode": "manual",
+        "duplicateItem": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f001",
+              "name": "candidate_name",
+              "value": "={{ $json.body.candidate_name || $json.body.name || 'Unknown Candidate' }}",
+              "type": "string"
+            },
+            {
+              "id": "f002",
+              "name": "candidate_email",
+              "value": "={{ $json.body.candidate_email || $json.body.email || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "f003",
+              "name": "resume_text",
+              "value": "={{ $json.body.resume_text || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "f004",
+              "name": "job_description",
+              "value": "={{ $json.body.job_description || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "f005",
+              "name": "position",
+              "value": "={{ $json.body.position || 'Open Position' }}",
+              "type": "string"
+            },
+            {
+              "id": "f006",
+              "name": "company",
+              "value": "={{ $json.body.company || 'Hiring Company' }}",
+              "type": "string"
+            },
+            {
+              "id": "f007",
+              "name": "hr_email",
+              "value": "={{ $json.body.hr_email || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "f008",
+              "name": "screened_at",
+              "value": "={{ $now.toISO() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "d16-node-0003",
+      "name": "Validate Input",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [680, 300],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "c001",
+              "leftValue": "={{ $json.resume_text }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            },
+            {
+              "id": "c002",
+              "leftValue": "={{ $json.job_description }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "d16-node-0004",
+      "name": "AI Resume Analyzer",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.7,
+      "position": [900, 180],
+      "parameters": {
+        "resource": "text",
+        "operation": "message",
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "You are a senior HR specialist and talent acquisition expert. Analyze the candidate resume against the job description with objectivity and honesty. Return ONLY valid JSON — no markdown, no backticks, no explanation text outside the JSON.\n\nPosition: {{ $json.position }}\nCompany: {{ $json.company }}\n\nJOB DESCRIPTION:\n{{ $json.job_description }}\n\nCANDIDATE RESUME:\n{{ $json.resume_text }}\n\nReturn EXACTLY this JSON structure (all fields required, no extra keys):\n{\n  \"overall_score\": <integer 1-10>,\n  \"recommendation\": \"<Strong Hire|Hire|Maybe|Reject>\",\n  \"match_percentage\": <integer 0-100>,\n  \"summary\": \"<2-3 sentence honest candidate assessment>\",\n  \"key_strengths\": [\"<strength1>\", \"<strength2>\", \"<strength3>\"],\n  \"skill_gaps\": [\"<gap1>\", \"<gap2>\"],\n  \"red_flags\": [\"<flag1>\"],\n  \"years_of_experience\": \"<e.g. 4-6 years in field>\",\n  \"education_fit\": \"<Strong|Good|Partial|Missing>\",\n  \"culture_fit_score\": <integer 1-10>,\n  \"interview_questions\": [\"<specific question 1>\", \"<specific question 2>\", \"<specific question 3>\"],\n  \"estimated_salary\": \"<e.g. $70,000 - $90,000/year>\",\n  \"standout_factor\": \"<single most notable thing about this candidate in one sentence>\",\n  \"next_action\": \"<Phone Screen|Technical Interview|Panel Interview|Reject|On Hold>\"\n}",
+              "role": "user"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "YOUR_OPENAI_CREDENTIAL_ID",
+          "name": "OpenAI API"
+        }
+      }
+    },
+    {
+      "id": "d16-node-0005",
+      "name": "Parse AI Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1120, 180],
+      "parameters": {
+        "jsCode": "const item = $input.first();\nconst aiContent = item.json.content || item.json.text || item.json.message?.content || '';\n\nlet parsed = {};\ntry {\n  // Strip markdown code fences if present\n  const cleaned = aiContent\n    .replace(/```json\\n?/gi, '')\n    .replace(/```\\n?/g, '')\n    .trim();\n  parsed = JSON.parse(cleaned);\n} catch (e) {\n  // Safe fallback if JSON parse fails\n  parsed = {\n    overall_score: 5,\n    recommendation: 'Maybe',\n    match_percentage: 50,\n    summary: 'AI parsing error — please review this resume manually.',\n    key_strengths: ['Could not extract'],\n    skill_gaps: ['Could not extract'],\n    red_flags: ['Parse error — manual review required'],\n    years_of_experience: 'Unknown',\n    education_fit: 'Unknown',\n    culture_fit_score: 5,\n    interview_questions: ['Please review resume manually'],\n    estimated_salary: 'Unknown',\n    standout_factor: 'Parse error — check raw_ai_response field',\n    next_action: 'On Hold'\n  };\n}\n\nreturn [{\n  json: {\n    // Candidate info (passed through)\n    candidate_name:    item.json.candidate_name,\n    candidate_email:   item.json.candidate_email,\n    position:          item.json.position,\n    company:           item.json.company,\n    hr_email:          item.json.hr_email,\n    screened_at:       item.json.screened_at,\n\n    // AI screening results\n    overall_score:     parsed.overall_score     ?? 5,\n    recommendation:    parsed.recommendation    ?? 'Maybe',\n    match_percentage:  parsed.match_percentage  ?? 50,\n    summary:           parsed.summary           ?? '',\n    key_strengths:     (parsed.key_strengths    || []).join(', '),\n    skill_gaps:        (parsed.skill_gaps       || []).join(', '),\n    red_flags:         (parsed.red_flags        || []).join(', '),\n    years_of_experience: parsed.years_of_experience ?? '',\n    education_fit:     parsed.education_fit     ?? '',\n    culture_fit_score: parsed.culture_fit_score ?? 5,\n    interview_questions: (parsed.interview_questions || []).join(' | '),\n    estimated_salary:  parsed.estimated_salary  ?? '',\n    standout_factor:   parsed.standout_factor   ?? '',\n    next_action:       parsed.next_action       ?? 'On Hold',\n\n    // Keep raw response for debugging\n    raw_ai_response: aiContent.substring(0, 500)\n  }\n}];"
+      }
+    },
+    {
+      "id": "d16-node-0006",
+      "name": "Log to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [1340, 180],
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEETS_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Resume Screening Log",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Screened At":           "={{ $json.screened_at }}",
+            "Candidate Name":        "={{ $json.candidate_name }}",
+            "Candidate Email":       "={{ $json.candidate_email }}",
+            "Position":              "={{ $json.position }}",
+            "Company":               "={{ $json.company }}",
+            "Overall Score":         "={{ $json.overall_score }}",
+            "Match %":               "={{ $json.match_percentage }}",
+            "Recommendation":        "={{ $json.recommendation }}",
+            "Next Action":           "={{ $json.next_action }}",
+            "Years of Experience":   "={{ $json.years_of_experience }}",
+            "Education Fit":         "={{ $json.education_fit }}",
+            "Culture Fit Score":     "={{ $json.culture_fit_score }}",
+            "Key Strengths":         "={{ $json.key_strengths }}",
+            "Skill Gaps":            "={{ $json.skill_gaps }}",
+            "Red Flags":             "={{ $json.red_flags }}",
+            "Estimated Salary":      "={{ $json.estimated_salary }}",
+            "Standout Factor":       "={{ $json.standout_factor }}",
+            "Summary":               "={{ $json.summary }}"
+          }
+        },
+        "options": {}
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOUR_GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "Google Sheets OAuth2"
+        }
+      }
+    },
+    {
+      "id": "d16-node-0007",
+      "name": "Top Candidate?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1560, 180],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "c003",
+              "leftValue": "={{ $json.overall_score }}",
+              "rightValue": 7,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "d16-node-0008",
+      "name": "Slack – Top Candidate Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [1780, 60],
+      "parameters": {
+        "operation": "post",
+        "channel": {
+          "__rl": true,
+          "value": "#hiring",
+          "mode": "name"
+        },
+        "text": "🌟 *Top Candidate Detected!*\n\n👤 *Name:* {{ $json.candidate_name }}  ({{ $json.candidate_email }})\n💼 *Position:* {{ $json.position }}\n🏢 *Company:* {{ $json.company }}\n\n📊 *AI Score:* {{ $json.overall_score }}/10  |  {{ $json.match_percentage }}% match\n✅ *Recommendation:* {{ $json.recommendation }}\n⏭️ *Next Action:* {{ $json.next_action }}\n\n📋 *Summary:*\n{{ $json.summary }}\n\n💪 *Strengths:* {{ $json.key_strengths }}\n⚠️ *Skill Gaps:* {{ $json.skill_gaps }}\n🚩 *Red Flags:* {{ $json.red_flags || 'None' }}\n🎯 *Standout:* {{ $json.standout_factor }}\n💰 *Est. Salary:* {{ $json.estimated_salary }}\n\n📅 _Screened at {{ $json.screened_at }}_",
+        "otherOptions": {
+          "mrkdwn": true
+        }
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "YOUR_SLACK_CREDENTIAL_ID",
+          "name": "Slack OAuth"
+        }
+      }
+    },
+    {
+      "id": "d16-node-0009",
+      "name": "Gmail – Notify HR",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [1780, 220],
+      "parameters": {
+        "operation": "send",
+        "sendTo": "={{ $json.hr_email || 'hr@yourcompany.com' }}",
+        "subject": "🌟 Top Candidate: {{ $json.candidate_name }} — {{ $json.position }} (AI Score: {{ $json.overall_score }}/10)",
+        "emailType": "html",
+        "message": "<div style='font-family:Arial,sans-serif;max-width:680px;margin:0 auto;'><div style='background:linear-gradient(135deg,#667eea,#764ba2);padding:28px 32px;border-radius:8px 8px 0 0;'><h1 style='color:#fff;margin:0;font-size:22px;'>🌟 Top Candidate Screened by AI</h1><p style='color:rgba(255,255,255,0.85);margin:8px 0 0;font-size:14px;'>Automated screening via n8n · {{ $json.screened_at }}</p></div><div style='border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;overflow:hidden;'><table style='width:100%;border-collapse:collapse;font-size:14px;'><tr style='background:#f9fafb;'><td style='padding:14px 16px;font-weight:600;color:#374151;width:36%;border-bottom:1px solid #e5e7eb;'>Candidate</td><td style='padding:14px 16px;color:#111827;border-bottom:1px solid #e5e7eb;'><strong>{{ $json.candidate_name }}</strong><br/><a href='mailto:{{ $json.candidate_email }}' style='color:#6366f1;'>{{ $json.candidate_email }}</a></td></tr><tr><td style='padding:14px 16px;font-weight:600;color:#374151;border-bottom:1px solid #e5e7eb;'>Position</td><td style='padding:14px 16px;color:#111827;border-bottom:1px solid #e5e7eb;'>{{ $json.position }} @ {{ $json.company }}</td></tr><tr style='background:#f9fafb;'><td style='padding:14px 16px;font-weight:600;color:#374151;border-bottom:1px solid #e5e7eb;'>AI Score</td><td style='padding:14px 16px;border-bottom:1px solid #e5e7eb;'><span style='background:#dcfce7;color:#15803d;font-weight:700;padding:3px 10px;border-radius:20px;font-size:15px;'>{{ $json.overall_score }}/10</span>&nbsp;&nbsp;<span style='color:#6b7280;'>{{ $json.match_percentage }}% match to JD</span></td></tr><tr><td style='padding:14px 16px;font-weight:600;color:#374151;border-bottom:1px solid #e5e7eb;'>Recommendation</td><td style='padding:14px 16px;border-bottom:1px solid #e5e7eb;'><strong style='color:#7c3aed;'>{{ $json.recommendation }}</strong></td></tr><tr style='background:#f9fafb;'><td style='padding:14px 16px;font-weight:600;color:#374151;border-bottom:1px solid #e5e7eb;'>Next Action</td><td style='padding:14px 16px;color:#111827;border-bottom:1px solid #e5e7eb;'>{{ $json.next_action }}</td></tr><tr><td style='padding:14px 16px;font-weight:600;color:#374151;border-bottom:1px solid #e5e7eb;'>Summary</td><td style='padding:14px 16px;color:#374151;border-bottom:1px solid #e5e7eb;font-style:italic;'>{{ $json.summary }}</td></tr><tr style='background:#f9fafb;'><td style='padding:14px 16px;font-weight:600;color:#374151;border-bottom:1px solid #e5e7eb;'>Key Strengths</td><td style='padding:14px 16px;color:#15803d;border-bottom:1px solid #e5e7eb;'>{{ $json.key_strengths }}</td></tr><tr><td style='padding:14px 16px;font-weight:600;color:#374151;border-bottom:1px solid #e5e7eb;'>Skill Gaps</td><td style='padding:14px 16px;color:#b45309;border-bottom:1px solid #e5e7eb;'>{{ $json.skill_gaps }}</td></tr><tr style='background:#f9fafb;'><td style='padding:14px 16px;font-weight:600;color:#374151;border-bottom:1px solid #e5e7eb;'>Red Flags</td><td style='padding:14px 16px;color:#dc2626;border-bottom:1px solid #e5e7eb;'>{{ $json.red_flags || 'None detected' }}</td></tr><tr><td style='padding:14px 16px;font-weight:600;color:#374151;border-bottom:1px solid #e5e7eb;'>Experience</td><td style='padding:14px 16px;color:#111827;border-bottom:1px solid #e5e7eb;'>{{ $json.years_of_experience }} | Education: {{ $json.education_fit }}</td></tr><tr style='background:#f9fafb;'><td style='padding:14px 16px;font-weight:600;color:#374151;border-bottom:1px solid #e5e7eb;'>Culture Fit</td><td style='padding:14px 16px;color:#111827;border-bottom:1px solid #e5e7eb;'>{{ $json.culture_fit_score }}/10</td></tr><tr><td style='padding:14px 16px;font-weight:600;color:#374151;border-bottom:1px solid #e5e7eb;'>Interview Questions</td><td style='padding:14px 16px;color:#374151;border-bottom:1px solid #e5e7eb;'>{{ $json.interview_questions }}</td></tr><tr style='background:#f9fafb;'><td style='padding:14px 16px;font-weight:600;color:#374151;border-bottom:1px solid #e5e7eb;'>Est. Salary</td><td style='padding:14px 16px;color:#111827;border-bottom:1px solid #e5e7eb;'>{{ $json.estimated_salary }}</td></tr><tr><td style='padding:14px 16px;font-weight:600;color:#374151;'>Standout Factor</td><td style='padding:14px 16px;color:#4f46e5;font-style:italic;'>{{ $json.standout_factor }}</td></tr></table></div><p style='color:#9ca3af;font-size:12px;text-align:center;margin-top:16px;'>Auto-screened by n8n AI HR Screener — Day 16 of 30-Day Automation Challenge</p></div>",
+        "options": {}
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YOUR_GMAIL_CREDENTIAL_ID",
+          "name": "Gmail OAuth2"
+        }
+      }
+    },
+    {
+      "id": "d16-node-0010",
+      "name": "Skip – Low Score",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1780, 380],
+      "parameters": {}
+    },
+    {
+      "id": "d16-node-0011",
+      "name": "Return Screening Result",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [2020, 180],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({\n  success: true,\n  candidate: $json.candidate_name,\n  email: $json.candidate_email,\n  position: $json.position,\n  overall_score: $json.overall_score,\n  match_percentage: $json.match_percentage,\n  recommendation: $json.recommendation,\n  next_action: $json.next_action,\n  summary: $json.summary,\n  key_strengths: $json.key_strengths.split(', '),\n  skill_gaps: $json.skill_gaps.split(', '),\n  red_flags: $json.red_flags ? $json.red_flags.split(', ') : [],\n  years_of_experience: $json.years_of_experience,\n  education_fit: $json.education_fit,\n  culture_fit_score: $json.culture_fit_score,\n  interview_questions: $json.interview_questions.split(' | '),\n  estimated_salary: $json.estimated_salary,\n  standout_factor: $json.standout_factor,\n  screened_at: $json.screened_at\n}, null, 2) }}",
+        "options": {
+          "responseCode": 200
+        }
+      }
+    },
+    {
+      "id": "d16-node-0012",
+      "name": "400 – Missing Fields",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [900, 440],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\"success\": false, \"error\": \"Missing required fields: resume_text and job_description are both required\", \"required\": [\"resume_text\", \"job_description\"]}",
+        "options": {
+          "responseCode": 400
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [{ "node": "Extract Fields", "type": "main", "index": 0 }]
+      ]
+    },
+    "Extract Fields": {
+      "main": [
+        [{ "node": "Validate Input", "type": "main", "index": 0 }]
+      ]
+    },
+    "Validate Input": {
+      "main": [
+        [{ "node": "AI Resume Analyzer", "type": "main", "index": 0 }],
+        [{ "node": "400 – Missing Fields", "type": "main", "index": 0 }]
+      ]
+    },
+    "AI Resume Analyzer": {
+      "main": [
+        [{ "node": "Parse AI Response", "type": "main", "index": 0 }]
+      ]
+    },
+    "Parse AI Response": {
+      "main": [
+        [{ "node": "Log to Google Sheets", "type": "main", "index": 0 }]
+      ]
+    },
+    "Log to Google Sheets": {
+      "main": [
+        [
+          { "node": "Return Screening Result", "type": "main", "index": 0 },
+          { "node": "Top Candidate?",          "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Top Candidate?": {
+      "main": [
+        [
+          { "node": "Slack – Top Candidate Alert", "type": "main", "index": 0 },
+          { "node": "Gmail – Notify HR",           "type": "main", "index": 0 }
+        ],
+        [
+          { "node": "Skip – Low Score", "type": "main", "index": 0 }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    { "name": "HR" },
+    { "name": "AI" },
+    { "name": "Automation" },
+    { "name": "Day 16" },
+    { "name": "30-Day Challenge" }
+  ],
+  "_meta": {
+    "day": 16,
+    "category": "Internal Ops",
+    "topic": "AI HR Resume Screener",
+    "nodes_count": 12,
+    "credentials_needed": ["OpenAI API", "Google Sheets OAuth2", "Gmail OAuth2", "Slack OAuth (optional)"],
+    "trigger": "Webhook POST",
+    "cost_per_resume": "~$0.001 (GPT-4o-mini)",
+    "setup_instructions": [
+      "1. Import this JSON into n8n (Settings → Import workflow)",
+      "2. Set your OpenAI API credential on the 'AI Resume Analyzer' node",
+      "3. Set your Google Sheets OAuth2 credential + replace YOUR_GOOGLE_SHEETS_ID with your sheet's ID",
+      "4. Set your Gmail OAuth2 credential on 'Gmail – Notify HR' node",
+      "5. Set your Slack OAuth on 'Slack – Top Candidate Alert' node (optional)",
+      "6. Activate the workflow — webhook URL appears on the Webhook node",
+      "7. POST to: https://your-n8n-url/webhook/hr-resume-screener",
+      "8. Payload: { candidate_name, candidate_email, resume_text, job_description, position, company, hr_email }"
+    ],
+    "sample_payload": {
+      "candidate_name": "Jane Smith",
+      "candidate_email": "jane@example.com",
+      "position": "Senior Product Manager",
+      "company": "Acme Corp",
+      "hr_email": "hr@acmecorp.com",
+      "job_description": "We are hiring a Senior PM with 5+ years experience in SaaS, strong data skills, and experience leading cross-functional teams...",
+      "resume_text": "Jane Smith | Product Manager | 6 years experience | Led 3 product launches at Series B startup | SQL, Mixpanel, Figma | MBA from NYU..."
+    }
+  }
+}

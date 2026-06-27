@@ -1,0 +1,180 @@
+---
+day: 23
+slug: day23-research-agent
+title: "Multi-Step AI Research Agent"
+tagline: "webhook-triggered n8n research agent that"
+week: 4
+category: "Advanced & Agentic"
+industries: ["SaaS", "Agencies", "Marketing"]
+tools: ["n8n", "OpenAI", "GPT-4o-mini", "Google Sheets", "Google Docs", "Slack", "SerpAPI", "Webhook"]
+nodes: 19
+costPerRun: "- GPT-4o-mini (2 calls): ~$0.003"
+heroMetric: "- GPT-4o-mini (2 calls): ~$0.003"
+priceLow: 300
+priceHigh: 800
+featured: false
+workflowJson: "/workflows/day23_research_agent.json"
+linkedinPost: "/posts/day23"
+targetUsers: "Content marketers, SEO agencies, freelance writers, bloggers, SaaS marketing teams, content agencies"
+screenshot: "/workflows/shots/day23.png"
+---
+## The Problem
+
+1. Writers spend 3–5 hours per article manually searching, reading, and synthesizing sources — most of it is tedious Google tab-switching
+2. AI tools like ChatGPT hallucinate facts and statistics when writing research-backed content without real sources fed to them
+3. Research quality is inconsistent across a team — different researchers find different information, producing wildly different content quality
+4. Multi-step content workflows require 5+ separate tools (Google, Perplexity, Docs, Grammarly, Notion) — losing hours to context switching per piece
+5. Content agencies and freelancers can't scale production without hiring more researchers at $20–$50/hour
+
+## The Solution
+
+A webhook-triggered n8n research agent that:
+- Accepts any topic via POST request
+- Uses GPT-4o-mini to generate a 5-angle research plan with targeted search queries for each angle
+- Runs SplitInBatches loop — executes 5 real Google searches via SerpAPI and extracts top 3 results + People Also Ask per angle (15 real sources total)
+- Aggregates all research into a structured context and passes it to GPT-4o-mini for a full, fact-grounded draft (~800–1,000 words)
+- Creates a new Google Doc with the complete draft + source list automatically
+- Logs 13 metadata fields to Google Sheets, building a permanent research history database
+- Optional Slack notification with summary + clickable Doc link
+
+## How It Works
+
+Node-by-node flow:
+
+- **Webhook** — POST /research-agent
+- **Set** — Normalizes 9 input fields (topic, output_type, word_count, email, slack_enabled, sheet_id, serpapi_key, openai_key, timestamp)
+- **IF** — Validates topic not empty → 400 error on missing
+- **HTTP Request (OpenAI)** — GPT-4o-mini: generates 5-angle research outline as JSON
+- **Code** — Parses outline, returns 5 separate items for loop (with full context passthrough)
+- **SplitInBatches** — Loops through angles one at a time (batch size: 1)
+- **HTTP Request (SerpAPI)** — Live Google search per angle (5 calls total)
+- **Code** — Extracts top 3 organic results + PAA questions per search
+- **Aggregate** — Collects all 5 angle results into single item after loop completes
+- **Code** — Builds structured 1,500-char research context string from all angles
+- **HTTP Request (OpenAI)** — GPT-4o-mini: writes full research-backed draft as JSON
+- **Code** — Parses draft, handles fallback gracefully
+- **HTTP Request (Google Docs)** — Creates new document with AI-generated title
+- **HTTP Request (Google Docs batchUpdate)** — Inserts full draft + source attribution
+- **Google Sheets** — Logs 13-column research job record
+- **IF** — Routes to Slack or silent skip
+- **Slack** — Rich block message with summary, key points, direct Doc link
+- **No Op** — Silent pass when Slack disabled
+- **Respond to Webhook (×2)** — Returns full JSON result (200) or validation error (400)
+
+## Credentials & Setup
+
+- OpenAI API Key (passed in payload)
+- SerpAPI Key (free tier: 100 searches/month at serpapi.com)
+- Google Docs OAuth2 (n8n Credentials panel)
+- Google Sheets OAuth2 (n8n Credentials panel)
+- Slack OAuth (optional — for team notifications)
+
+## Cost Breakdown
+
+- GPT-4o-mini (2 calls): ~$0.003
+
+## Pricing Packages
+
+- Fiverr/Upwork setup: **$300–$800**
+- With custom topic templates + auto-publish to WordPress/Webflow: **$800–$1,500**
+- Full content production pipeline (research + draft + SEO optimize + publish): **$2,000–$4,000**
+- Monthly retainer (manage + run + report): **$100–$300/month**
+- Bundle with Day 11 (SEO brief generator) → Complete Content Intelligence Package: **$1,000–$2,000**
+
+## The Original LinkedIn Post
+
+<details>
+<summary>Read the post that announced this build</summary>
+
+# Day 23 — LinkedIn Post
+# Topic: Multi-Step AI Research Agent (n8n)
+
+---
+
+## 📋 PAIN POINTS IDENTIFIED
+
+1. Writers and marketers spend 3–5 hours per article manually searching, reading, and synthesizing sources
+2. Research quality is inconsistent — different people gather different information, producing wildly different drafts
+3. AI tools like ChatGPT hallucinate when asked to write research-backed content without real sources
+4. Multi-step workflows require jumping between 5+ tools (Google, Perplexity, Docs, Grammarly, Notion) — losing hours to context switching
+5. Agencies and freelancers can't scale content production without hiring more researchers
+
+**Solution:** A fully automated n8n research agent that goes from topic → 5-angle outline → 5 live Google searches → aggregated research → full AI-written draft → Google Doc → Sheets log → Slack alert. In ~60 seconds. For $0.004 per run.
+
+---
+
+## ✍️ CAPTION (Copy this exactly)
+
+---
+
+I built an AI agent that researches AND writes for you.
+
+Give it a topic. 60 seconds later, you have:
+→ A 5-angle research plan
+→ 15 real Google search results (live, not hallucinated)
+→ A fully structured, ~1,000-word draft
+→ Saved to Google Docs automatically
+→ Logged to Sheets for your content history
+
+No Jasper. No Surfer SEO. No $300/month tools.
+Just n8n + OpenAI + SerpAPI. Total cost: $0.004 per article.
+
+Here's exactly how it works 👇
+
+**Workflow: Multi-Step AI Research Agent**
+
+𝗧𝗿𝗶𝗴𝗴𝗲𝗿: POST request with your topic
+↓
+𝗦𝘁𝗲𝗽 𝟭 — Outline
+GPT-4o-mini generates 5 distinct research angles with targeted Google search queries
+
+↓
+𝗦𝘁𝗲𝗽 𝟮 — Research Loop
+For each angle → SerpAPI runs a real Google search → top 3 results extracted → People Also Ask captured → repeat × 5
+
+↓
+𝗦𝘁𝗲𝗽 𝟯 — Draft Writer
+All 15 sources aggregated → GPT-4o-mini writes a complete, structured draft using ONLY real research (no hallucinations)
+
+↓
+𝗦𝘁𝗲𝗽 𝟰 — Delivery
+→ New Google Doc created with full draft + sources
+→ 13-column research log added to Google Sheets
+→ Slack notification with summary + direct Doc link
+
+**What you get back:**
+✅ Final SEO-optimized title
+✅ Meta description (155 chars)
+✅ Full markdown draft with H2/H3 headers
+✅ Key takeaways + cited sources
+✅ Reading time estimate
+✅ Permanent research history in Sheets
+
+This is a 20-node n8n workflow.
+No coding. No monthly fees. Runs forever.
+
+I'm building one of these every day for 30 days.
+Day 23 of 30.
+
+Want the JSON file? Drop "RESEARCH" in the comments and I'll send it over.
+
+Or DM me if you want this built for your content team 👇
+
+---
+
+#n8n #AIAutomation #ContentMarketing #WorkflowAutomation #NoCode #AIAgent #ContentStrategy #MarketingAutomation #OpenAI #Freelancing #Productivity #SaaSTools #GPT4 #AutomationExpert #LinkedInChallenge
+
+---
+
+## 🎯 POST STRATEGY NOTES
+
+- **Best time to post:** Tuesday–Thursday, 8–10 AM or 12–1 PM (your timezone)
+- **Hook variants to A/B test:**
+  - "I built an AI that researches AND writes for you." ← (current)
+  - "Most AI content tools hallucinate. Mine doesn't. Here's why."
+  - "This n8n workflow replaced a $500/month content research tool."
+- **Engagement tip:** Pin the first comment with the Google Doc link or a screenshot of the workflow canvas
+- **CTA:** Ask for "RESEARCH" in comments — builds comment count which boosts LinkedIn reach
+- **Visual:** Screenshot the n8n canvas showing the loop structure (SplitInBatches → SerpAPI → loop back → Aggregate) — the visual complexity signals real expertise
+
+</details>

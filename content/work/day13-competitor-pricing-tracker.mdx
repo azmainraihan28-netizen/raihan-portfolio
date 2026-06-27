@@ -1,0 +1,183 @@
+---
+day: 13
+slug: day13-competitor-pricing-tracker
+title: "Competitor Pricing Tracker"
+tagline: "scheduled weekday workflow that"
+week: 2
+category: "Marketing & Sales"
+industries: ["SaaS", "Agencies", "E-commerce", "Founders", "Sales", "Consulting"]
+tools: ["n8n", "OpenAI", "GPT-4o-mini", "Google Sheets", "Slack"]
+nodes: 13
+costPerRun: "~$0.001"
+heroMetric: "~$0.6k peak build value"
+priceLow: 200
+priceHigh: 600
+featured: false
+workflowJson: "/workflows/day13_competitor_pricing_tracker.json"
+linkedinPost: "/posts/day13"
+targetUsers: "SaaS founders, sales teams, product managers, agencies, consultants, e-commerce brands"
+screenshot: "/workflows/shots/day13.png"
+---
+## The Problem
+
+1. Pricing changes happen overnight — founders find out weeks later when they lose deals
+2. Manual monitoring of 5 competitor pages wastes 30–45 minutes of daily ops time
+3. Sales reps quote prices without knowing if a competitor just slashed theirs by 20%
+4. Paid tools (Crayon, Klue, Kompyte) cost $500–$2,000/month just for pricing intelligence
+5. No historical record — without a tracker, you can't spot trends, seasonal discounts, or pricing experiments
+
+## The Solution
+
+A scheduled weekday workflow that:
+- Scrapes configured competitor pricing pages every morning at 8 AM via HTTP Request
+- Strips HTML noise and passes a clean text snippet to GPT-4o-mini
+- AI extracts 13 structured fields: price, annual rate, model, free tier, trial, discounts, features, limits, summary
+- Logs a 17-column row to Google Sheets — building a historical pricing intelligence database
+- Sends a formatted Slack morning digest with all competitor data and strategic one-liners
+- Cost: ~$0.001 per competitor per day
+
+## How It Works
+
+Node-by-node flow:
+
+- **Schedule Trigger** — Mon–Fri 8 AM
+- **Set** — Config block: competitor URLs, Sheets ID, Slack toggle, alert threshold
+- **Split Out** — Iterates one competitor at a time
+- **HTTP Request** — Scrapes raw pricing page HTML
+- **Code** — Strips HTML, extracts clean text snippet (3,000 chars)
+- **OpenAI (gpt-4o-mini)** — Extracts 13 structured pricing fields as JSON
+- **Code** — Parses AI response, adds date/time metadata
+- **Google Sheets** — Appends 17-column log row
+- **IF** — Checks if Slack enabled
+- **Aggregate** — Collects all competitors before digest
+- **Code** — Builds formatted Slack digest message
+- **Slack** — Posts morning pricing intelligence digest
+- **No Op** — Silent pass when Slack is disabled
+
+## Credentials & Setup
+
+- OpenAI API Key
+- Google Sheets OAuth2
+- Slack OAuth2 (optional)
+
+## Pricing Packages
+
+- Fiverr/Upwork setup: **$200–$600**
+- With price-change detection + email alerts: **$600–$1,200**
+- Multi-category tracker (pricing + features + reviews): **$1,500–$3,000**
+- Monthly retainer: **$75–$200/month**
+- Bundle with Day 9 (cold email) → Sales Intelligence Package: **$800–$1,500**
+
+## The Original LinkedIn Post
+
+<details>
+<summary>Read the post that announced this build</summary>
+
+# Day 13 — Competitor Pricing Tracker
+## n8n Workflow | LinkedIn Post
+
+---
+
+## 🔍 Pain Points
+
+1. **Pricing changes happen overnight** — competitors quietly drop prices or add features, and you find out weeks later when you lose deals
+2. **Manual monitoring doesn't scale** — checking 5 competitor pricing pages daily takes 30–45 minutes of pure ops time
+3. **Sales teams are flying blind** — reps quote prices without knowing if a competitor just slashed theirs by 20%
+4. **Paid tools are overkill** — platforms like Crayon, Klue, and Kompyte cost $500–$2,000/month just for pricing data
+5. **No historical record** — without a tracker, you can't spot trends, seasonal discounts, or pricing experiments competitors run
+
+---
+
+## ✅ Solution
+
+A scheduled n8n workflow that:
+- Runs **every weekday morning at 8 AM** — scrapes your configured competitor pricing pages automatically
+- Cleans the raw HTML and feeds a meaningful text snippet to **GPT-4o-mini**
+- AI extracts: monthly price, annual price, currency, pricing model, free tier, trial days, discounts, key features, usage limits, and a strategic summary
+- Logs a **17-column row** to Google Sheets — building a historical pricing database over time
+- Sends a rich **Slack digest** each morning with all competitor prices, links, and one-line strategic insights in a single message
+
+**Cost to run:** ~$0.001 per competitor per day (GPT-4o-mini)
+**Setup time:** 15–20 minutes
+
+---
+
+## ⚙️ Workflow Nodes
+
+| Node | Purpose |
+|------|---------|
+| Schedule Trigger | Runs Mon–Fri at 8 AM |
+| Set (Config) | Define competitors list, Sheets ID, alert settings |
+| Split Out | Iterates one competitor at a time |
+| HTTP Request | Scrapes pricing page HTML |
+| Code | Strips HTML → clean text snippet |
+| OpenAI (gpt-4o-mini) | Extracts 13 structured pricing fields |
+| Code | Parses AI JSON, adds timestamps |
+| Google Sheets | Appends 17-column log row |
+| IF | Checks if Slack notifications are enabled |
+| Aggregate | Collects all competitors before digest |
+| Code | Builds formatted Slack digest message |
+| Slack | Posts morning pricing intelligence digest |
+| No Op | Silent pass when Slack is disabled |
+
+---
+
+## 🔐 Credentials Needed
+
+- OpenAI API Key
+- Google Sheets OAuth2
+- Slack OAuth2 (optional)
+
+---
+
+## 💰 Gig / Sale Value
+
+- Fiverr/Upwork setup: **$200–$600**
+- Add price-change detection + email alerts: **$600–$1,200**
+- Multi-category tracker (pricing + features + reviews): **$1,500–$3,000**
+- Monthly retainer for maintenance + new competitors: **$75–$200/month**
+- Bundle with Day 9 (cold email) → **Sales Intelligence Package: $800–$1,500**
+
+---
+
+## 📣 LinkedIn Caption
+
+---
+
+**Your competitors changed their pricing last night.**
+
+**Did you know?**
+
+Most founders find out weeks later — when they lose a deal.
+
+I built an n8n workflow that monitors competitor pricing pages **every morning at 8 AM** so your sales team always walks into conversations with the latest intel.
+
+Here's exactly what it does:
+
+→ Scrapes your competitors' pricing pages automatically
+→ Feeds the content to GPT-4o-mini for structured extraction
+→ Pulls: monthly price, annual price, free tier, trial length, pricing model, discounts, and key features
+→ Logs everything to Google Sheets — building a historical pricing database over time
+→ Delivers a clean Slack digest every morning with strategic insights per competitor
+
+No Crayon. No Klue. No $2,000/month tool.
+
+Just a 13-node n8n workflow that costs **less than $0.001 per competitor per day** to run.
+
+This is Day 13 of my 30-day n8n automation challenge — every workflow is real, sellable, and ready to deploy in under 20 minutes.
+
+---
+
+Want the JSON file? Drop a "📊" in the comments and I'll send it over.
+
+Or if you want me to build a custom version for your business — DMs are open.
+
+---
+
+**#n8n #AIAutomation #NoCode #CompetitorIntelligence #SalesAutomation #WorkflowAutomation #PricingStrategy #AITools #Automation #LinkedInChallenge**
+
+---
+*Day 13/30 | Difficulty: ⭐⭐⭐ Intermediate*
+*Workflow file: day13_competitor_pricing_tracker.json*
+
+</details>
