@@ -137,17 +137,17 @@ POST /doc-qa
 
 **Sample input:**
 ```json
-{
+\{
   "question": "What is the refund policy for enterprise customers?",
   "max_docs": 5,
   "asked_by": "alice@company.com",
   "slack_enabled": true
-}
+\}
 ```
 
 **Sample output:**
 ```json
-{
+\{
   "answer": "Enterprise customers are eligible for a full refund within 30 days if SLA benchmarks are not met — per the Enterprise Agreement Q1 2024.",
   "sources": ["Enterprise Agreement Q1 2024", "Refund Policy SOP"],
   "confidence": "high",
@@ -157,7 +157,7 @@ POST /doc-qa
   ],
   "tokens_used": 847,
   "estimated_cost_usd": "0.000638"
-}
+\}
 ```
 
 Cost per question: **$0.0006**

@@ -353,10 +353,11 @@ async function main() {
       }
     }
 
-    // Embedded LinkedIn post (raw text in a collapsible details block)
+    // Embedded LinkedIn post (raw text in a collapsible details block).
+    // Final MDX escaping happens once at the bottom across the whole body.
     if (linkedinPostBody) {
       const safe = linkedinPostBody
-        .replace(/<\/?[a-zA-Z][^>]*>/g, '') // strip stray html
+        .replace(/<\/?[a-zA-Z][^>]*>/g, '')   // strip stray html
         .trim();
       body.push('## The Original LinkedIn Post', '');
       body.push('<details>');
@@ -368,7 +369,15 @@ async function main() {
       body.push('');
     }
 
-    const mdx = frontmatter + body.join('\n');
+    // Escape MDX-significant chars in body text so it renders as markdown,
+    // not JSX. Handles literal "{{first_name}}" (would be parsed as JSX
+    // expression) and "<2% recovery" (would be parsed as JSX tag opener).
+    const escapedBody = body
+      .join('\n')
+      .replace(/\{/g, '\\{')
+      .replace(/\}/g, '\\}')
+      .replace(/<(?![a-zA-Z\/])/g, '\\<');
+    const mdx = frontmatter + escapedBody;
     const filename = `day${String(day).padStart(2, '0')}-${slug}.mdx`;
     await fs.writeFile(path.join(OUT_MDX, filename), mdx, 'utf8');
     daysOut.push({ day, slug: `day${day}-${slug}`, file: filename });

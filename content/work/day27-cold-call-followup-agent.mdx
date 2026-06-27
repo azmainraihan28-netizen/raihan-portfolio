@@ -44,7 +44,7 @@ Node-by-node flow:
 
 - **Webhook** — Receives Twilio CallStatus POST callback
 - **Set** — Normalizes 19 input fields (Twilio fields + custom metadata)
-- **IF** — Filters short/incomplete calls (< 60 seconds OR status ≠ completed)
+- **IF** — Filters short/incomplete calls (\< 60 seconds OR status ≠ completed)
 - **HTTP Request (OpenAI)** — GPT-4o-mini: 8-field follow-up package as JSON
 - **Code** — Safely parses AI JSON with full fallback template
 - **HTTP Request (Twilio)** — Sends SMS via Twilio Messages API (Basic Auth)
@@ -133,7 +133,7 @@ Triggers in under 2 minutes from call end. Cost: ~$0.002 per call.
 
 - **Webhook** — Receives Twilio call status callback (POST)
 - **Set** — Normalizes 19 fields from Twilio payload + custom metadata
-- **IF** — Filters out short/incomplete calls (< 60 seconds, non-completed status)
+- **IF** — Filters out short/incomplete calls (\< 60 seconds, non-completed status)
 - **HTTP Request (OpenAI)** — GPT-4o-mini generates SMS, email subject, email body, lead temperature, urgency score, next step, follow-up day
 - **Code** — Safely parses AI JSON with full fallback template
 - **HTTP Request (Twilio)** — Sends SMS via Twilio Messages API
