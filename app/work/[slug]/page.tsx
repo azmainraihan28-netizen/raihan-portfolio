@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, ArrowRight, Download, Linkedin } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Linkedin } from 'lucide-react';
 import { MDXRemote } from 'next-mdx-remote/rsc';
 import { Container, CTAButton, Eyebrow, PriceRange, ToolChip, WeekBadge } from '@/components/ui';
 import { FadeUp, StaggerItem, StaggerOnMount } from '@/components/motion';
@@ -81,15 +81,6 @@ export default async function CaseStudyPage({ params }: { params: { slug: string
 
           <div className="mt-8 flex flex-wrap gap-3">
             <CTAButton href={`/contact?ref=day${w.day}`} variant="primary">Want this for your business?</CTAButton>
-            {w.workflowJson && (
-              <a
-                href={w.workflowJson}
-                download
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm border border-border bg-surface hover:bg-surface2 transition-colors"
-              >
-                <Download size={14} /> Download n8n JSON
-              </a>
-            )}
             <a
               href="https://www.linkedin.com/in/viberaihan/"
               target="_blank"

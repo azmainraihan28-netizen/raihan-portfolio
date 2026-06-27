@@ -253,18 +253,9 @@ async function main() {
     // LinkedIn post path
     const linkedinPost = ft.post ? `/posts/day${day}` : '';
     const linkedinPostSource = ft.post || '';
-    const workflowJson = ft.json ? `/workflows/${ft.json}` : '';
-
-    // Copy JSON
-    if (ft.json) {
-      try {
-        const src = path.join(SOURCE, ft.json);
-        const dst = path.join(OUT_JSON, ft.json);
-        await fs.copyFile(src, dst);
-      } catch (e) {
-        console.warn(`[day${day}] could not copy ${ft.json}: ${e.message}`);
-      }
-    }
+    // Workflow JSONs intentionally NOT exposed publicly — case studies showcase
+    // the work, but the importable JSON is not shared. Field kept empty.
+    const workflowJson = '';
 
     // Pull LinkedIn post body (will be rendered in collapsed section)
     let linkedinPostBody = '';
