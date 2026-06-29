@@ -1,6 +1,10 @@
 import { CTAButton, Container, Eyebrow, SectionTitle } from '@/components/ui';
 import { WorkflowCard } from '@/components/WorkflowCard';
 import { FadeUp, Stagger, StaggerItem, StaggerOnMount } from '@/components/motion';
+import { SignatureAnimation } from '@/components/SignatureAnimation';
+import { CountUpStats } from '@/components/CountUpStats';
+import { Protocol } from '@/components/Protocol';
+import { TrustSignals } from '@/components/TrustSignals';
 import { site } from '@/content/site';
 import { getAllWorkflows, getFeatured } from '@/lib/work';
 import { ArrowRight, Sparkles } from 'lucide-react';
@@ -13,27 +17,22 @@ export default async function HomePage() {
   return (
     <>
       {/* Hero */}
-      <section className="relative">
+      <section className="relative grain overflow-hidden">
         <div className="spotlight absolute inset-0 -z-10" />
-        <Container className="pt-24 pb-20 md:pt-32 md:pb-28">
+        <SignatureAnimation />
+        <Container className="relative pt-24 pb-20 md:pt-32 md:pb-28 z-10">
           <StaggerOnMount className="max-w-4xl">
             <StaggerItem>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border bg-surface/70 text-xs text-muted font-mono">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border bg-surface/70 backdrop-blur text-xs text-muted font-mono">
                 <Sparkles size={12} className="text-accent" /> 30/30 n8n automation challenge — complete
               </div>
             </StaggerItem>
             <StaggerItem>
               <h1 className="mt-6 text-5xl md:text-7xl font-semibold tracking-tight leading-[1.05]">
-                {site.headline.split('$300/month').map((part, i) =>
-                  i === 0 ? (
-                    <span key={i}>{part}</span>
-                  ) : (
-                    <span key={i}>
-                      <span className="text-accent">$300/month</span>
-                      {part}
-                    </span>
-                  ),
-                )}
+                I build AI automations that{' '}
+                <span className="font-serif italic font-normal text-accent">replace</span>{' '}
+                <span className="text-accent">$300/month</span> SaaS tools with{' '}
+                <span className="font-serif italic font-normal">$0.001/run</span> n8n workflows.
               </h1>
             </StaggerItem>
             <StaggerItem>
@@ -53,19 +52,15 @@ export default async function HomePage() {
         </Container>
       </section>
 
-      {/* Stats */}
+      {/* Stats with animated count-ups */}
       <section className="border-y border-border bg-surface/40">
         <Container className="py-10">
-          <Stagger className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {site.stats.map((s) => (
-              <StaggerItem key={s.label}>
-                <div className="font-mono text-3xl md:text-4xl tracking-tight text-text">{s.value}</div>
-                <div className="text-xs text-muted mt-1 uppercase tracking-wider">{s.label}</div>
-              </StaggerItem>
-            ))}
-          </Stagger>
+          <CountUpStats stats={site.stats} />
         </Container>
       </section>
+
+      {/* Protocol — sticky 3-step build process */}
+      <Protocol />
 
       {/* Featured work */}
       <section>
@@ -91,6 +86,11 @@ export default async function HomePage() {
               </StaggerItem>
             ))}
           </Stagger>
+
+          {/* Trust signals */}
+          <div className="mt-16">
+            <TrustSignals />
+          </div>
         </Container>
       </section>
 
