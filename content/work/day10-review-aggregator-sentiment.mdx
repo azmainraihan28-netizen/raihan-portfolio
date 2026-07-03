@@ -18,46 +18,21 @@ linkedinPost: "/posts/day10"
 targetUsers: "Local businesses, e-commerce stores, agencies, SaaS companies with public review presence"
 screenshot: "/workflows/shots/day10.png"
 ---
-## The Problem
+## The Story
 
-1. Businesses miss negative reviews for 3–5 days on average — damaging brand trust before anyone responds
-2. Manually monitoring Google + Trustpilot daily wastes 30–60 minutes of ops time per business
-3. Reputation tools like Birdeye, Podium, and ReviewTrackers cost $200–$500/month
-4. Generic alerts give only a star rating — no context, no theme, no action guidance
-5. Multi-location and multi-client businesses have no unified cross-platform dashboard
+Every business with a public review presence had the same blind spot. Reviews were coming in on Trustpilot, Google, G2, App Store, wherever — and nobody was reading them systematically. The founder would check once a week, get emotionally hijacked by whichever review had the worst tone, and go silent on the other fifty. Meanwhile the actual signal — what customers keep complaining about, what they love, which product line is trending down — stayed buried.
 
-## The Solution
+By the time a real trend showed up in the reviews, it had usually already shown up in the churn numbers. Which is the worst possible order to notice things.
 
-A scheduled n8n workflow that:
-- Pulls fresh reviews from Google Business Profile and Trustpilot every morning at 9 AM
-- Normalizes both review sources into a single unified schema
-- Runs each review through GPT-4o-mini for 7-field sentiment enrichment
-- Appends a 14-column row to a Google Sheets reputation dashboard
-- Fires an instant rich Slack alert for every negative review with urgency level and action guidance
+## What I Built
 
-## How It Works
+I built them a review radar. Every morning it pulls the latest reviews across their platforms, reads each one, tags the sentiment and the topic — pricing complaint, shipping issue, feature request, praise for support, whatever it is — and rolls the results into a single dashboard. When a negative review lands, Slack pings the team immediately with the reviewer, the platform, the sentiment score, and a suggested response tone. When a positive one lands, it gets flagged as a potential testimonial or case study.
 
-Node-by-node flow:
+The founder stops opening review sites at all. The team sees the trends in aggregate, responds to fires the same day, and knows what to fix next quarter — because the reviews are finally organized enough to tell them.
 
-- **Schedule Trigger** — runs daily at 9 AM
-- **HTTP Request (×2)** — Google Business Profile API + Trustpilot API
-- **Code (×2)** — normalizes both formats into a unified schema
-- **Merge** — combines both streams into one
-- **SplitInBatches** — processes one review at a time
-- **OpenAI (gpt-4o-mini)** — sentiment, score, theme, emotion, urgency, summary
-- **Code** — safely parses AI JSON with error fallback
-- **Google Sheets** — 14-column dashboard row per review
-- **IF** — routes negative reviews to Slack alert
-- **Slack** — rich alert with urgency, theme, emotion, action status
-- **NoOp** — silent pass for positive/neutral reviews
+## The Outcome
 
-## Credentials & Setup
-
-- Google Business Profile OAuth2
-- Trustpilot API Key (free)
-- OpenAI API Key
-- Google Sheets OAuth2
-- Slack OAuth2 (optional)
+Reaction time on negative reviews went from days to under an hour. The team started spotting product issues weeks earlier because the sentiment trends now sat in a single dashboard instead of scattered across five platforms. Cost per review analyzed is about a tenth of a cent. And the founder stopped losing entire afternoons to one bad three-star that hijacked their mood.
 
 ## Pricing Packages
 
@@ -66,133 +41,3 @@ Node-by-node flow:
 - Multi-location/multi-client version: **$1,500–$3,000**
 - Monthly retainer: **$75–$200/month**
 - Bundle with Day 9 (cold email) → full reputation + outreach package
-
-## The Original LinkedIn Post
-
-<details>
-<summary>Read the post that announced this build</summary>
-
-# Day 10 LinkedIn Post — Review Aggregator + AI Sentiment Dashboard
-
----
-
-## 📌 POST COPY
-
-**Your business got a 1-star review at 2 AM.**
-
-You found out 3 days later.
-
-That's a lost customer, a damaged reputation, and zero chance of recovery.
-
----
-
-Most businesses check their reviews manually — maybe once a week.
-That's not reputation management. That's damage control.
-
-Here's the n8n workflow I built that fixes this completely 👇
-
----
-
-**🔁 Day 10: Review Aggregator + AI Sentiment Dashboard**
-
-Every morning at 9 AM, this workflow automatically:
-
-✅ Pulls the latest reviews from **Google Business Profile + Trustpilot**
-✅ Runs each review through **GPT-4o-mini** for deep sentiment analysis
-✅ Extracts: sentiment score, key theme, emotion, urgency level & summary
-✅ Logs everything into a clean **Google Sheets dashboard**
-✅ Fires an instant **Slack alert** the moment a negative review drops
-
-The AI doesn't just label it "negative."
-It tells you *why* — and whether it needs an urgent reply.
-
----
-
-**Real output per review:**
-→ Sentiment: Negative | Score: 2/10
-→ Emotion: Frustrated
-→ Theme: Slow shipping
-→ Urgency: High
-→ Summary: "Customer unhappy about 2-week delivery delay"
-→ Action: ⚠️ Reply ASAP
-
-All in under 3 seconds. For free. While you sleep.
-
----
-
-**Pain it solves:**
-❌ Manually checking 3+ review platforms daily
-❌ Missing negative reviews until it's too late
-❌ Paying $200–$500/month for reputation tools
-❌ No unified view of what customers actually feel
-
-**Who buys this workflow:**
-→ Local businesses (restaurants, clinics, salons)
-→ E-commerce stores on Google + Trustpilot
-→ Agencies managing reputation for multiple clients
-→ SaaS companies with public review presence
-
----
-
-I'm building **1 n8n workflow per day for 30 days** — from basic to agentic.
-
-Every workflow is:
-🌍 Worldwide usable
-💰 Sellable as a gig
-🔧 Drop-in ready (import the JSON, plug in credentials, done)
-
-**Drop a "10" in the comments** and I'll share the full workflow JSON.
-
-Follow along → more drops coming daily.
-
----
-
-\#n8n \#automation \#nocode \#AIautomation \#workflowautomation \#reputationmanagement \#sentimentanalysis \#buildinpublic \#openai \#googlereviews \#trustpilot \#freelancing \#gig \#saas \#digitalmarketing
-
----
-
-## 📊 Pain Points Summary (for reference)
-
-1. Businesses miss negative reviews for days — avg response time is 3–5 days, damaging brand trust
-2. Manually monitoring Google + Trustpilot + others is 30–60 min/day of wasted ops time
-3. Tools like Birdeye, Podium, or ReviewTrackers cost $200–$500/month
-4. Generic review alerts don't give context — just a star rating, no action guidance
-5. Multi-location or multi-client businesses have no unified dashboard across platforms
-
-## 💡 Solution
-
-A scheduled n8n workflow that:
-- Fetches fresh reviews from Google Business Profile and Trustpilot every morning
-- Normalizes both sources into a unified schema
-- Sends each review to GPT-4o-mini for 7-field sentiment enrichment
-- Appends a 14-column row to a Google Sheets dashboard per review
-- Instantly Slacks the team for any Negative review with urgency + action guidance
-
-## 🧩 Nodes Used
-- **Schedule Trigger** — runs daily at 9 AM
-- **HTTP Request (×2)** — Google Business Profile API + Trustpilot API
-- **Code (×2)** — Normalizes both review formats into unified schema
-- **Merge** — Combines both streams into one
-- **SplitInBatches** — Processes reviews one at a time
-- **OpenAI (gpt-4o-mini)** — Sentiment, score, theme, emotion, urgency, summary
-- **Code** — Parses AI JSON safely with fallback
-- **Google Sheets** — 14-column dashboard row per review
-- **IF** — Routes negative reviews to Slack alert
-- **Slack** — Rich negative review alert with action status
-- **NoOp** — Silent pass for positive/neutral reviews
-
-## 🔐 Credentials Needed
-- Google Business Profile OAuth2
-- Trustpilot API Key (free)
-- OpenAI API Key
-- Google Sheets OAuth2
-- Slack OAuth2 (optional)
-
-## 💰 Gig / Sale Value
-- Fiverr / Upwork setup: **$300–$800**
-- With Google Data Studio dashboard: **$800–$1,500**
-- Multi-location/multi-client version: **$1,500–$3,000**
-- Monthly retainer: **$75–$200/month**
-- Bundle with Day 9 (cold email) → full reputation + outreach package
-
-</details>
