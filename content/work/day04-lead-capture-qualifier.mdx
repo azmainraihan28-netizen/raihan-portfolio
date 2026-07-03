@@ -18,6 +18,25 @@ linkedinPost: ""
 targetUsers: ""
 screenshot: "/workflows/shots/day4.png"
 ---
-## Overview
+## The Story
 
-A lead capture → ai qualifier → crm + slack workflow from the 30-day n8n automation challenge. Detailed write-up coming soon — meanwhile, the [LinkedIn post](#) and JSON workflow capture the full scope.
+Every agency I worked with had the same leaky pipe. Leads came in through the contact form, dropped into a spreadsheet, and just sat there. By the time a sales person actually looked at them — sometimes hours later, sometimes the next day — the good ones had already gone cold, and the tire-kickers had eaten up whoever tried to follow up first.
+
+Nobody was scoring the leads. Nobody was routing them. The founder was the bottleneck by default, and every deal they closed was one they got lucky enough to see in time.
+
+## What I Built
+
+I built a qualifier that sits behind the contact form and reads every lead the second it comes in. It pulls out the signal — company size, role, urgency in the message, whether they're a real buyer or a random college project — and gives it a score. Hot leads get pushed straight into the CRM tagged as priority, and the sales channel in Slack gets a ping with a one-line summary: who they are, what they want, and why they're worth calling back today. Cold or spammy submissions get logged but don't waste anyone's attention.
+
+The sales team stops opening the form-submission tab and starts opening Slack instead. Every notification is a lead worth their time.
+
+## The Outcome
+
+Response time on hot leads dropped from hours to under a minute. The sales team stopped wasting cycles on tire-kickers because the tire-kickers never made it into their view. Cost per lead scored is a fraction of a cent. And the founder finally stopped being the bottleneck — the pipeline started moving without them.
+
+## Pricing Packages
+
+- Sell as a standalone Fiverr/Upwork service: **$200–$800 setup**
+- Premium with custom scoring rubric per client industry: **$800–$1,500**
+- Full sales-ops bundle (qualifier + cold email + CRM sync): **$2,000–$4,000**
+- Monthly retainer: **$75–$200/month**

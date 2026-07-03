@@ -18,42 +18,21 @@ linkedinPost: "/posts/day7"
 targetUsers: "Freelancers, small business owners, accountants, ops managers, agencies"
 screenshot: "/workflows/shots/day7.png"
 ---
-## The Problem
+## The Story
 
-1. Manual data entry from PDF invoices wastes 2–6 hours/month per person
-2. Missed invoices and receipts lead to lost tax deductions
-3. Bookkeeping tools like Dext/Hubdoc cost $50–$300/month
-4. Remote teams have no centralized, automatic way to track vendor expenses
-5. Accountants bill hourly for work that AI can do in seconds
+Every freelancer and small-team ops person I met had a shoebox problem. Not a literal shoebox anymore — now it's a Gmail folder called "receipts" with three hundred unopened PDFs. Every month, someone has to sit down for two to six hours and manually type each one into a spreadsheet. Vendor name, amount, tax, date, category. Line by line. Just to close the books.
 
-## The Solution
+The cost of getting it wrong is real. Missed receipts mean missed tax deductions. Missed invoices mean missed reimbursements. And the tools that promise to fix this — Dext, Hubdoc — start at fifty a month and top out over three hundred, which is a hard sell when you're already paying an accountant hourly to do the same work anyway.
 
-A Gmail-triggered workflow that:
-- Watches for emails with invoice/receipt/bill keywords and downloads attachments
-- Extracts PDF text and sends it to GPT-4o-mini for structured data extraction
-- Pulls 10+ fields: vendor, amount, tax, date, due date, category, payment status
-- Appends a clean, formatted row to Google Sheets automatically
-- Optionally pings Slack with a summary notification
+## What I Built
 
-## How It Works
+I built a bookkeeping worker that lives inside their inbox. The moment an invoice or receipt lands as an attachment, it's grabbed, read, and understood. The AI pulls out ten-plus fields — vendor, amount, tax, due date, payment status, category — and drops a clean row into their Google Sheet automatically. If the team has a finance Slack channel, a short summary of the expense pings there so nothing hides.
 
-Node-by-node flow:
+They stop thinking about receipts. Receipts turn themselves into rows.
 
-- **Gmail Trigger** — Polls for unread invoice emails with attachments
-- **IF** — Guards against emails with no attachments
-- **Extract From File** — Pulls raw text from PDF attachments
-- **OpenAI (gpt-4o-mini)** — Structured JSON extraction from document text
-- **Code** — Safely parses AI response, handles edge cases
-- **Google Sheets** — Appends 15 columns of financial data per row
-- **Slack** — Team notification (optional)
-- **No-Op** — Silent skip for emails without attachments
+## The Outcome
 
-## Credentials & Setup
-
-- Gmail OAuth
-- OpenAI API Key
-- Google Sheets OAuth
-- Slack OAuth (optional)
+The two-to-six-hour monthly bookkeeping ritual dropped to zero. Cost per extraction is a fraction of a cent — cheaper than the electricity to open the PDF manually. Their accountant now spends billable hours on real advice instead of data entry. And the "receipts folder" that used to be a wall of guilt just sorts itself, quietly, in the background.
 
 ## Pricing Packages
 

@@ -18,50 +18,21 @@ linkedinPost: "/posts/day30"
 targetUsers: "Freelancers, agency owners, n8n consultants, automation sellers on Fiverr/Upwork"
 screenshot: "/workflows/shots/day30.png"
 ---
-## The Problem
+## The Story
 
-1. Manual lead follow-up kills 80% of potential deals — reps forget to follow up after the first email
-2. Writing personalized proposals from scratch for every prospect wastes 2–4 hours per deal
-3. Client onboarding is inconsistent — new clients get different experiences depending on who handles them
-4. No unified system to track the full pipeline: leads → proposals → clients → deliverables
-5. Agencies spend 30–50% of their time on ops tasks (emails, logging, Slack updates) instead of billable work
+Every solo agency owner I met was running three businesses at once and getting crushed by all of them. The first business was landing clients — writing proposals, following up, closing. The second was onboarding new clients — welcome emails, kickoff calls, gathering assets, setting expectations. The third was actually delivering the work while managing check-ins, milestones, and the ten small things that fall through the cracks.
 
-## The Solution
+Any one of these was a full-time job. Doing all three alone, at the same time, was why so many solo agencies stayed stuck at capacity. The moment they landed a client, the delivery consumed them and the pipeline went dry. Then they'd close the project, look up, and realize they had nothing lined up for next month.
 
-A single n8n webhook-triggered workflow with three smart branches controlled by a `stage` field:
-- **`new_lead`** → AI qualifies lead (score 1–10, ICP match, is_hot flag) → sends personalized pitch email → Day 3 + Day 7 follow-ups via Wait nodes → logs to Google Sheets → Slack hot lead alert
-- **`proposal`** → AI generates full HTML proposal (deliverables, timeline, investment, ROI) → sends email → logs to Sheets → Slack alert
-- **`onboard`** → AI writes personalized onboarding package (welcome + Day 3 check-in + Day 7 milestone emails) → sends all 3 with Wait nodes → logs client to Sheets → team Slack announcement
+## What I Built
 
-## How It Works
+I built them a full agency operating system in a single workflow with three smart branches. Send a signal that says "new lead" and it generates a personalized proposal in the agency's voice, drafts the follow-up sequence, and logs the deal. Send "onboard" and it fires the welcome package, schedules the kickoff, spins up the client's project folder, and drops the first check-in into the calendar. Send "delivery" and it runs the ongoing milestone comms — day-three progress note, day-seven update, invoice reminder, wrap-up email.
 
-Node-by-node flow:
+One workflow. Three stages. The whole agency's client lifecycle, from cold lead to closed project, running on the same rails.
 
-- (33 total)
-- **Webhook** — Single entry point for all 3 stages (POST /agency-in-a-box)
-- **Set** — Normalizes 15 input fields with safe defaults
-- **IF (Validate)** — Guards against missing lead_name/email → 400 error
-- **Switch** — Routes to new_lead / proposal / onboard branch
-- **HTTP Request (OpenAI ×3)** — GPT-4o-mini: lead qualifier, proposal writer, onboarding generator (JSON mode)
-- **Code (×3)** — Safely parses each AI JSON response with full fallback templates
-- **Gmail (×7)** — Pitch email, Day 3 follow-up, Day 7 follow-up, proposal, welcome, Day 3 client check-in, Day 7 milestone
-- **Wait (×4)** — 3-day and 4-day delays (both lead follow-up and client check-in sequences)
-- **Google Sheets (×3)** — Logs leads, proposals, and clients to separate sheets
-- **Slack (×3)** — Hot lead alert, proposal sent alert, new client announcement
-- **IF (hot lead check)** — Routes hot leads to Slack, others to NoOp
-- **NoOp** — Silent pass for warm/cold leads
-- **Respond to Webhook (×2)** — Returns 200 success JSON or 400 validation error
+## The Outcome
 
-## Credentials & Setup
-
-- OpenAI API Key (passed in webhook payload as `openai_key`)
-- Gmail OAuth2
-- Google Sheets OAuth2
-- Slack OAuth2 (optional — for all 3 alert types)
-
-## Cost Breakdown
-
-~$0.002 (GPT-4o-mini × 1 call per stage) — effectively free at any agency volume
+The solo agencies that adopted it stopped choosing between pipeline and delivery — both kept moving, because both were mostly automated. Client experience got measurably more consistent because every touchpoint was on-brand and on-time, every time. Cost per client across the full lifecycle is a fraction of a cent. And the capstone lesson from thirty days of building this — the whole point of the challenge — is that you don't need a team to run like one. You need the right thirty workflows in the right order.
 
 ## Pricing Packages
 
@@ -70,120 +41,3 @@ Node-by-node flow:
 - Full Agency OS monthly retainer: **$200–$500/month**
 - White-label for other agencies: **$3,000–$6,000**
 - This is the ultimate portfolio piece — the capstone that proves you can build a complete agency system
-
-## The Original LinkedIn Post
-
-<details>
-<summary>Read the post that announced this build</summary>
-
-# Day 30 LinkedIn Post — Full Agency-in-a-Box
-
----
-
-## 🏆 POST
-
-**Day 30 of 30. I just automated my entire agency.**
-
-Lead comes in.
-AI qualifies them. Scores them 1–10.
-Personalized pitch email sent automatically.
-Day 3 follow-up queued. Day 7 break-up email ready.
-
-They say yes?
-AI writes the full proposal. Sends it instantly.
-Logs everything to Google Sheets.
-Slack alerts the team.
-
-They sign?
-Welcome email fires in seconds.
-Day 3 check-in scheduled. Day 7 milestone email locked in.
-Checklist sent to client. Team notified.
-
-**One webhook. Three stages. Zero manual work.**
-
-This is the Day 30 Capstone — Full Agency-in-a-Box.
-A single n8n workflow that runs your entire agency pipeline.
-
-Lead → Proposal → Onboard.
-Automatically. Intelligently. Sellably.
-
----
-
-30 days. 30 workflows. 30 real problems solved.
-
-Here's what I shipped this month:
-✅ AI email triage
-✅ Lead qualifier + CRM
-✅ Resume screener
-✅ Cold call follow-up agent
-✅ Investor update generator
-✅ Multi-agent onboarding
-✅ Voice-to-Notion task capture
-✅ Personal CRM from Gmail
-✅ Podcast → Blog → Social fanout
-...and 21 more.
-
-Every single workflow is **ready to use**, **globally sellable**, and built to solve real pain.
-
----
-
-If you're a founder, agency owner, or freelancer who wants to:
-
-→ Stop doing repetitive work manually
-→ Build and sell automation packages on Fiverr/Upwork
-→ Run your ops on autopilot while you focus on what matters
-
-**DM me "AGENCY" and I'll send you the full 30-workflow bundle.**
-
-Or if you want me to build a custom automation for your business — I'm taking on 3 new clients this month.
-
-📩 Drop a comment or DM. Let's build.
-
----
-
-*#n8n #automation #aiautomation #nocode #workflowautomation #agencylife #freelancer #saas #operationsautomation #buildingInPublic*
-
----
-
-## 📊 Pain Points This Solves
-
-**For Agency Owners / Freelancers:**
-- Manual lead follow-up kills deals — 80% of sales happen after follow-up #5
-- Writing proposals from scratch for every prospect wastes 2–4 hours per deal
-- Onboarding new clients manually is inconsistent and error-prone
-- No single system to track leads → proposals → clients in one place
-
-**Solution:**
-One n8n workflow with a `stage` field routes the entire pipeline automatically. AI does the writing. Gmail does the sending. Sheets does the logging. You close the deal.
-
-## 💰 Gig/Sale Value
-
-| Package | Price |
-|---------|-------|
-| Basic setup (Fiverr/Upwork) | $800–$2,000 |
-| With CRM sync + custom branding | $2,000–$4,000 |
-| Full Agency OS monthly retainer | $200–$500/month |
-| White-label resell to other agencies | $3,000–$6,000 |
-
----
-
-## 🔧 Credentials Needed
-
-- OpenAI API Key (passed in webhook payload)
-- Gmail OAuth2
-- Google Sheets OAuth2
-- Slack OAuth2 (optional — for alerts)
-
-## 📋 How It Works
-
-POST to `/agency-in-a-box` with `stage`:
-
-**`new_lead`** → AI qualifies → pitch email → Day 3 + Day 7 follow-ups → Sheets log → hot lead Slack alert
-
-**`proposal`** → AI writes proposal → sends email → Sheets log → Slack alert
-
-**`onboard`** → AI generates onboarding package → welcome email → Day 3 check-in → Day 7 milestone → client Sheets log → team Slack announcement
-
-Cost per run: ~$0.002 (GPT-4o-mini). Effectively free.
-
-</details>
