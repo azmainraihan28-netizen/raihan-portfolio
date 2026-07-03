@@ -18,38 +18,23 @@ linkedinPost: "/posts/day5"
 targetUsers: "SaaS founders, e-commerce stores, agencies, freelancers"
 screenshot: "/workflows/shots/day5.png"
 ---
-## The Problem
+## The Story
 
-1. Support teams waste 3–5 hours/day answering the same FAQ questions
-2. Tickets pile up overnight and across timezones — customers wait hours for basic answers
-3. Hiring more support agents is expensive ($2,000–$5,000/month per agent)
-4. Chatbot platforms (Intercom, Drift, Zendesk) cost $300–$1,000+/month
-5. Questions that do need humans get mixed in with simple ones — burning agent time
+Every founder I talked to said the same thing — the support inbox never sleeps. A customer in Sydney asks "how do I reset my password?" at 3 AM. Another one in Berlin wants to know the refund policy. By the time the team wakes up, there are forty tickets waiting, and thirty-eight of them are the exact same five questions asked in slightly different words.
 
-## The Solution
+They were spending three to five hours a day, every day, retyping answers they had already typed a hundred times. Hiring another agent would cost two to five grand a month. Buying a chatbot platform like Intercom or Zendesk would cost another few hundred. And the worst part — while the team drowned in "where's my order?" tickets, the real problems, the ones that actually needed a human, sat buried underneath.
 
-A webhook-triggered AI bot that:
-- Instantly matches customer questions against a customizable FAQ database
-- Answers confidently using GPT-4o-mini (cost: ~$0.0002 per query)
-- Auto-escalates unanswerable questions to Slack for human review
-- Returns structured JSON responses for easy front-end integration
+## What I Built
 
-## How It Works
+I built them a support layer that never sleeps.
 
-Node-by-node flow:
+A customer sends a question — through the site, an email form, a chat widget, anywhere. The bot instantly reads it, understands the intent, and matches it against their own FAQ knowledge base. If it can answer confidently, it replies in seconds, in the brand's tone, with the right context. If the question is something new or genuinely tricky, it doesn't guess — it quietly escalates it to the team's Slack channel with a note saying "this one needs you."
 
-- **Webhook** — Receives customer question (POST)
-- **Set** — Extracts and normalizes fields
-- **OpenAI (gpt-4o-mini)** — FAQ matching + answer generation
-- **Code** — Parses AI response, flags escalation
-- **IF** — Routes to escalation or direct answer path
-- **Slack** — Sends escalation alert to support channel
-- **Respond to Webhook** — Returns structured JSON response (×2)
+The team wakes up to a clean inbox instead of forty repeat questions. Customers get answered in ten seconds instead of ten hours. And the tickets that reach a human are the ones that actually deserve a human.
 
-## Credentials & Setup
+## The Outcome
 
-- OpenAI API Key
-- Slack OAuth (optional — for escalation alerts)
+Cost per answered question came out to about two hundredths of a cent. For a store handling a thousand support questions a month, that's roughly a dollar in AI cost replacing what used to eat an entire salary. Response time dropped from hours to seconds. Weekend and overnight coverage became a non-issue. And the founders finally stopped answering the same five questions in their sleep.
 
 ## Pricing Packages
 
