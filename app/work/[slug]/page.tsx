@@ -14,8 +14,9 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: { params: { slug: string } }) {
   const w = await getWorkflow(params.slug);
   if (!w) return {};
+  const subtitle = w.kind === 'webdev' ? w.client || 'Case study' : `Day ${w.day}`;
   return {
-    title: `${w.title} — Day ${w.day}`,
+    title: `${w.title} — ${subtitle}`,
     description: w.tagline,
     openGraph: { title: w.title, description: w.tagline, type: 'article' },
   };
@@ -50,12 +51,14 @@ export default async function CaseStudyPage({ params }: { params: { slug: string
       {/* Hero */}
       <section className="border-b border-border">
         <Container className="pt-16 pb-10">
-          <div className="flex items-center gap-3 text-sm">
+          <div className="flex items-center gap-3 text-sm flex-wrap">
             <Link href="/work" className="text-muted hover:text-text inline-flex items-center gap-1">
               <ArrowLeft size={14} /> Work
             </Link>
             <span className="text-muted">/</span>
-            <span className="font-mono text-muted">Day {String(w.day).padStart(2, '0')}</span>
+            <span className="font-mono text-muted">
+              {w.kind === 'webdev' ? (w.client || 'Case study') : `Day ${String(w.day).padStart(2, '0')}`}
+            </span>
             <WeekBadge week={w.week} />
             <span className="text-muted">·</span>
             <span className="text-muted">{w.category}</span>
@@ -66,10 +69,21 @@ export default async function CaseStudyPage({ params }: { params: { slug: string
           <p className="mt-4 text-lg text-muted max-w-3xl">{w.tagline}</p>
 
           <StaggerOnMount className="mt-8 grid sm:grid-cols-2 md:grid-cols-4 gap-4">
-            <StaggerItem><Metric label="Cost per run" value={w.costPerRun || '—'} /></StaggerItem>
-            <StaggerItem><Metric label="Nodes" value={w.nodes ? `${w.nodes}` : '—'} /></StaggerItem>
-            <StaggerItem><Metric label="Build price" value={<PriceRange low={w.priceLow} high={w.priceHigh} />} /></StaggerItem>
-            <StaggerItem><Metric label="Hero metric" value={w.heroMetric || '—'} /></StaggerItem>
+            {w.kind === 'automation' ? (
+              <>
+                <StaggerItem><Metric label="Cost per run" value={w.costPerRun || '—'} /></StaggerItem>
+                <StaggerItem><Metric label="Nodes" value={w.nodes ? `${w.nodes}` : '—'} /></StaggerItem>
+                <StaggerItem><Metric label="Build price" value={<PriceRange low={w.priceLow} high={w.priceHigh} />} /></StaggerItem>
+                <StaggerItem><Metric label="Hero metric" value={w.heroMetric || '—'} /></StaggerItem>
+              </>
+            ) : (
+              <>
+                <StaggerItem><Metric label="Client" value={w.client || '—'} /></StaggerItem>
+                <StaggerItem><Metric label="Category" value={w.category} /></StaggerItem>
+                <StaggerItem><Metric label="Build price" value={<PriceRange low={w.priceLow} high={w.priceHigh} />} /></StaggerItem>
+                <StaggerItem><Metric label="Outcome" value={w.heroMetric || '—'} /></StaggerItem>
+              </>
+            )}
           </StaggerOnMount>
 
           {w.tools.length > 0 && (
@@ -80,14 +94,14 @@ export default async function CaseStudyPage({ params }: { params: { slug: string
           )}
 
           <div className="mt-8 flex flex-wrap gap-3">
-            <CTAButton href={`/contact?ref=day${w.day}`} variant="primary">Want this for your business?</CTAButton>
+            <CTAButton href={`/contact?ref=${w.slug}`} variant="primary">Want something like this?</CTAButton>
             <a
               href="https://www.linkedin.com/in/viberaihan/"
               target="_blank"
               rel="noopener"
               className="inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm border border-border bg-surface hover:bg-surface2 transition-colors"
             >
-              <Linkedin size={14} /> See on LinkedIn
+              <Linkedin size={14} /> Message the studio
             </a>
           </div>
         </Container>
@@ -100,12 +114,16 @@ export default async function CaseStudyPage({ params }: { params: { slug: string
             <div className="absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-accent/60 to-transparent" />
             <img
               src={w.screenshot}
-              alt={`${w.title} — n8n workflow screenshot`}
+              alt={`${w.title} — case study preview`}
               loading="lazy"
               className="block w-full h-auto"
             />
           </FadeUp>
-          <div className="mt-3 text-xs text-muted font-mono">Case study card — Day {w.day} of the 30-day n8n challenge</div>
+          <div className="mt-3 text-xs text-muted font-mono">
+            {w.kind === 'webdev'
+              ? `Case study — ${w.client || w.title}`
+              : `Case study card — Day ${w.day} of the 30-day n8n challenge`}
+          </div>
         </Container>
       )}
 
@@ -117,13 +135,15 @@ export default async function CaseStudyPage({ params }: { params: { slug: string
 
         {/* Bottom CTA */}
         <FadeUp className="mt-16 rounded-xl border border-border bg-surface p-8">
-          <Eyebrow>Hire me</Eyebrow>
-          <h3 className="mt-3 text-2xl font-semibold tracking-tight">Get this built for your business.</h3>
+          <Eyebrow>Start a project</Eyebrow>
+          <h3 className="mt-3 text-2xl font-semibold tracking-tight">Want something like this for your business?</h3>
           <p className="mt-2 text-muted max-w-xl">
-            I'll customize it to your stack, deploy to your n8n, and walk your team through it. Standard turnaround: 3–7 days.
+            {w.kind === 'webdev'
+              ? "Tell us the outcome you're after — more signups, a better funnel, a real internal tool. We'll come back with a fixed-price scope in 24 hours."
+              : "We'll adapt this workflow to your stack, deploy to your n8n, and walk your team through it. Turnaround: 3 — 7 days."}
           </p>
           <div className="mt-5">
-            <CTAButton href={`/contact?ref=day${w.day}`} variant="primary">
+            <CTAButton href={`/contact?ref=${w.slug}`} variant="primary">
               Start a project <ArrowRight size={14} />
             </CTAButton>
           </div>
@@ -133,13 +153,13 @@ export default async function CaseStudyPage({ params }: { params: { slug: string
         <div className="mt-10 flex items-stretch gap-4 flex-col sm:flex-row">
           {prev && (
             <Link href={`/work/${prev.slug}`} className="flex-1 rounded-lg border border-border bg-surface p-5 hover:bg-surface2 transition-colors">
-              <div className="text-xs text-muted inline-flex items-center gap-1"><ArrowLeft size={12} /> Day {prev.day}</div>
+              <div className="text-xs text-muted inline-flex items-center gap-1"><ArrowLeft size={12} /> Previous</div>
               <div className="mt-1 font-medium">{prev.title}</div>
             </Link>
           )}
           {next && (
             <Link href={`/work/${next.slug}`} className="flex-1 rounded-lg border border-border bg-surface p-5 hover:bg-surface2 transition-colors text-right">
-              <div className="text-xs text-muted inline-flex items-center gap-1 justify-end w-full">Day {next.day} <ArrowRight size={12} /></div>
+              <div className="text-xs text-muted inline-flex items-center gap-1 justify-end w-full">Next <ArrowRight size={12} /></div>
               <div className="mt-1 font-medium">{next.title}</div>
             </Link>
           )}

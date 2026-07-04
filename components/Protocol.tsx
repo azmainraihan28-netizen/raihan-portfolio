@@ -16,35 +16,35 @@ const steps: Step[] = [
   {
     num: '01',
     title: 'Discovery',
-    body: 'We start with the actual pain — what manual ops are eating your week, what data lives where, what the success metric is. No slide decks, just a doc.',
+    body: 'We start with the outcome, not the deliverable. What does the site need to sell, or the automation need to remove from your week? One doc, one clear scope, one fixed price.',
     bullets: [
-      'Current-state mapping (tools, data sources, who does what)',
-      'ROI math (manual hours saved × cost) on day one',
-      'One-page scope and price quote — fixed, not estimated',
+      'Goals, audience, and success metrics on a single page',
+      'Current-state mapping — tools, data sources, workflows',
+      'Fixed-price scope, not an estimate',
     ],
-    meta: 'Day 0 — 1',
+    meta: 'Week 0',
   },
   {
     num: '02',
-    title: 'Architecture',
-    body: 'I draft the workflow in n8n, wire real credentials, and run it on your data. You see the canvas, not a Figma. Revisions happen on the actual flow.',
+    title: 'Design & Build',
+    body: 'For sites and apps: high-fidelity design first, then production build. For automations: n8n canvas wired to real credentials from day one. You see progress on the actual thing — not a Figma stand-in.',
     bullets: [
-      'n8n canvas built against your stack — Gmail, Sheets, Slack, etc.',
-      'Cost per run measured and published — typically <$0.01',
-      'Iteration on Loom + live test runs, not async screenshots',
+      'Design in Figma, engineered in Next.js / React Native',
+      'n8n workflows on your stack — real APIs, real data',
+      'Weekly async demos on Loom, live builds you can click through',
     ],
-    meta: 'Day 2 — 5',
+    meta: 'Week 1 — 3',
   },
   {
     num: '03',
-    title: 'Delivery',
-    body: 'Workflow deployed to your n8n, credentials migrated, team walkthrough on Loom. 30-day support for tuning. Optional retainer if you want me on tap.',
+    title: 'Ship & Support',
+    body: 'We deploy to your infrastructure, hand off documentation, walk your team through it, and stay on to tune. Optional retainer if you want us on tap for the next iteration.',
     bullets: [
-      'Deploy to your n8n (cloud or self-hosted)',
-      'Loom walkthrough + written runbook',
-      '30-day support · monthly retainer optional ($200–$500/mo)',
+      'Deploy to Vercel, Supabase, your n8n, or your app store',
+      'Written runbook + Loom walkthrough for the team',
+      '30-day support · monthly retainer optional',
     ],
-    meta: 'Day 5 — 7',
+    meta: 'Week 3 — 4',
   },
 ];
 
@@ -63,20 +63,20 @@ export function Protocol() {
       <Container className="pt-24 pb-10">
         <div className="grid md:grid-cols-[1fr,1.4fr] gap-10 md:gap-16 items-start">
           <div className="md:sticky md:top-24">
-            <Eyebrow>How a build happens</Eyebrow>
+            <Eyebrow>How we work</Eyebrow>
             <h2 className="mt-4 text-3xl md:text-5xl font-semibold tracking-tight leading-[1.05]">
               From a 30-minute call
               <br />
-              to a workflow{' '}
-              <span className="font-serif italic font-normal text-accent">live in your stack</span>.
+              to something{' '}
+              <span className="font-serif italic font-normal text-accent">live in your business</span>.
             </h2>
             <p className="mt-5 text-muted leading-relaxed max-w-md">
-              The same three-step protocol I ran 30 times during the build challenge — refined
-              from public, repeated execution. No discovery decks, no scope creep, no monthly
-              "consulting" without code shipping.
+              The same three-step protocol we've run across marketing sites, SaaS products, mobile apps,
+              and n8n automations. No discovery theatre, no scope creep, no consulting hours
+              without shipping.
             </p>
             <div className="mt-8 font-mono text-[11px] uppercase tracking-[0.22em] text-muted">
-              Typical turnaround: 5–7 working days
+              Typical turnaround: 2 — 4 weeks
             </div>
           </div>
 

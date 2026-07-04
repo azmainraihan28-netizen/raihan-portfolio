@@ -2,12 +2,14 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import matter from 'gray-matter';
 
+export type WorkKind = 'automation' | 'webdev';
+
 export type Workflow = {
   day: number;
   slug: string;
   title: string;
   tagline: string;
-  week: 1 | 2 | 3 | 4;
+  week: 1 | 2 | 3 | 4 | 5;
   category: string;
   industries: string[];
   tools: string[];
@@ -23,6 +25,8 @@ export type Workflow = {
   screenshot: string;
   body: string;
   filename: string;
+  kind: WorkKind;
+  client?: string;
 };
 
 const WORK_DIR = path.join(process.cwd(), 'content/work');
@@ -58,6 +62,8 @@ export async function getAllWorkflows(): Promise<Workflow[]> {
       screenshot: data.screenshot || '',
       body: content,
       filename: file,
+      kind: (data.kind || 'automation') as WorkKind,
+      client: data.client || undefined,
     });
   }
   items.sort((a, b) => a.day - b.day);

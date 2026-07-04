@@ -7,20 +7,20 @@ const items = [
   {
     icon: Clock3,
     label: 'Average turnaround',
-    value: '5–7 days',
-    desc: 'From signed scope to deployed workflow.',
+    value: '2 – 4 weeks',
+    desc: 'From signed scope to launched site, app, or automation.',
   },
   {
     icon: CheckCircle2,
-    label: 'Shipped this year',
-    value: '30 / 30',
-    desc: 'Full public build challenge — all 30 workflows live.',
+    label: 'Shipped to date',
+    value: '35+ projects',
+    desc: 'E-commerce, SaaS, mobile apps, and n8n automations — across 8 industries.',
   },
   {
     icon: Globe2,
-    label: 'Working with',
-    value: 'Worldwide · remote',
-    desc: 'Async-first. Loom over meetings. EST → BST overlap.',
+    label: 'How we work',
+    value: 'Async · Remote-first',
+    desc: 'Loom over meetings. Weekly demos. EST → BST overlap for real-time calls.',
   },
 ];
 
