@@ -6,9 +6,10 @@ import { Protocol } from '@/components/Protocol';
 import { TrustSignals } from '@/components/TrustSignals';
 import { Testimonials } from '@/components/Testimonials';
 import { BackgroundBeamsWithCollision } from '@/components/ui/background-beams-with-collision';
+import { ServicesShowcase } from '@/components/ServicesShowcase';
 import { site } from '@/content/site';
 import { getAllWorkflows, getFeatured } from '@/lib/work';
-import { ArrowRight, Sparkles, Layout, Cpu, Check } from 'lucide-react';
+import { ArrowRight, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 
 export default async function HomePage() {
@@ -65,54 +66,14 @@ export default async function HomePage() {
       </section>
 
       {/* Services — Two pillars */}
-      <section>
-        <Container className="py-24">
+      <section className="relative">
+        <Container className="pt-24 pb-32">
           <SectionTitle
             eyebrow="What we do"
             title="Two crafts. One studio."
-            sub="Ship a site or app, automate the ops behind it, or wire the two together. Same team, same senior bar, one continuous scope."
+            sub="Ship a site or app, automate the ops behind it, or wire the two together. Same team, same senior bar, one continuous scope. Hover a card to see the stack behind it."
           />
-          <Stagger className="grid md:grid-cols-2 gap-5">
-            {site.services.map((s, i) => (
-              <StaggerItem
-                key={s.key}
-                className="group relative rounded-2xl border border-border bg-surface p-8 hover:border-accent/40 transition-colors overflow-hidden"
-              >
-                <span
-                  aria-hidden
-                  className="pointer-events-none absolute -top-20 -right-20 w-64 h-64 rounded-full blur-3xl opacity-60 bg-gradient-to-br from-accent/20 to-accent/0"
-                />
-                <div className="relative flex items-center gap-3">
-                  <span className="w-10 h-10 rounded-lg grid place-items-center bg-accent/10 text-accent border border-accent/20">
-                    {i === 0 ? <Layout size={18} strokeWidth={1.8} /> : <Cpu size={18} strokeWidth={1.8} />}
-                  </span>
-                  <span className="text-[11px] uppercase tracking-[0.18em] text-muted font-mono">
-                    {s.tag}
-                  </span>
-                </div>
-                <h3 className="relative mt-5 text-2xl md:text-3xl font-semibold tracking-tight">
-                  {s.title}
-                </h3>
-                <p className="relative mt-3 text-muted leading-relaxed max-w-md">{s.blurb}</p>
-                <ul className="relative mt-6 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                  {s.deliverables.map((d) => (
-                    <li key={d} className="flex items-start gap-2">
-                      <Check size={14} className="text-accent mt-1 shrink-0" />
-                      <span className="text-text/85">{d}</span>
-                    </li>
-                  ))}
-                </ul>
-                <div className="relative mt-7">
-                  <Link
-                    href={`/services#${s.key}`}
-                    className="inline-flex items-center gap-1 text-sm text-accent hover:underline"
-                  >
-                    See packages <ArrowRight size={14} />
-                  </Link>
-                </div>
-              </StaggerItem>
-            ))}
-          </Stagger>
+          <ServicesShowcase services={site.services} />
         </Container>
       </section>
 
