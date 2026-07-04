@@ -2,21 +2,19 @@
 
 import { useMemo, useState } from 'react';
 import { Search, X } from 'lucide-react';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { WorkflowCard } from '@/components/WorkflowCard';
 import { cn } from '@/lib/cn';
-import type { Workflow } from '@/lib/work';
+import type { Workflow, WorkKind } from '@/lib/work';
 
-const WEEKS = [
-  { v: 0, label: 'All' },
-  { v: 1, label: 'W1 · Foundations' },
-  { v: 2, label: 'W2 · Marketing & Sales' },
-  { v: 3, label: 'W3 · Internal Ops' },
-  { v: 4, label: 'W4 · Advanced & Agentic' },
+const KINDS: { v: WorkKind | 'all'; label: string }[] = [
+  { v: 'all', label: 'All work' },
+  { v: 'webdev', label: 'Web & Product' },
+  { v: 'automation', label: 'AI Automation' },
 ];
 
 export function WorkGrid({ items }: { items: Workflow[] }) {
-  const [week, setWeek] = useState(0);
+  const [kind, setKind] = useState<WorkKind | 'all'>('all');
   const [tool, setTool] = useState<string | null>(null);
   const [q, setQ] = useState('');
 
@@ -29,29 +27,29 @@ export function WorkGrid({ items }: { items: Workflow[] }) {
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase();
     return items.filter((i) => {
-      if (week && i.week !== week) return false;
+      if (kind !== 'all' && i.kind !== kind) return false;
       if (tool && !i.tools.includes(tool)) return false;
-      if (needle && !(`${i.title} ${i.tagline} ${i.tools.join(' ')}`.toLowerCase().includes(needle))) return false;
+      if (needle && !(`${i.title} ${i.tagline} ${i.client || ''} ${i.tools.join(' ')}`.toLowerCase().includes(needle))) return false;
       return true;
     });
-  }, [items, week, tool, q]);
+  }, [items, kind, tool, q]);
 
   return (
     <>
       <div className="flex flex-col gap-4 mb-8">
         <div className="flex flex-wrap items-center gap-2">
-          {WEEKS.map((w) => (
+          {KINDS.map((k) => (
             <button
-              key={w.v}
-              onClick={() => setWeek(w.v)}
+              key={k.v}
+              onClick={() => setKind(k.v)}
               className={cn(
                 'px-3 py-1.5 rounded-md text-sm border transition-colors',
-                week === w.v
+                kind === k.v
                   ? 'bg-accent text-white border-accent'
                   : 'bg-surface text-muted border-border hover:text-text',
               )}
             >
-              {w.label}
+              {k.label}
             </button>
           ))}
           <div className="ml-auto relative">
@@ -59,13 +57,13 @@ export function WorkGrid({ items }: { items: Workflow[] }) {
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Search workflows…"
+              placeholder="Search projects…"
               className="pl-9 pr-3 py-2 rounded-md bg-surface border border-border text-sm placeholder-muted focus:outline-none focus:border-accent w-64"
             />
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-1.5">
-          <span className="text-xs text-muted mr-1">Tools:</span>
+          <span className="text-xs text-muted mr-1">Stack:</span>
           {allTools.map((t) => (
             <button
               key={t}
@@ -80,16 +78,16 @@ export function WorkGrid({ items }: { items: Workflow[] }) {
               {t}
             </button>
           ))}
-          {(week !== 0 || tool || q) && (
+          {(kind !== 'all' || tool || q) && (
             <button
-              onClick={() => { setWeek(0); setTool(null); setQ(''); }}
+              onClick={() => { setKind('all'); setTool(null); setQ(''); }}
               className="ml-2 inline-flex items-center gap-1 text-xs text-muted hover:text-text"
             >
               <X size={12} /> reset
             </button>
           )}
         </div>
-        <div className="text-xs text-muted font-mono">{filtered.length} of {items.length} workflows</div>
+        <div className="text-xs text-muted font-mono">{filtered.length} of {items.length} projects</div>
       </div>
 
       <motion.div layout className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -109,7 +107,7 @@ export function WorkGrid({ items }: { items: Workflow[] }) {
         </AnimatePresence>
       </motion.div>
       {filtered.length === 0 && (
-        <div className="text-center py-20 text-muted">No workflows match these filters.</div>
+        <div className="text-center py-20 text-muted">No projects match these filters.</div>
       )}
     </>
   );

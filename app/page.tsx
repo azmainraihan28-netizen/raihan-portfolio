@@ -5,14 +5,19 @@ import { SignatureAnimation } from '@/components/SignatureAnimation';
 import { CountUpStats } from '@/components/CountUpStats';
 import { Protocol } from '@/components/Protocol';
 import { TrustSignals } from '@/components/TrustSignals';
+import { Testimonials } from '@/components/Testimonials';
 import { site } from '@/content/site';
 import { getAllWorkflows, getFeatured } from '@/lib/work';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowRight, Sparkles, Layout, Cpu, Check } from 'lucide-react';
 import Link from 'next/link';
 
 export default async function HomePage() {
   const featured = await getFeatured();
   const all = await getAllWorkflows();
+  const featuredMix = [
+    ...featured.filter((w) => w.kind === 'webdev'),
+    ...featured.filter((w) => w.kind === 'automation'),
+  ].slice(0, 6);
 
   return (
     <>
@@ -24,15 +29,17 @@ export default async function HomePage() {
           <StaggerOnMount className="max-w-4xl">
             <StaggerItem>
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border bg-surface/70 backdrop-blur text-xs text-muted font-mono">
-                <Sparkles size={12} className="text-accent" /> 30/30 n8n automation challenge — complete
+                <Sparkles size={12} className="text-accent" /> Studio · Web development &amp; AI automation
               </div>
             </StaggerItem>
             <StaggerItem>
               <h1 className="mt-6 text-5xl md:text-7xl font-semibold tracking-tight leading-[1.05]">
-                I build AI automations that{' '}
-                <span className="font-serif italic font-normal text-accent">replace</span>{' '}
-                <span className="text-accent">$300/month</span> SaaS tools with{' '}
-                <span className="font-serif italic font-normal">$0.001/run</span> n8n workflows.
+                We design{' '}
+                <span className="font-serif italic font-normal text-accent">websites</span>,
+                ship <span className="font-serif italic font-normal text-accent">apps</span>,
+                and automate the busywork
+                <span className="text-muted"> — </span>
+                so your business moves at the speed of an idea.
               </h1>
             </StaggerItem>
             <StaggerItem>
@@ -59,6 +66,58 @@ export default async function HomePage() {
         </Container>
       </section>
 
+      {/* Services — Two pillars */}
+      <section>
+        <Container className="py-24">
+          <SectionTitle
+            eyebrow="What we do"
+            title="Two crafts. One studio."
+            sub="Ship a site or app, automate the ops behind it, or wire the two together. Same team, same senior bar, one continuous scope."
+          />
+          <Stagger className="grid md:grid-cols-2 gap-5">
+            {site.services.map((s, i) => (
+              <StaggerItem
+                key={s.key}
+                className="group relative rounded-2xl border border-border bg-surface p-8 hover:border-accent/40 transition-colors overflow-hidden"
+              >
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute -top-20 -right-20 w-64 h-64 rounded-full blur-3xl opacity-60 bg-gradient-to-br from-accent/20 to-accent/0"
+                />
+                <div className="relative flex items-center gap-3">
+                  <span className="w-10 h-10 rounded-lg grid place-items-center bg-accent/10 text-accent border border-accent/20">
+                    {i === 0 ? <Layout size={18} strokeWidth={1.8} /> : <Cpu size={18} strokeWidth={1.8} />}
+                  </span>
+                  <span className="text-[11px] uppercase tracking-[0.18em] text-muted font-mono">
+                    {s.tag}
+                  </span>
+                </div>
+                <h3 className="relative mt-5 text-2xl md:text-3xl font-semibold tracking-tight">
+                  {s.title}
+                </h3>
+                <p className="relative mt-3 text-muted leading-relaxed max-w-md">{s.blurb}</p>
+                <ul className="relative mt-6 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                  {s.deliverables.map((d) => (
+                    <li key={d} className="flex items-start gap-2">
+                      <Check size={14} className="text-accent mt-1 shrink-0" />
+                      <span className="text-text/85">{d}</span>
+                    </li>
+                  ))}
+                </ul>
+                <div className="relative mt-7">
+                  <Link
+                    href={`/services#${s.key}`}
+                    className="inline-flex items-center gap-1 text-sm text-accent hover:underline"
+                  >
+                    See packages <ArrowRight size={14} />
+                  </Link>
+                </div>
+              </StaggerItem>
+            ))}
+          </Stagger>
+        </Container>
+      </section>
+
       {/* Protocol — sticky 3-step build process */}
       <Protocol />
 
@@ -67,20 +126,20 @@ export default async function HomePage() {
         <Container className="py-24">
           <div className="flex items-end justify-between flex-wrap gap-4 mb-12">
             <div>
-              <Eyebrow>Featured case studies</Eyebrow>
+              <Eyebrow>Selected work</Eyebrow>
               <h2 className="mt-3 text-3xl md:text-4xl font-semibold tracking-tight">
-                Six builds that prove the model.
+                Websites, apps, and automations we're proud of.
               </h2>
               <p className="mt-3 text-muted max-w-2xl">
-                Hand-picked from the 30-day run — the most sellable, most reused, most asked-about workflows.
+                A cross-section — e-commerce, SaaS, mobile, ops dashboards, and the automations that keep them running.
               </p>
             </div>
             <Link href="/work" className="text-sm text-accent hover:underline inline-flex items-center gap-1">
-              See all 30 <ArrowRight size={14} />
+              See all {all.length} projects <ArrowRight size={14} />
             </Link>
           </div>
           <Stagger className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {featured.map((w) => (
+            {featuredMix.map((w) => (
               <StaggerItem key={w.slug} className="h-full">
                 <WorkflowCard w={w} />
               </StaggerItem>
@@ -94,30 +153,15 @@ export default async function HomePage() {
         </Container>
       </section>
 
-      {/* Services preview */}
+      {/* Testimonials */}
       <section className="border-t border-border bg-surface/30">
         <Container className="py-24">
           <SectionTitle
-            eyebrow="What I build for clients"
-            title="Three ways to work with me."
-            sub="From a single Fiverr-style build to a full Agency-OS retainer — pick the altitude that matches your business."
+            eyebrow="What clients say"
+            title="Real teams. Shipped work. Kind words."
+            sub="A few notes from founders and ops leads we've built with."
           />
-          <Stagger className="grid md:grid-cols-3 gap-5">
-            {[
-              { title: 'Single Workflow', price: '$200–$800', desc: 'Pick any one from the 30 case studies. Configured to your stack, deployed in your n8n.', },
-              { title: 'Ops Bundle', price: '$1,500–$3,000', desc: 'Three workflows tailored to a vertical — Sales Ops, Hiring Stack, Content Pipeline, etc.', },
-              { title: 'Agency OS', price: '$2,000–$4,000 + retainer', desc: 'Day 30 capstone customized for your agency. Lead → Proposal → Onboard, fully automated.', },
-            ].map((t) => (
-              <StaggerItem key={t.title} className="rounded-xl border border-border bg-surface p-6 hover:border-accent/30 transition-colors">
-                <div className="text-sm text-muted">{t.title}</div>
-                <div className="mt-2 font-mono text-2xl">{t.price}</div>
-                <p className="mt-3 text-sm text-muted leading-relaxed">{t.desc}</p>
-              </StaggerItem>
-            ))}
-          </Stagger>
-          <div className="mt-8">
-            <CTAButton href="/services" variant="ghost">Compare packages <ArrowRight size={14} /></CTAButton>
-          </div>
+          <Testimonials />
         </Container>
       </section>
 
@@ -125,18 +169,22 @@ export default async function HomePage() {
       <section>
         <Container className="py-24">
           <FadeUp className="rounded-2xl border border-border bg-gradient-to-br from-surface to-bg p-10 md:p-16 text-center">
-            <Eyebrow>The Agency-in-a-Box CTA</Eyebrow>
+            <Eyebrow>Ready to build?</Eyebrow>
             <h3 className="mt-3 text-3xl md:text-5xl font-semibold tracking-tight">
-              Want the full 30-workflow bundle?
+              Your next site, app, or automation
+              <br className="hidden md:block" />
+              starts with a 30-minute call.
             </h3>
             <p className="mt-4 text-muted max-w-xl mx-auto">
-              DM <span className="text-accent font-mono">AGENCY</span> on LinkedIn and I'll send the importable JSONs — or hire me to set it all up for your business.
+              Tell us the outcome you're after. We'll come back with a fixed-price scope in under 24 hours.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
-              <CTAButton href={site.linkedin} variant="primary" size="lg">DM on LinkedIn</CTAButton>
-              <CTAButton href="/contact" variant="ghost" size="lg">Get a build quote</CTAButton>
+              <CTAButton href="/contact" variant="primary" size="lg">Start a project</CTAButton>
+              <CTAButton href={site.linkedin} variant="ghost" size="lg">DM on LinkedIn</CTAButton>
             </div>
-            <div className="mt-8 text-xs text-muted font-mono">{all.length} workflows · {all.reduce((s, w) => s + (w.nodes || 0), 0)} nodes · &lt; $0.01 per run</div>
+            <div className="mt-8 text-xs text-muted font-mono">
+              {all.length} projects shipped · 8+ industries · fixed-price scopes
+            </div>
           </FadeUp>
         </Container>
       </section>

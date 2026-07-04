@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500">
+  <defs>
+    <linearGradient id="vg-bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0d0d0e"/>
+      <stop offset="1" stop-color="#151515"/>
+    </linearGradient>
+    <linearGradient id="vg-red" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#c41e2a"/>
+      <stop offset="1" stop-color="#8f1420"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="500" fill="url(#vg-bg)"/>
+  <!-- Top nav -->
+  <rect x="0" y="0" width="800" height="50" fill="#000" opacity="0.4"/>
+  <rect x="40" y="15" width="22" height="22" rx="3" fill="#fff"/>
+  <text x="52" y="32" text-anchor="middle" font-family="Inter, sans-serif" font-weight="900" font-size="16" fill="#c41e2a">V</text>
+  <text x="72" y="32" font-family="Inter, sans-serif" font-weight="800" font-size="11" fill="#fff" letter-spacing="0.5">VANGUARD</text>
+  <text x="72" y="43" font-family="Inter, sans-serif" font-weight="800" font-size="9" fill="#fff" letter-spacing="0.5">RECORDS</text>
+  <g font-family="Inter, sans-serif" font-size="10" fill="#a5a5a5" letter-spacing="1">
+    <text x="440" y="30">ARTISTS</text>
+    <text x="500" y="30">RELEASES</text>
+    <text x="568" y="30">TOURS</text>
+    <text x="615" y="30">STORIES</text>
+    <text x="668" y="30">SHOP</text>
+  </g>
+  <rect x="700" y="15" width="80" height="24" rx="3" fill="#fff"/>
+  <text x="740" y="32" text-anchor="middle" font-family="Inter, sans-serif" font-weight="700" font-size="9" fill="#111" letter-spacing="1">SUBMIT DEMO</text>
+  <!-- Hero red block -->
+  <rect x="0" y="60" width="800" height="240" fill="url(#vg-red)"/>
+  <text x="400" y="170" text-anchor="middle" font-family="Inter, sans-serif" font-weight="900" font-size="46" fill="#fff" letter-spacing="1">JOIN THE COLLECTIVE</text>
+  <text x="400" y="200" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#fff" opacity="0.85" letter-spacing="2">GET EXCLUSIVE DROPS, TOUR ANNOUNCEMENTS, AND LABEL NEWS</text>
+  <text x="400" y="217" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#fff" opacity="0.85" letter-spacing="2">STRAIGHT TO YOUR INBOX.</text>
+  <rect x="240" y="240" width="220" height="30" fill="#8f1420" stroke="#fff" stroke-opacity="0.3"/>
+  <text x="260" y="260" font-family="Inter, sans-serif" font-size="10" fill="#fff" letter-spacing="2">EMAIL ADDRESS</text>
+  <rect x="460" y="240" width="120" height="30" fill="#fff"/>
+  <text x="520" y="260" text-anchor="middle" font-family="Inter, sans-serif" font-weight="800" font-size="10" fill="#111" letter-spacing="2">SUBSCRIBE</text>
+  <!-- New releases row -->
+  <text x="40" y="345" font-family="Inter, sans-serif" font-weight="700" font-size="16" fill="#fff" letter-spacing="1">NEW RELEASES</text>
+  <text x="740" y="345" text-anchor="end" font-family="Inter, sans-serif" font-size="10" fill="#c41e2a" letter-spacing="2">VIEW ALL →</text>
+  <g>
+    <rect x="40" y="360" width="230" height="110" rx="3" fill="#1e1e20"/>
+    <rect x="40" y="360" width="230" height="80" fill="#3a2820"/>
+    <text x="55" y="455" font-family="Inter, sans-serif" font-weight="700" font-size="12" fill="#fff">Digital Decay</text>
+    <text x="55" y="468" font-family="Inter, sans-serif" font-size="10" fill="#8b8b90">The Neon Vultures</text>
+  </g>
+  <g>
+    <rect x="285" y="360" width="230" height="110" rx="3" fill="#1e1e20"/>
+    <rect x="285" y="360" width="230" height="80" fill="#243828"/>
+    <text x="300" y="455" font-family="Inter, sans-serif" font-weight="700" font-size="12" fill="#fff">Lamentations</text>
+    <text x="300" y="468" font-family="Inter, sans-serif" font-size="10" fill="#8b8b90">Iron Silence</text>
+  </g>
+  <g>
+    <rect x="530" y="360" width="230" height="110" rx="3" fill="#1e1e20"/>
+    <rect x="530" y="360" width="230" height="80" fill="#1c2838"/>
+    <text x="545" y="455" font-family="Inter, sans-serif" font-weight="700" font-size="12" fill="#fff">Midnight Transmission</text>
+    <text x="545" y="468" font-family="Inter, sans-serif" font-size="10" fill="#8b8b90">Ghost Echo</text>
+  </g>
+</svg>

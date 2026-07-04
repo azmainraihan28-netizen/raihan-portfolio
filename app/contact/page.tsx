@@ -6,7 +6,7 @@ import { ContactForm } from './ContactForm';
 
 export const metadata = {
   title: 'Contact',
-  description: 'Hire Raihan to build your n8n automation. Quotes in under 24 hours.',
+  description: 'Start a project with Zeroline Studio — web development and AI automation. Fixed-price scopes in under 24 hours.',
 };
 
 export default function ContactPage({ searchParams }: { searchParams: { ref?: string } }) {
@@ -15,10 +15,10 @@ export default function ContactPage({ searchParams }: { searchParams: { ref?: st
     <>
       <section>
         <Container className="pt-20 pb-12">
-          <Eyebrow>Contact</Eyebrow>
+          <Eyebrow>Start a project</Eyebrow>
           <h1 className="mt-3 text-4xl md:text-6xl font-semibold tracking-tight">Let's build something.</h1>
           <p className="mt-4 text-muted max-w-2xl text-lg">
-            Quotes in under 24h. Most builds ship in 3–7 days.
+            Fixed-price scope in under 24h. Most sites, apps, and automations ship in 2 – 4 weeks.
             {ref && <span className="block mt-2 text-sm font-mono text-accent">Coming in from: {ref}</span>}
           </p>
         </Container>
@@ -32,7 +32,7 @@ export default function ContactPage({ searchParams }: { searchParams: { ref?: st
           <StaggerItem className="rounded-xl border border-border bg-surface p-6">
             <Eyebrow>Prefer to DM?</Eyebrow>
             <p className="mt-3 text-sm text-muted">
-              Drop <span className="text-accent font-mono">AGENCY</span> in my LinkedIn DMs and I'll send the full 30-workflow bundle plus a quick intro.
+              Drop <span className="text-accent font-mono">STUDIO</span> in our LinkedIn DMs — we'll send a quick intro deck and case-study bundle within the day.
             </p>
             <a
               href={site.linkedin}
@@ -54,8 +54,8 @@ export default function ContactPage({ searchParams }: { searchParams: { ref?: st
 
           <StaggerItem className="rounded-xl border border-border bg-gradient-to-br from-accent/10 to-transparent p-6">
             <div className="text-sm">
-              <strong className="text-white">Tip:</strong>{' '}
-              <span className="text-muted">If you already know which of the 30 workflows you want, paste the day number in the message field. Faster quote.</span>
+              <strong className="text-text">Tip:</strong>{' '}
+              <span className="text-muted">Skip the "we're not sure what we need." Tell us the outcome you're after — more leads, an internal tool, fewer manual hours. We'll shape the scope from there.</span>
             </div>
           </StaggerItem>
         </Stagger>

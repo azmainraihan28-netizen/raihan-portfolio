@@ -11,6 +11,7 @@ const CATEGORY_OF_WEEK: Record<number, string> = {
   2: 'Marketing & Sales',
   3: 'Internal Ops',
   4: 'Advanced & Agentic',
+  5: 'Web & Product',
 };
 
 export function WorkflowCard({ w }: { w: Workflow }) {
@@ -54,7 +55,9 @@ export function WorkflowCard({ w }: { w: Workflow }) {
               <span className="relative w-1.5 h-1.5 rounded-full bg-accent" />
             </span>
             <span className="text-[10.5px] uppercase tracking-[0.18em] text-muted font-mono">
-              Day {dd} · Shipped
+              {w.kind === 'webdev'
+                ? (w.client ? `${w.client} · Shipped` : 'Case study · Shipped')
+                : `Day ${dd} · Shipped`}
             </span>
           </div>
           <WeekBadge week={w.week} />
@@ -155,11 +158,15 @@ export function WorkflowCard({ w }: { w: Workflow }) {
           {/* Spec footer */}
           <div className="mt-5 flex items-center justify-between border-t border-dashed border-border pt-4">
             <div className="font-mono text-[11px] tracking-wide flex items-center gap-3">
-              <span className="text-muted">
-                <span className="text-text">{w.nodes || '—'}</span>
-                <span className="opacity-60"> N</span>
-              </span>
-              <span className="text-muted opacity-30">·</span>
+              {w.kind === 'automation' ? (
+                <>
+                  <span className="text-muted">
+                    <span className="text-text">{w.nodes || '—'}</span>
+                    <span className="opacity-60"> N</span>
+                  </span>
+                  <span className="text-muted opacity-30">·</span>
+                </>
+              ) : null}
               <span className="text-muted">
                 <PriceRange low={w.priceLow} high={w.priceHigh} />
               </span>

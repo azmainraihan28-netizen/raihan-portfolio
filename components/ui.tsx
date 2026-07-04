@@ -31,12 +31,14 @@ const WEEK_COLORS: Record<number, string> = {
   2: 'border-sky-500/30 text-sky-300 bg-sky-500/10',
   3: 'border-amber-500/30 text-amber-300 bg-amber-500/10',
   4: 'border-violet-500/30 text-violet-300 bg-violet-500/10',
+  5: 'border-rose-500/30 text-rose-300 bg-rose-500/10',
 };
 
 export function WeekBadge({ week, className }: { week: number; className?: string }) {
+  const label = week === 5 ? 'WEB' : `W${week}`;
   return (
     <span className={cn('inline-flex items-center px-2 py-0.5 rounded text-[11px] font-mono border', WEEK_COLORS[week], className)}>
-      W{week}
+      {label}
     </span>
   );
 }

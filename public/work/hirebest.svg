@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500">
+  <defs>
+    <linearGradient id="hb-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f5f7fb"/>
+      <stop offset="1" stop-color="#eaeef7"/>
+    </linearGradient>
+    <linearGradient id="hb-blue" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#3b82f6"/>
+      <stop offset="1" stop-color="#2563eb"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="500" fill="url(#hb-bg)"/>
+  <!-- Sidebar -->
+  <rect x="0" y="0" width="160" height="500" fill="#fff"/>
+  <line x1="160" y1="0" x2="160" y2="500" stroke="#e5e9f0"/>
+  <rect x="20" y="24" width="22" height="22" rx="5" fill="url(#hb-blue)"/>
+  <text x="30.5" y="40" text-anchor="middle" font-family="Inter, sans-serif" font-weight="900" font-size="14" fill="#fff">H</text>
+  <text x="48" y="40" font-family="Inter, sans-serif" font-weight="700" font-size="13" fill="#0f172a">Hire<tspan fill="#3b82f6">Best</tspan></text>
+  <rect x="14" y="65" width="132" height="30" rx="6" fill="url(#hb-blue)"/>
+  <text x="80" y="85" text-anchor="middle" font-family="Inter, sans-serif" font-weight="600" font-size="11" fill="#fff">+ New Screening</text>
+  <text x="24" y="118" font-family="Inter, sans-serif" font-size="11" fill="#475569">▤ Analytics</text>
+  <text x="24" y="150" font-family="Inter, sans-serif" font-weight="600" font-size="9" fill="#94a3b8" letter-spacing="1">RECENT</text>
+  <g font-family="Inter, sans-serif" font-size="9" fill="#64748b">
+    <text x="24" y="170">Screening 7/2/2026, 12:41...</text>
+    <text x="24" y="188">Screening 7/2/2026, 12:38...</text>
+    <text x="24" y="206">Screening 7/1/2026, 5:39:09...</text>
+    <text x="24" y="224">Screening 6/23/2026, 10:33...</text>
+    <text x="24" y="242">Test</text>
+    <text x="24" y="260">test</text>
+  </g>
+  <line x1="14" y1="450" x2="146" y2="450" stroke="#e5e9f0"/>
+  <circle cx="30" cy="475" r="10" fill="#3b82f6"/>
+  <text x="46" y="472" font-family="Inter, sans-serif" font-size="9" fill="#0f172a">azmainraihan28@gm...</text>
+  <text x="46" y="484" font-family="Inter, sans-serif" font-size="8" fill="#94a3b8">Admin</text>
+  <!-- Header -->
+  <text x="185" y="45" font-family="Inter, sans-serif" font-weight="700" font-size="16" fill="#0f172a">CV Review</text>
+  <text x="640" y="42" font-family="Inter, sans-serif" font-size="9" fill="#64748b">Free · 0/50 used</text>
+  <text x="720" y="42" font-family="Inter, sans-serif" font-size="9" fill="#64748b">◊ Orders</text>
+  <text x="770" y="42" font-family="Inter, sans-serif" font-size="9" fill="#64748b">◊ Admin</text>
+  <!-- LIVE card -->
+  <rect x="185" y="65" width="410" height="90" rx="10" fill="#eff6ff" stroke="#bfdbfe"/>
+  <rect x="200" y="80" width="80" height="16" rx="8" fill="#dbeafe"/>
+  <text x="240" y="92" text-anchor="middle" font-family="Inter, sans-serif" font-weight="700" font-size="9" fill="#2563eb">LIVE · TIME SAVED</text>
+  <text x="200" y="128" font-family="Inter, sans-serif" font-weight="800" font-size="26" fill="#0f172a">1h 17m 03s</text>
+  <text x="200" y="148" font-family="Inter, sans-serif" font-size="9" fill="#475569">Manual CV review averages ~7 min per resume. You put 11 CVs through HireBest — 0.2 full work-days back.</text>
+  <rect x="500" y="80" width="80" height="30" rx="4" fill="#fff" stroke="#e5e9f0"/>
+  <text x="510" y="93" font-family="Inter, sans-serif" font-size="7" fill="#94a3b8" letter-spacing="1">SCREENINGS</text>
+  <text x="540" y="107" text-anchor="middle" font-family="Inter, sans-serif" font-weight="800" font-size="16" fill="#0f172a">6</text>
+  <rect x="500" y="115" width="80" height="30" rx="4" fill="#fff" stroke="#e5e9f0"/>
+  <text x="510" y="128" font-family="Inter, sans-serif" font-size="7" fill="#94a3b8" letter-spacing="1">CVS SCORED</text>
+  <text x="540" y="142" text-anchor="middle" font-family="Inter, sans-serif" font-weight="800" font-size="16" fill="#0f172a">11</text>
+  <!-- 4 KPI cards -->
+  <g>
+    <rect x="185" y="170" width="97" height="70" rx="8" fill="#fff" stroke="#e5e9f0"/>
+    <text x="197" y="188" font-family="Inter, sans-serif" font-size="8" fill="#94a3b8" letter-spacing="1">CVS REVIEWED</text>
+    <text x="197" y="222" font-family="Inter, sans-serif" font-weight="800" font-size="22" fill="#0f172a">11</text>
+
+    <rect x="290" y="170" width="97" height="70" rx="8" fill="#fff" stroke="#e5e9f0"/>
+    <text x="302" y="188" font-family="Inter, sans-serif" font-size="8" fill="#94a3b8" letter-spacing="1">FIT CANDIDATES</text>
+    <text x="302" y="222" font-family="Inter, sans-serif" font-weight="800" font-size="22" fill="#0f172a">3</text>
+
+    <rect x="395" y="170" width="97" height="70" rx="8" fill="#fff" stroke="#e5e9f0"/>
+    <text x="407" y="188" font-family="Inter, sans-serif" font-size="8" fill="#94a3b8" letter-spacing="1">AVG MATCH SCORE</text>
+    <text x="407" y="222" font-family="Inter, sans-serif" font-weight="800" font-size="22" fill="#0f172a">55</text>
+
+    <rect x="500" y="170" width="97" height="70" rx="8" fill="#fff" stroke="#e5e9f0"/>
+    <text x="512" y="188" font-family="Inter, sans-serif" font-size="8" fill="#94a3b8" letter-spacing="1">SCREENINGS RUN</text>
+    <text x="512" y="222" font-family="Inter, sans-serif" font-weight="800" font-size="22" fill="#0f172a">6</text>
+  </g>
+  <!-- Verdict mix donut -->
+  <rect x="185" y="255" width="200" height="180" rx="8" fill="#fff" stroke="#e5e9f0"/>
+  <text x="200" y="278" font-family="Inter, sans-serif" font-weight="700" font-size="12" fill="#0f172a">Verdict mix</text>
+  <text x="200" y="294" font-family="Inter, sans-serif" font-size="9" fill="#94a3b8">How your pipeline breaks down</text>
+  <circle cx="240" cy="360" r="42" fill="#f1f5f9"/>
+  <path d="M 240 360 L 240 318 A 42 42 0 0 1 274 380 Z" fill="#22c55e"/>
+  <path d="M 240 360 L 274 380 A 42 42 0 0 1 232 400 Z" fill="#f59e0b"/>
+  <path d="M 240 360 L 232 400 A 42 42 0 0 1 205 342 Z" fill="#94a3b8"/>
+  <text x="240" y="364" text-anchor="middle" font-family="Inter, sans-serif" font-weight="800" font-size="18" fill="#0f172a">11</text>
+  <g font-family="Inter, sans-serif" font-size="10">
+    <circle cx="305" cy="335" r="4" fill="#22c55e"/>
+    <text x="315" y="339" fill="#0f172a">Fit · 27%</text>
+    <circle cx="305" cy="355" r="4" fill="#f59e0b"/>
+    <text x="315" y="359" fill="#0f172a">Maybe · 36%</text>
+    <circle cx="305" cy="375" r="4" fill="#94a3b8"/>
+    <text x="315" y="379" fill="#0f172a">Skip · 36%</text>
+  </g>
+  <!-- Score distribution -->
+  <rect x="395" y="255" width="380" height="180" rx="8" fill="#fff" stroke="#e5e9f0"/>
+  <text x="410" y="278" font-family="Inter, sans-serif" font-weight="700" font-size="12" fill="#0f172a">Score distribution</text>
+  <text x="410" y="294" font-family="Inter, sans-serif" font-size="9" fill="#94a3b8">Where most CVs land on the 0–100 scale</text>
+  <g font-family="Inter, sans-serif" font-size="9" fill="#64748b">
+    <text x="420" y="345">0–19</text>
+    <text x="490" y="345">20–39</text>
+    <text x="565" y="345">40–59</text>
+    <text x="640" y="345">60–79</text>
+    <text x="715" y="345">80–100</text>
+  </g>
+  <g>
+    <rect x="420" y="370" width="50" height="24" fill="#3b82f6"/>
+    <text x="445" y="386" text-anchor="middle" font-family="Inter, sans-serif" font-weight="700" font-size="12" fill="#fff">3</text>
+    <rect x="490" y="380" width="50" height="14" fill="#3b82f6"/>
+    <text x="515" y="391" text-anchor="middle" font-family="Inter, sans-serif" font-weight="700" font-size="12" fill="#fff">1</text>
+    <rect x="560" y="380" width="50" height="14" fill="#3b82f6"/>
+    <text x="585" y="391" text-anchor="middle" font-family="Inter, sans-serif" font-weight="700" font-size="12" fill="#fff">0</text>
+    <rect x="630" y="360" width="50" height="34" fill="#3b82f6"/>
+    <text x="655" y="381" text-anchor="middle" font-family="Inter, sans-serif" font-weight="700" font-size="12" fill="#fff">4</text>
+    <rect x="700" y="365" width="50" height="29" fill="#3b82f6"/>
+    <text x="725" y="384" text-anchor="middle" font-family="Inter, sans-serif" font-weight="700" font-size="12" fill="#fff">3</text>
+  </g>
+</svg>
