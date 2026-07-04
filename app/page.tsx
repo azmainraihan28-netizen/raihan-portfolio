@@ -1,11 +1,11 @@
 import { CTAButton, Container, Eyebrow, SectionTitle } from '@/components/ui';
 import { WorkflowCard } from '@/components/WorkflowCard';
 import { FadeUp, Stagger, StaggerItem, StaggerOnMount } from '@/components/motion';
-import { SignatureAnimation } from '@/components/SignatureAnimation';
 import { CountUpStats } from '@/components/CountUpStats';
 import { Protocol } from '@/components/Protocol';
 import { TrustSignals } from '@/components/TrustSignals';
 import { Testimonials } from '@/components/Testimonials';
+import { BackgroundBeamsWithCollision } from '@/components/ui/background-beams-with-collision';
 import { site } from '@/content/site';
 import { getAllWorkflows, getFeatured } from '@/lib/work';
 import { ArrowRight, Sparkles, Layout, Cpu, Check } from 'lucide-react';
@@ -22,10 +22,8 @@ export default async function HomePage() {
   return (
     <>
       {/* Hero */}
-      <section className="relative grain overflow-hidden">
-        <div className="spotlight absolute inset-0 -z-10" />
-        <SignatureAnimation />
-        <Container className="relative pt-24 pb-20 md:pt-32 md:pb-28 z-10">
+      <BackgroundBeamsWithCollision className="min-h-[36rem] md:min-h-[44rem] items-start">
+        <Container className="relative pt-24 pb-20 md:pt-32 md:pb-28 z-10 w-full">
           <StaggerOnMount className="max-w-4xl">
             <StaggerItem>
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border bg-surface/70 backdrop-blur text-xs text-muted font-mono">
@@ -57,7 +55,7 @@ export default async function HomePage() {
             </StaggerItem>
           </StaggerOnMount>
         </Container>
-      </section>
+      </BackgroundBeamsWithCollision>
 
       {/* Stats with animated count-ups */}
       <section className="border-y border-border bg-surface/40">
