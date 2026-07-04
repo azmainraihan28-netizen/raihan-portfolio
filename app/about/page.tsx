@@ -15,19 +15,58 @@ export default async function AboutPage() {
     <>
       <section>
         <Container className="pt-20 pb-10">
-          <Eyebrow>About the studio</Eyebrow>
-          <h1 className="mt-3 text-4xl md:text-6xl font-semibold tracking-tight">
-            We ship the thing. Not the deck.
-          </h1>
-          <p className="mt-5 text-lg text-muted max-w-2xl leading-relaxed">
-            {site.name} is a boutique studio built around two crafts — modern web development and
-            production-grade AI automation. We work with founders and small teams who need both:
-            a site or app that converts, and the automations behind it that keep the business running.
-          </p>
-          <p className="mt-3 text-muted max-w-2xl leading-relaxed">
-            No agencies-of-agencies. No project managers who don't code. Every engagement is run by
-            the people who design and build it — that's how the work stays sharp and the timelines stay honest.
-          </p>
+          <div className="grid lg:grid-cols-[1fr,auto] gap-12 lg:gap-16 items-start">
+            <div>
+              <Eyebrow>About the studio</Eyebrow>
+              <h1 className="mt-3 text-4xl md:text-6xl font-semibold tracking-tight">
+                We ship the thing. Not the deck.
+              </h1>
+              <p className="mt-5 text-lg text-muted max-w-2xl leading-relaxed">
+                {site.name} is a boutique studio built around two crafts — modern web development and
+                production-grade AI automation. We work with founders and small teams who need both:
+                a site or app that converts, and the automations behind it that keep the business running.
+              </p>
+              <p className="mt-3 text-muted max-w-2xl leading-relaxed">
+                No agencies-of-agencies. No project managers who don't code. Every engagement is run by
+                the people who design and build it — that's how the work stays sharp and the timelines stay honest.
+              </p>
+            </div>
+
+            {/* Founder portrait — replace src with /founder.jpg when supplied */}
+            <FadeUp className="relative shrink-0 mx-auto lg:mx-0">
+              <span
+                aria-hidden
+                className="pointer-events-none absolute -inset-6 rounded-full bg-accent/20 blur-3xl opacity-70"
+              />
+              <div
+                className="relative w-56 h-56 md:w-72 md:h-72 rounded-full overflow-hidden border border-border bg-surface shadow-[0_30px_80px_-30px_rgba(124,92,255,0.35)] bg-center bg-cover"
+                style={{ backgroundImage: "url('/founder.png')" }}
+                role="img"
+                aria-label={`${site.name} — founder`}
+              >
+                {/* Fallback content — visible only when /founder.jpg is missing */}
+                <div className="absolute inset-0 grid place-items-center pointer-events-none">
+                  <div className="text-center">
+                    <div className="font-mono text-[11px] uppercase tracking-[0.22em] text-muted">
+                      Founder
+                    </div>
+                    <div className="mt-1 font-serif italic text-2xl text-muted/70">
+                      Portrait
+                    </div>
+                  </div>
+                </div>
+                {/* Inner bezel */}
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 rounded-full ring-1 ring-inset ring-white/[0.06]"
+                />
+              </div>
+              <div className="mt-4 text-center lg:text-left">
+                <div className="text-sm font-medium">Azmain Raihan</div>
+                <div className="text-xs text-muted mt-0.5">Founder · {site.name}</div>
+              </div>
+            </FadeUp>
+          </div>
         </Container>
       </section>
 
