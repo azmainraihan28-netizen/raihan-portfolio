@@ -23,13 +23,25 @@ export const metadata: Metadata = {
     template: `%s · ${site.name}`,
   },
   description: site.headline,
+  icons: {
+    icon: [
+      { url: '/logo-mark.png', type: 'image/png' },
+    ],
+    apple: '/logo-mark.png',
+  },
   openGraph: {
     title: `${site.name} — ${site.role}`,
     description: site.headline,
     type: 'website',
     url: '/',
+    images: [{ url: '/logo.png', width: 1024, height: 1024, alt: `${site.name} Studio` }],
   },
-  twitter: { card: 'summary_large_image', title: site.name, description: site.headline },
+  twitter: {
+    card: 'summary_large_image',
+    title: site.name,
+    description: site.headline,
+    images: ['/logo.png'],
+  },
   robots: { index: true, follow: true },
 };
 

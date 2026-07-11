@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { site } from '@/content/site';
 import { ThemeToggle } from './ThemeToggle';
@@ -16,8 +17,15 @@ export function Nav() {
   return (
     <header className="sticky top-0 z-40 backdrop-blur-md bg-bg/70 border-b border-border">
       <div className="max-w-container mx-auto px-6 h-16 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 group">
-          <span className="w-7 h-7 rounded-md bg-accent/15 border border-accent/30 grid place-items-center text-accent font-mono text-sm font-semibold">0</span>
+        <Link href="/" className="flex items-center gap-2 group" aria-label={`${site.shortName} home`}>
+          <Image
+            src="/logo-mark.png"
+            alt=""
+            width={28}
+            height={28}
+            priority
+            className="w-7 h-7 object-contain"
+          />
           <span className="font-medium tracking-tight">{site.shortName}</span>
           <span className="text-muted text-sm hidden sm:inline">/ Studio</span>
         </Link>

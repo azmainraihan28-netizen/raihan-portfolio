@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { site } from '@/content/site';
 
 export function Footer() {
@@ -7,7 +8,13 @@ export function Footer() {
       <div className="max-w-container mx-auto px-6 py-14 grid gap-10 md:grid-cols-4">
         <div className="md:col-span-2">
           <div className="flex items-center gap-2">
-            <span className="w-7 h-7 rounded-md bg-accent/15 border border-accent/30 grid place-items-center text-accent font-mono text-sm font-semibold">0</span>
+            <Image
+              src="/logo-mark.png"
+              alt=""
+              width={28}
+              height={28}
+              className="w-7 h-7 object-contain"
+            />
             <span className="font-medium">{site.name}</span>
           </div>
           <div className="text-muted text-sm mt-2">{site.role}</div>
