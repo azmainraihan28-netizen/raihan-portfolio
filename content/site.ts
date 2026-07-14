@@ -101,6 +101,6 @@ export const site = {
   ],
   clients: [
     'TrendyBD', 'Vanguard Records', 'ACI Canteen', 'ExpenseAI', 'HireBest',
-    'Northwind Labs', 'Kestrel Health',
+    'MoeBella', 'Trattoria Abruzzesa', 'Northwind Labs', 'Kestrel Health',
   ],
 };
