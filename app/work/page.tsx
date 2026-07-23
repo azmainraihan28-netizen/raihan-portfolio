@@ -4,7 +4,7 @@ import { WorkGrid } from './WorkGrid';
 
 export const metadata = {
   title: 'Work — Websites, apps, and AI automations',
-  description: 'Selected Zeroline Studio projects — e-commerce, SaaS, mobile apps, ops dashboards, and 30+ production n8n automations. Real pain points, real outcomes.',
+  description: 'Selected Vertex Studio projects — e-commerce, SaaS, mobile apps, ops dashboards, and 30+ production n8n automations. Real pain points, real outcomes.',
 };
 
 export default async function WorkIndexPage() {

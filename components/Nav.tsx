@@ -27,7 +27,7 @@ export function Nav() {
             className="w-7 h-7 object-contain"
           />
           <span className="font-medium tracking-tight">{site.shortName}</span>
-          <span className="text-muted text-sm hidden sm:inline">/ Studio</span>
+          <span className="text-muted text-sm hidden sm:inline">/ Web & AI</span>
         </Link>
         <nav className="flex items-center gap-1">
           {links.map((l) => (
