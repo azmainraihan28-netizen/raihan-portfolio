@@ -1,6 +1,6 @@
 export const site = {
-  name: 'Zeroline',
-  shortName: 'Zeroline',
+  name: 'Vertex Studio',
+  shortName: 'Vertex Studio',
   role: 'Web Development & AI Automation Studio',
   headline:
     'We design websites, ship apps, and automate the busywork — so your business can move at the speed of an idea.',
@@ -13,7 +13,7 @@ export const site = {
   twitter: '',
   calendly: '',
   location: 'Available worldwide · Remote-first',
-  domain: 'zeroline.studio',
+  domain: 'vertexstudio.site',
   ctaPrimary: { label: 'See our work', href: '/work' },
   ctaSecondary: { label: 'Start a project', href: '/contact' },
   stats: [
@@ -58,7 +58,7 @@ export const site = {
   testimonials: [
     {
       quote:
-        "Zeroline shipped our marketing site and a full lead-scoring automation in three weeks. Our sales team's calendar is booked for two months.",
+        "Vertex Studio shipped our marketing site and a full lead-scoring automation in three weeks. Our sales team's calendar is booked for two months.",
       name: 'Rezaul Karim',
       role: 'Founder, Trendybd',
       accent: 'orange',
@@ -93,7 +93,7 @@ export const site = {
     },
     {
       quote:
-        "Our Vanguard Records site felt generic for years. Zeroline made it feel like the label itself — sharp, loud, ours.",
+        "Our Vanguard Records site felt generic for years. Vertex Studio made it feel like the label itself — sharp, loud, ours.",
       name: 'Marcus Vale',
       role: 'A&R Director, Vanguard Records',
       accent: 'red',

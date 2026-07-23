@@ -41,7 +41,7 @@ export function Footer() {
       </div>
       <div className="border-t border-border">
         <div className="max-w-container mx-auto px-6 py-5 flex flex-wrap items-center justify-between gap-3 text-xs text-muted">
-          <div>© {new Date().getFullYear()} {site.name} Studio. All rights reserved.</div>
+          <div>© {new Date().getFullYear()} {site.name}. All rights reserved.</div>
           <div className="font-mono">Web development · AI automation · Remote-first</div>
         </div>
       </div>

@@ -5,7 +5,7 @@ import { FadeUp, Stagger, StaggerItem } from '@/components/motion';
 export const metadata = {
   title: 'Services — Web Development & AI Automation',
   description:
-    'Marketing sites, apps, SaaS builds, and AI automation on n8n. Fixed-price scopes from $800 to $15k. Zeroline Studio.',
+    'Marketing sites, apps, SaaS builds, and AI automation on n8n. Fixed-price scopes from $800 to $15k. Vertex Studio.',
 };
 
 const webTiers = [

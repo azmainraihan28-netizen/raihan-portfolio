@@ -6,7 +6,7 @@ import { ContactForm } from './ContactForm';
 
 export const metadata = {
   title: 'Contact',
-  description: 'Start a project with Zeroline Studio — web development and AI automation. Fixed-price scopes in under 24 hours.',
+  description: 'Start a project with Vertex Studio — web development and AI automation. Fixed-price scopes in under 24 hours.',
 };
 
 export default function ContactPage({ searchParams }: { searchParams: { ref?: string } }) {
