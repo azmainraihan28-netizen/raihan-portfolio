@@ -2,13 +2,13 @@
 day: 29
 slug: day29-multi-agent-onboarding
 title: "Multi-Agent Customer Onboarding Orchestrator"
-tagline: "webhook-triggered multi-agent n8n workflow that runs 3 AI agents in parallel the moment…"
+tagline: "Three agents onboard a new customer the moment they sign."
 week: 4
 category: "Advanced & Agentic"
 industries: ["SaaS", "Agencies", "E-commerce", "Founders"]
 tools: ["n8n", "OpenAI", "Gmail", "Google Sheets", "Slack", "Webhook"]
 nodes: 12
-costPerRun: "~$0.003 total (3 × GPT-4o-mini calls) — effectively free at any signup volume"
+costPerRun: "~$0.003 total (3 × GPT-4o-mini calls) - effectively free at any signup volume"
 heroMetric: "~$0.003 total (3 × GPT-4o-mini calls)"
 priceLow: 300
 priceHigh: 800
@@ -22,22 +22,22 @@ screenshot: "/workflows/shots/day29.png"
 
 Every SaaS I looked at had the same brutal statistic hiding in their funnel. Of the customers who signed up, a big chunk never actually activated. They hit the dashboard, felt lost, closed the tab, and eventually let the subscription lapse. Onboarding sequences were supposed to fix this, but most of them were the same generic seven-email drip regardless of who the customer was, why they signed up, or what plan they picked.
 
-Customer success teams tried to compensate with human-touch onboarding — a real person emailing every new signup — but that only worked up to a few dozen customers a month. Past that, it broke. And activation rates stayed stuck.
+Customer success teams tried to compensate with human-touch onboarding - a real person emailing every new signup - but that only worked up to a few dozen customers a month. Past that, it broke. And activation rates stayed stuck.
 
 ## What I Built
 
-I built them an onboarding orchestrator that runs three specialized AI agents in parallel the moment a customer signs up. One agent writes a personalized welcome sequence tuned to the customer's plan tier and stated use case. A second agent generates a custom "getting started" checklist based on which features that specific customer actually needs first — not a generic tour. A third agent watches for early usage signals and drafts a proactive nudge if the customer hasn't activated a key feature by day three.
+I built them an onboarding orchestrator that runs three specialized AI agents in parallel the moment a customer signs up. One agent writes a personalized welcome sequence tuned to the customer's plan tier and stated use case. A second agent generates a custom "getting started" checklist based on which features that specific customer actually needs first - not a generic tour. A third agent watches for early usage signals and drafts a proactive nudge if the customer hasn't activated a key feature by day three.
 
 All three agents work in parallel, share context, and hand their outputs to the customer as if a small human success team wrote them. Slack pings the CS lead only when a customer needs actual human attention.
 
 ## The Outcome
 
-Activation rates for the SaaS teams that piloted it moved measurably — not a small nudge, a real lift. Time-to-first-value dropped because customers finally saw a checklist that matched what they were actually trying to do. Cost per fully-onboarded customer is under a cent total. And the CS team stopped being the bottleneck for growth — they graduated from "write the welcome email" to "help the customers who actually need help."
+Activation rates for the SaaS teams that piloted it moved measurably - not a small nudge, a real lift. Time-to-first-value dropped because customers finally saw a checklist that matched what they were actually trying to do. Cost per fully-onboarded customer is under a cent total. And the CS team stopped being the bottleneck for growth - they graduated from "write the welcome email" to "help the customers who actually need help."
 
 ## Pricing Packages
 
-- Fiverr/Upwork setup: **$300–$800**
-- With CRM sync (HubSpot/Airtable) + custom email branding: **$800–$1,500**
-- Full customer success suite (onboarding + NPS + churn prevention): **$2,000–$4,000**
-- Monthly retainer: **$75–$200/month**
-- Bundle with Day 17 (employee onboarding) + Day 16 (HR screener) → Complete Hiring + Customer Ops Package: **$2,000–$3,500**
+- Fiverr/Upwork setup: **$300-$800**
+- With CRM sync (HubSpot/Airtable) + custom email branding: **$800-$1,500**
+- Full customer success suite (onboarding + NPS + churn prevention): **$2,000-$4,000**
+- Monthly retainer: **$75-$200/month**
+- Bundle with Day 17 (employee onboarding) + Day 16 (HR screener) → Complete Hiring + Customer Ops Package: **$2,000-$3,500**

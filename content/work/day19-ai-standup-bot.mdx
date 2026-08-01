@@ -2,13 +2,13 @@
 day: 19
 slug: day19-ai-standup-bot
 title: "AI Standup Bot"
-tagline: "webhook-triggered n8n workflow that"
+tagline: "Collects async standups and posts one clean team summary."
 week: 3
 category: "Internal Ops"
 industries: ["Agencies", "Founders", "Startups", "Ops"]
 tools: ["n8n", "OpenAI", "GPT-4o-mini", "Google Sheets", "Slack", "Webhook"]
 nodes: 10
-costPerRun: "~$0.0003 (GPT-4o-mini) — effectively free at any team size"
+costPerRun: "~$0.0003 (GPT-4o-mini) - effectively free at any team size"
 heroMetric: "~$0.0003 (GPT-4o-mini)"
 priceLow: 200
 priceHigh: 600
@@ -20,24 +20,24 @@ screenshot: "/workflows/shots/day19.png"
 ---
 ## The Story
 
-Every remote team I worked with had the same broken standup. Fifteen minutes on a video call across three time zones, half the team half-asleep, everyone repeating themselves, the manager quietly typing notes nobody would ever read. Or worse — the "async standup" in a Slack thread that turned into a wall of unfilled updates by day three, because nobody had time to write "yesterday: worked on stuff, today: same stuff, blockers: none" every single morning.
+Every remote team I worked with had the same broken standup. Fifteen minutes on a video call across three time zones, half the team half-asleep, everyone repeating themselves, the manager quietly typing notes nobody would ever read. Or worse - the "async standup" in a Slack thread that turned into a wall of unfilled updates by day three, because nobody had time to write "yesterday: worked on stuff, today: same stuff, blockers: none" every single morning.
 
-The information the standup was supposed to produce — who's stuck, what's about to ship, where the bottlenecks are — got lost either way. Managers found out about blockers on Thursday that had existed since Monday.
+The information the standup was supposed to produce - who's stuck, what's about to ship, where the bottlenecks are - got lost either way. Managers found out about blockers on Thursday that had existed since Monday.
 
 ## What I Built
 
-I built them an async standup that respects everyone's time. Each morning, team members drop a short message — voice note or text, whatever's fastest — with what they're working on. The workflow reads all of it, normalizes the tone, pulls out the actual signal (progress, blockers, ships-today, anything anyone else needs to know), and posts a single clean team digest to the ops channel. Blockers are called out at the top. Progress is grouped by project, not by person. And if two people are blocked on each other, it flags the loop so someone can unblock the loop instead of both of them.
+I built them an async standup that respects everyone's time. Each morning, team members drop a short message - voice note or text, whatever's fastest - with what they're working on. The workflow reads all of it, normalizes the tone, pulls out the actual signal (progress, blockers, ships-today, anything anyone else needs to know), and posts a single clean team digest to the ops channel. Blockers are called out at the top. Progress is grouped by project, not by person. And if two people are blocked on each other, it flags the loop so someone can unblock the loop instead of both of them.
 
 The manager stops reading twelve half-baked Slack messages. The team stops writing them. The digest gives everyone the state of the team in thirty seconds.
 
 ## The Outcome
 
-The daily standup shrank from a fifteen-minute meeting or a messy Slack thread into a thirty-second read. Blockers started surfacing the day they appeared instead of days later. Cost per digest is well under a cent, so it runs indefinitely for essentially free. And the async teams that adopted it stopped feeling remote — they finally had a shared picture of what everyone was actually doing that day.
+The daily standup shrank from a fifteen-minute meeting or a messy Slack thread into a thirty-second read. Blockers started surfacing the day they appeared instead of days later. Cost per digest is well under a cent, so it runs indefinitely for essentially free. And the async teams that adopted it stopped feeling remote - they finally had a shared picture of what everyone was actually doing that day.
 
 ## Pricing Packages
 
-- Fiverr/Upwork setup: **$200–$600**
-- With Slack slash command + custom web form UI: **$600–$1,200**
-- Full async team ops system (standup + retrospective + sprint summary): **$1,500–$3,000**
-- Monthly retainer: **$75–$200/month**
-- Bundle with Day 8 (meeting notes) + Day 17 (onboarding) → Full Team Ops Package: **$1,500–$2,500**
+- Fiverr/Upwork setup: **$200-$600**
+- With Slack slash command + custom web form UI: **$600-$1,200**
+- Full async team ops system (standup + retrospective + sprint summary): **$1,500-$3,000**
+- Monthly retainer: **$75-$200/month**
+- Bundle with Day 8 (meeting notes) + Day 17 (onboarding) → Full Team Ops Package: **$1,500-$2,500**

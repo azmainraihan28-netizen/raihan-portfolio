@@ -34,7 +34,7 @@ export async function POST(req: Request) {
       from: `Portfolio <onboarding@resend.dev>`,
       to: site.email,
       replyTo: email,
-      subject: `New lead — ${name}${budget ? ` (${budget})` : ''}`,
+      subject: `New lead · ${name}${budget ? ` (${budget})` : ''}`,
       html,
     });
     return NextResponse.json({ ok: true });

@@ -2,17 +2,29 @@
 
 import { cn } from '@/lib/cn';
 import Link from 'next/link';
-import type { ReactNode } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { useRef, type ReactNode } from 'react';
+import {
+  motion,
+  useMotionValue,
+  useSpring,
+  useReducedMotion,
+} from 'framer-motion';
 
 export function Container({ className, children }: { className?: string; children: ReactNode }) {
-  return <div className={cn('max-w-container mx-auto px-6', className)}>{children}</div>;
+  return <div className={cn('max-w-container mx-auto px-5 sm:px-8', className)}>{children}</div>;
 }
 
-export function Eyebrow({ children }: { children: ReactNode }) {
+/* Eyebrow is rationed on purpose: at most one per three sections.
+   Most sections carry their headline alone. */
+export function Eyebrow({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <div className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-muted font-mono">
-      <span className="w-6 h-px bg-border" />
+    <div
+      className={cn(
+        'inline-flex items-center gap-2.5 text-[11px] uppercase tracking-[0.2em] text-muted font-mono',
+        className,
+      )}
+    >
+      <span className="w-8 h-px bg-accent/60" />
       {children}
     </div>
   );
@@ -20,24 +32,24 @@ export function Eyebrow({ children }: { children: ReactNode }) {
 
 export function ToolChip({ children }: { children: ReactNode }) {
   return (
-    <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-mono bg-surface border border-border text-muted">
+    <span className="inline-flex items-center px-2.5 py-1 rounded-pill text-[11px] font-mono bg-surface2 border border-border text-muted">
       {children}
     </span>
   );
 }
 
-const WEEK_COLORS: Record<number, string> = {
-  1: 'border-emerald-500/30 text-emerald-300 bg-emerald-500/10',
-  2: 'border-sky-500/30 text-sky-300 bg-sky-500/10',
-  3: 'border-amber-500/30 text-amber-300 bg-amber-500/10',
-  4: 'border-violet-500/30 text-violet-300 bg-violet-500/10',
-  5: 'border-rose-500/30 text-rose-300 bg-rose-500/10',
-};
-
+/* One accent, one shape. Week is data (which track a project came from),
+   so it stays -- but it is not a colour-coded rainbow any more. */
 export function WeekBadge({ week, className }: { week: number; className?: string }) {
   const label = week === 5 ? 'WEB' : `W${week}`;
   return (
-    <span className={cn('inline-flex items-center px-2 py-0.5 rounded text-[11px] font-mono border', WEEK_COLORS[week], className)}>
+    <span
+      className={cn(
+        'inline-flex items-center px-2 py-0.5 rounded-pill text-[10px] font-mono tracking-wider',
+        'border border-accent/25 bg-accent/10 text-accent',
+        className,
+      )}
+    >
       {label}
     </span>
   );
@@ -45,38 +57,129 @@ export function WeekBadge({ week, className }: { week: number; className?: strin
 
 export function PriceRange({ low, high }: { low: number; high: number }) {
   const fmt = (n: number) => (n >= 1000 ? `$${(n / 1000).toFixed(n % 1000 === 0 ? 0 : 1)}k` : `$${n}`);
-  return <span className="font-mono text-text">{fmt(low)}<span className="text-muted">–</span>{fmt(high)}</span>;
+  return (
+    <span className="font-mono text-text">
+      {fmt(low)}
+      <span className="text-muted">-</span>
+      {fmt(high)}
+    </span>
+  );
 }
 
+/* ------------------------------------------------------------------
+   CTAButton
+
+   variant "primary" is an inverted neutral fill (off-white on dark,
+   ink on light). That clears WCAG AA in both themes, which a violet
+   fill with white text does not.
+   variant "ghost" is a hairline-stroked pill.
+
+   Magnetic pull runs on motion values, never React state, so pointer
+   movement does not re-render the tree.
+   ------------------------------------------------------------------ */
+type CTAProps = {
+  href: string;
+  children: ReactNode;
+  variant?: 'primary' | 'ghost';
+  size?: 'md' | 'lg';
+  className?: string;
+  external?: boolean;
+};
+
 export function CTAButton({
-  href, children, variant = 'primary', size = 'md',
-}: { href: string; children: ReactNode; variant?: 'primary' | 'ghost'; size?: 'md' | 'lg' }) {
+  href,
+  children,
+  variant = 'primary',
+  size = 'md',
+  className,
+  external,
+}: CTAProps) {
   const reduce = useReducedMotion();
+  const ref = useRef<HTMLSpanElement>(null);
+
+  const mx = useMotionValue(0);
+  const my = useMotionValue(0);
+  const x = useSpring(mx, { stiffness: 260, damping: 22, mass: 0.4 });
+  const y = useSpring(my, { stiffness: 260, damping: 22, mass: 0.4 });
+
+  function onMove(e: React.PointerEvent) {
+    if (reduce || !ref.current) return;
+    const r = ref.current.getBoundingClientRect();
+    // Pull the button ~14% of the way toward the cursor.
+    mx.set((e.clientX - (r.left + r.width / 2)) * 0.14);
+    my.set((e.clientY - (r.top + r.height / 2)) * 0.14);
+  }
+  function onLeave() {
+    mx.set(0);
+    my.set(0);
+  }
+
   const styles =
     variant === 'primary'
-      ? 'bg-accent text-white hover:bg-accent-hover shadow-[0_8px_24px_-12px_rgba(124,92,255,0.6)]'
-      : 'bg-transparent text-text border border-border hover:bg-surface hover:border-accent/40';
-  const sz = size === 'lg' ? 'px-5 py-3 text-base' : 'px-4 py-2 text-sm';
+      ? 'bg-primary text-primary-on hover:bg-primary-hover font-medium'
+      : 'bg-transparent text-text border border-border hover:border-accent/50 hover:bg-surface';
+
+  const sz = size === 'lg' ? 'px-6 py-3 text-[15px]' : 'px-5 py-2.5 text-sm';
+
+  const inner = (
+    <span
+      className={cn(
+        'inline-flex items-center justify-center gap-2 rounded-pill whitespace-nowrap',
+        'active:scale-[0.97] transition-transform duration-150',
+        styles,
+        sz,
+      )}
+    >
+      {children}
+    </span>
+  );
+
   return (
     <motion.span
-      whileHover={reduce ? undefined : { y: -1 }}
-      whileTap={reduce ? undefined : { scale: 0.97 }}
-      transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
-      className="inline-block"
+      ref={ref}
+      onPointerMove={onMove}
+      onPointerLeave={onLeave}
+      style={reduce ? undefined : { x, y }}
+      className={cn('inline-block', className)}
     >
-      <Link href={href} className={cn('inline-flex items-center gap-2 rounded-md transition-colors', styles, sz)}>
-        {children}
-      </Link>
+      {external ? (
+        <a href={href} target="_blank" rel="noopener" className="inline-block">
+          {inner}
+        </a>
+      ) : (
+        <Link href={href} className="inline-block">
+          {inner}
+        </Link>
+      )}
     </motion.span>
   );
 }
 
-export function SectionTitle({ eyebrow, title, sub }: { eyebrow?: string; title: string; sub?: string }) {
+/* Section headline. Stacked vertically -- no big-headline-left /
+   small-paragraph-floating-right split headers. */
+export function SectionTitle({
+  eyebrow,
+  title,
+  sub,
+  className,
+}: {
+  eyebrow?: string;
+  title: ReactNode;
+  sub?: string;
+  className?: string;
+}) {
   return (
-    <div className="mb-12">
-      {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
-      <h2 className="mt-3 text-3xl md:text-4xl font-semibold tracking-tight">{title}</h2>
-      {sub && <p className="mt-3 text-muted max-w-2xl">{sub}</p>}
+    <div className={cn('mb-14', className)}>
+      {eyebrow && <Eyebrow className="mb-5">{eyebrow}</Eyebrow>}
+      <h2 className="font-display text-[2rem] md:text-[2.9rem] font-semibold tracking-[-0.03em] leading-[1.08] max-w-3xl">
+        {title}
+      </h2>
+      {sub && <p className="mt-5 text-muted leading-relaxed max-w-[62ch]">{sub}</p>}
     </div>
   );
+}
+
+/* Full-bleed hairline used to separate bands without boxing them in cards. */
+export function Rule({ className }: { className?: string }) {
+  return <div aria-hidden className={cn('h-px w-full bg-border', className)} />;
 }

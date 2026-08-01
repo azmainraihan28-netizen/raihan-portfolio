@@ -2,13 +2,13 @@
 day: 25
 slug: day25-ai-personal-crm
 title: "AI Personal CRM"
-tagline: "Gmail-triggered n8n workflow that"
+tagline: "Remembers every contact, thread, and follow-up you owe."
 week: 4
 category: "Advanced & Agentic"
 industries: ["Agencies", "Freelancers", "Founders", "Sales", "Consulting"]
 tools: ["n8n", "OpenAI", "GPT-4o-mini", "Gmail", "Google Sheets", "Slack"]
 nodes: 9
-costPerRun: "~$0.001 (GPT-4o-mini) — effectively free at any email volume"
+costPerRun: "~$0.001 (GPT-4o-mini) - effectively free at any email volume"
 heroMetric: "~$0.001 (GPT-4o-mini)"
 priceLow: 200
 priceHigh: 600
@@ -22,22 +22,22 @@ screenshot: "/workflows/shots/day25.png"
 
 Every solo founder and consultant I met carried the same guilt. Somewhere in their inbox was a conversation from four months ago with someone they *should* have followed up with. A prospect who said "let's talk in Q3." A former client who'd asked to be pinged when the new offering launched. An investor who'd asked for a quarterly update. All of them, buried in a Gmail thread nobody remembered to search.
 
-Real CRMs — HubSpot, Salesforce — solve this in theory. In practice, solo operators never keep them updated. Manually logging every conversation, every follow-up date, every promise made — nobody does it. So the relationships that were supposed to compound over time just quietly ghosted.
+Real CRMs - HubSpot, Salesforce - solve this in theory. In practice, solo operators never keep them updated. Manually logging every conversation, every follow-up date, every promise made - nobody does it. So the relationships that were supposed to compound over time just quietly ghosted.
 
 ## What I Built
 
-I built them a CRM that fills itself in from their inbox. The workflow watches Gmail, and every time a conversation that matters comes through — a real prospect, a former client, a warm intro — it reads the thread, extracts the person, the company, the context, the promises made ("I'll circle back in three weeks"), and drops it all into a personal relationship database. Follow-up dates get set automatically from the language of the email. When a follow-up date lands, Slack pings the founder with the context: who they are, what was said, what was promised, and a suggested opener.
+I built them a CRM that fills itself in from their inbox. The workflow watches Gmail, and every time a conversation that matters comes through - a real prospect, a former client, a warm intro - it reads the thread, extracts the person, the company, the context, the promises made ("I'll circle back in three weeks"), and drops it all into a personal relationship database. Follow-up dates get set automatically from the language of the email. When a follow-up date lands, Slack pings the founder with the context: who they are, what was said, what was promised, and a suggested opener.
 
 The founder stops maintaining a CRM. Their inbox does it silently in the background.
 
 ## The Outcome
 
-Follow-ups that used to slip stopped slipping — because Slack now told the founder about them, in context, on the right day. Relationships that would've gone cold got a warm nudge instead. Cost per email processed is a fraction of a cent. And the founders using it started closing "old lead" deals that would've quietly died in the inbox otherwise.
+Follow-ups that used to slip stopped slipping - because Slack now told the founder about them, in context, on the right day. Relationships that would've gone cold got a warm nudge instead. Cost per email processed is a fraction of a cent. And the founders using it started closing "old lead" deals that would've quietly died in the inbox otherwise.
 
 ## Pricing Packages
 
-- Fiverr/Upwork setup: **$200–$600**
-- With contact deduplication + relationship scoring dashboard: **$600–$1,200**
-- Full sales intelligence system (CRM + cold email + competitor tracker): **$2,000–$4,000**
-- Monthly retainer: **$75–$200/month**
-- Bundle with Day 9 (cold email) + Day 10 (review aggregator) → Full Sales Ops Package: **$1,000–$2,000**
+- Fiverr/Upwork setup: **$200-$600**
+- With contact deduplication + relationship scoring dashboard: **$600-$1,200**
+- Full sales intelligence system (CRM + cold email + competitor tracker): **$2,000-$4,000**
+- Monthly retainer: **$75-$200/month**
+- Bundle with Day 9 (cold email) + Day 10 (review aggregator) → Full Sales Ops Package: **$1,000-$2,000**

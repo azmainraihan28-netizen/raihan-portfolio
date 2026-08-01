@@ -2,14 +2,14 @@
 day: 23
 slug: day23-research-agent
 title: "Multi-Step AI Research Agent"
-tagline: "webhook-triggered n8n research agent that"
+tagline: "Researches a topic across sources and returns a cited brief."
 week: 4
 category: "Advanced & Agentic"
 industries: ["SaaS", "Agencies", "Marketing"]
 tools: ["n8n", "OpenAI", "GPT-4o-mini", "Google Sheets", "Google Docs", "Slack", "SerpAPI", "Webhook"]
 nodes: 19
 costPerRun: "- GPT-4o-mini (2 calls): ~$0.003"
-heroMetric: "- GPT-4o-mini (2 calls): ~$0.003"
+heroMetric: "~$0.003 per run"
 priceLow: 300
 priceHigh: 800
 featured: false
@@ -20,24 +20,24 @@ screenshot: "/workflows/shots/day23.png"
 ---
 ## The Story
 
-Every content team I worked with had the same expensive habit. Before writing a single word of a real article, a strategist or writer would spend three to five hours doing the research — twenty open tabs, six half-read Reddit threads, four Substack essays, three whitepapers, one YouTube video played at 2x. Then they'd try to synthesize all of it into a coherent point of view. By the time the actual writing started, half a day was already gone.
+Every content team I worked with had the same expensive habit. Before writing a single word of a real article, a strategist or writer would spend three to five hours doing the research - twenty open tabs, six half-read Reddit threads, four Substack essays, three whitepapers, one YouTube video played at 2x. Then they'd try to synthesize all of it into a coherent point of view. By the time the actual writing started, half a day was already gone.
 
-The tools that promised to fix this — "AI writers" that spit out a full article from a prompt — produced generic mush. Real research needs to loop. Read a source, decide what's still missing, search again, read more, then finally form a view. Nothing on the market did that at a price a content team could actually run.
+The tools that promised to fix this - "AI writers" that spit out a full article from a prompt - produced generic mush. Real research needs to loop. Read a source, decide what's still missing, search again, read more, then finally form a view. Nothing on the market did that at a price a content team could actually run.
 
 ## What I Built
 
-I built them a research agent that does the looping for them. A strategist drops in a topic and a target angle. The agent goes out, pulls real sources, reads them, decides what it still doesn't understand, searches again, reads more, and keeps going until it has a coherent view. Then it hands back a structured research brief — the strongest arguments each side is making, the specific data points worth citing, the gaps other content on the topic keeps missing, and a suggested angle the strategist can use as the article's spine. The full source list drops into a doc so the writer can cite properly.
+I built them a research agent that does the looping for them. A strategist drops in a topic and a target angle. The agent goes out, pulls real sources, reads them, decides what it still doesn't understand, searches again, reads more, and keeps going until it has a coherent view. Then it hands back a structured research brief - the strongest arguments each side is making, the specific data points worth citing, the gaps other content on the topic keeps missing, and a suggested angle the strategist can use as the article's spine. The full source list drops into a doc so the writer can cite properly.
 
 The writer doesn't start from zero. They start with a thesis worth writing about.
 
 ## The Outcome
 
-Three-to-five hours of pre-writing research collapsed to about five minutes of reading the brief. Content velocity roughly doubled for the teams that rolled it out. And the strange side effect — every writer mentioned this — was that the articles ended up sharper than usual, because the research was more thorough than what they used to do by hand at 4 PM on a Thursday.
+Three-to-five hours of pre-writing research collapsed to about five minutes of reading the brief. Content velocity roughly doubled for the teams that rolled it out. And the strange side effect - every writer mentioned this - was that the articles ended up sharper than usual, because the research was more thorough than what they used to do by hand at 4 PM on a Thursday.
 
 ## Pricing Packages
 
-- Fiverr/Upwork setup: **$300–$800**
-- With custom topic templates + auto-publish to WordPress/Webflow: **$800–$1,500**
-- Full content production pipeline (research + draft + SEO optimize + publish): **$2,000–$4,000**
-- Monthly retainer (manage + run + report): **$100–$300/month**
-- Bundle with Day 11 (SEO brief generator) → Complete Content Intelligence Package: **$1,000–$2,000**
+- Fiverr/Upwork setup: **$300-$800**
+- With custom topic templates + auto-publish to WordPress/Webflow: **$800-$1,500**
+- Full content production pipeline (research + draft + SEO optimize + publish): **$2,000-$4,000**
+- Monthly retainer (manage + run + report): **$100-$300/month**
+- Bundle with Day 11 (SEO brief generator) → Complete Content Intelligence Package: **$1,000-$2,000**

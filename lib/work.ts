@@ -23,6 +23,10 @@ export type Workflow = {
   linkedinPost: string;
   targetUsers: string;
   screenshot: string;
+  /** Intrinsic pixel size of `screenshot`, read at build so next/image can
+   *  reserve the correct box and we do not ship layout shift. */
+  screenshotW: number;
+  screenshotH: number;
   body: string;
   filename: string;
   kind: WorkKind;
@@ -30,6 +34,27 @@ export type Workflow = {
 };
 
 const WORK_DIR = path.join(process.cwd(), 'content/work');
+
+/** Reads width/height straight out of a PNG IHDR chunk. Falls back to a
+ *  16:10 box for non-PNG or unreadable files. */
+async function pngSize(publicPath: string): Promise<{ w: number; h: number }> {
+  const fallback = { w: 1600, h: 1000 };
+  if (!publicPath || !publicPath.toLowerCase().endsWith('.png')) return fallback;
+  try {
+    const file = path.join(process.cwd(), 'public', decodeURIComponent(publicPath).replace(/^\//, ''));
+    const fh = await fs.open(file, 'r');
+    try {
+      const buf = Buffer.alloc(24);
+      await fh.read(buf, 0, 24, 0);
+      if (buf.toString('ascii', 12, 16) !== 'IHDR') return fallback;
+      return { w: buf.readUInt32BE(16), h: buf.readUInt32BE(20) };
+    } finally {
+      await fh.close();
+    }
+  } catch {
+    return fallback;
+  }
+}
 
 let cache: Workflow[] | null = null;
 
@@ -41,6 +66,8 @@ export async function getAllWorkflows(): Promise<Workflow[]> {
   for (const file of files) {
     const raw = await fs.readFile(path.join(WORK_DIR, file), 'utf8');
     const { data, content } = matter(raw);
+    const shot = data.screenshot || '';
+    const { w: screenshotW, h: screenshotH } = await pngSize(shot);
     items.push({
       day: data.day,
       slug: data.slug,
@@ -59,7 +86,9 @@ export async function getAllWorkflows(): Promise<Workflow[]> {
       workflowJson: data.workflowJson || '',
       linkedinPost: data.linkedinPost || '',
       targetUsers: data.targetUsers || '',
-      screenshot: data.screenshot || '',
+      screenshot: shot,
+      screenshotW,
+      screenshotH,
       body: content,
       filename: file,
       kind: (data.kind || 'automation') as WorkKind,

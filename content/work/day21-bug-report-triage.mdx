@@ -15,28 +15,28 @@ priceHigh: 800
 featured: false
 workflowJson: ""
 linkedinPost: "/posts/day21"
-targetUsers: "CTOs, engineering managers, DevOps leads, Series A–B SaaS teams"
+targetUsers: "CTOs, engineering managers, DevOps leads, Series A - B SaaS teams"
 screenshot: "/workflows/shots/day21.png"
 ---
 ## The Story
 
 Every engineering team I worked with had the same nightmare shape. A critical bug got filed at 11 PM on a Friday. It sat in the queue tagged "bug." Nobody looked at it until Monday morning. By then, users were already screaming, the founder was already tweeting apologies, and whoever finally caught it discovered it had been an easy fix if anyone had seen it in time.
 
-The daily version was quieter but just as expensive. Engineers spent thirty to sixty minutes every morning reading fresh GitHub issues, guessing which were serious, guessing who should own them, and often assigning them to the wrong team — the frontend engineer got a backend issue, wasted a day, handed it back. On teams with fifty open issues at any given time, triage collapsed into "check whichever one has the loudest comment thread."
+The daily version was quieter but just as expensive. Engineers spent thirty to sixty minutes every morning reading fresh GitHub issues, guessing which were serious, guessing who should own them, and often assigning them to the wrong team - the frontend engineer got a backend issue, wasted a day, handed it back. On teams with fifty open issues at any given time, triage collapsed into "check whichever one has the loudest comment thread."
 
 ## What I Built
 
-I built them a triage layer that fires the second an issue is filed. The AI reads the title and description, decides the severity from P0 down to P3, applies the right area label — frontend, backend, DevOps, security — and assigns the issue to whoever owns that area. It leaves a formatted triage comment on the issue itself so the reporter and the team can see the reasoning: why it's a P1, why it went to the backend team, what the plain-English summary of the problem is. And if it's a P0 or P1 — actual fire — it pings the engineering-alerts Slack channel immediately, with full context.
+I built them a triage layer that fires the second an issue is filed. The AI reads the title and description, decides the severity from P0 down to P3, applies the right area label - frontend, backend, DevOps, security - and assigns the issue to whoever owns that area. It leaves a formatted triage comment on the issue itself so the reporter and the team can see the reasoning: why it's a P1, why it went to the backend team, what the plain-English summary of the problem is. And if it's a P0 or P1 - actual fire - it pings the engineering-alerts Slack channel immediately, with full context.
 
 The team wakes up to issues that are already triaged, labeled, and routed. The critical ones already have a human paying attention.
 
 ## The Outcome
 
-For the twelve-person SaaS team that piloted it, morning triage dropped from forty-five minutes to zero. That's forty-five minutes back, per engineer, every day. Critical bugs stopped sitting in the queue overnight. Cost per issue triaged is under a cent — the workflow essentially pays for itself in the first hour of engineering time it saves.
+For the twelve-person SaaS team that piloted it, morning triage dropped from forty-five minutes to zero. That's forty-five minutes back, per engineer, every day. Critical bugs stopped sitting in the queue overnight. Cost per issue triaged is under a cent - the workflow essentially pays for itself in the first hour of engineering time it saves.
 
 ## Pricing Packages
 
-- Sell as "GitHub Bug Triage Automation Setup": **$150–$300 one-time**
-- Custom label mapping + Jira/Linear integration: **$400–$600**
-- Monthly workflow maintenance retainer: **$99–$199/month**
-- Target buyers: CTOs, Engineering Managers, DevOps leads at Series A–B startups
+- Sell as "GitHub Bug Triage Automation Setup": **$150-$300 one-time**
+- Custom label mapping + Jira/Linear integration: **$400-$600**
+- Monthly workflow maintenance retainer: **$99-$199/month**
+- Target buyers: CTOs, Engineering Managers, DevOps leads at Series A - B startups

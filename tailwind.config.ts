@@ -18,17 +18,27 @@ const config: Config = {
           DEFAULT: rgb('--accent'),
           hover: rgb('--accent-hover'),
           soft: 'rgb(var(--accent) / 0.12)',
+          on: rgb('--on-accent'),
         },
-        success: '#3FB984',
-        warn: '#E0A24A',
+        primary: {
+          DEFAULT: rgb('--primary'),
+          hover: rgb('--primary-hover'),
+          on: rgb('--on-primary'),
+        },
       },
       fontFamily: {
         sans: ['var(--font-geist-sans)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         mono: ['var(--font-geist-mono)', 'ui-monospace', 'SFMono-Regular', 'monospace'],
-        serif: ['var(--font-instrument-serif)', 'ui-serif', 'Georgia', 'serif'],
+        display: ['var(--font-display)', 'var(--font-geist-sans)', 'ui-sans-serif', 'sans-serif'],
+      },
+      // One documented radius rule for the whole site.
+      borderRadius: {
+        pill: 'var(--r-pill)',
+        card: 'var(--r-card)',
+        input: 'var(--r-input)',
       },
       maxWidth: {
-        container: '72rem',
+        container: '78rem',
         prose: '64rem',
       },
       keyframes: {
@@ -36,9 +46,14 @@ const config: Config = {
           '0%': { opacity: '0', transform: 'translateY(8px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
+        drift: {
+          '0%, 100%': { transform: 'translate3d(0,0,0) scale(1)' },
+          '50%': { transform: 'translate3d(3%, -4%, 0) scale(1.06)' },
+        },
       },
       animation: {
         'fade-up': 'fadeUp 0.6s ease-out both',
+        drift: 'drift 24s ease-in-out infinite',
       },
     },
   },

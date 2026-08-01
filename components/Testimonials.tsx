@@ -1,58 +1,88 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { Quote } from 'lucide-react';
+import { useRef } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { site } from '@/content/site';
-import { cn } from '@/lib/cn';
 
-const ACCENT: Record<string, string> = {
-  orange: 'from-orange-500/25 to-orange-500/0 text-orange-400',
-  blue: 'from-sky-500/25 to-sky-500/0 text-sky-400',
-  sky: 'from-cyan-500/25 to-cyan-500/0 text-cyan-400',
-  violet: 'from-violet-500/25 to-violet-500/0 text-violet-300',
-  green: 'from-emerald-500/25 to-emerald-500/0 text-emerald-400',
-  red: 'from-rose-500/25 to-rose-500/0 text-rose-400',
-};
-
+/* A rail rather than a grid: six quotes in a 3-column grid is another
+   card wall, and this page already has one. Horizontal scroll keeps the
+   section short and signals there is more than fits. */
 export function Testimonials() {
-  const items = site.testimonials;
+  const railRef = useRef<HTMLDivElement>(null);
+  const reduce = useReducedMotion();
+
+  function nudge(dir: -1 | 1) {
+    const el = railRef.current;
+    if (!el) return;
+    el.scrollBy({ left: dir * (el.clientWidth * 0.8), behavior: reduce ? 'auto' : 'smooth' });
+  }
+
   return (
-    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-      {items.map((t, i) => (
-        <motion.figure
-          key={t.name}
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.25 }}
-          transition={{ duration: 0.5, delay: (i % 3) * 0.08, ease: [0.22, 1, 0.36, 1] }}
-          className={cn(
-            'relative rounded-2xl border border-border bg-surface p-6 md:p-7 overflow-hidden',
-            'hover:border-accent/30 transition-colors',
-          )}
-        >
-          <span
-            aria-hidden
-            className={cn(
-              'pointer-events-none absolute -top-16 -right-16 w-56 h-56 rounded-full blur-3xl opacity-70',
-              'bg-gradient-to-br',
-              ACCENT[t.accent]?.split(' ').slice(0, 2).join(' ') ?? 'from-accent/20 to-accent/0',
-            )}
-          />
-          <Quote size={18} className={cn('relative', ACCENT[t.accent]?.split(' ')[2] ?? 'text-accent')} strokeWidth={1.5} />
-          <blockquote className="relative mt-4 text-[15px] leading-relaxed text-text/90">
-            &ldquo;{t.quote}&rdquo;
-          </blockquote>
-          <figcaption className="relative mt-6 flex items-center gap-3 pt-4 border-t border-dashed border-border">
-            <span className="w-9 h-9 rounded-full bg-accent/10 border border-accent/20 grid place-items-center font-mono text-sm text-accent">
-              {t.name.split(' ').map((s) => s[0]).slice(0, 2).join('')}
+    <div>
+      <div
+        ref={railRef}
+        className="rail flex gap-5 overflow-x-auto snap-x snap-mandatory pb-2 -mx-5 px-5 sm:-mx-8 sm:px-8"
+      >
+        {site.testimonials.map((t, i) => (
+          <motion.figure
+            key={t.name}
+            initial={reduce ? false : { opacity: 0, y: 18 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.5, delay: Math.min(i, 3) * 0.07, ease: [0.16, 1, 0.3, 1] }}
+            /* Narrower than a third of the container so the next card peeks
+               and the rail reads as scrollable without a scroll cue. */
+            className="snap-start shrink-0 w-[82vw] sm:w-[340px] rounded-card border border-border bg-surface p-7 flex flex-col hover:border-accent/35 transition-colors"
+          >
+            <span aria-hidden className="font-display text-5xl leading-none text-accent/35 select-none">
+              &ldquo;
             </span>
-            <span>
-              <span className="block text-sm font-medium">{t.name}</span>
-              <span className="block text-xs text-muted">{t.role}</span>
-            </span>
-          </figcaption>
-        </motion.figure>
-      ))}
+            <blockquote className="mt-3 text-[15.5px] leading-[1.6] text-text/90">
+              {t.quote}
+            </blockquote>
+            <figcaption className="mt-auto pt-7 flex items-center gap-3">
+              <span className="w-9 h-9 rounded-pill bg-accent/10 border border-accent/25 grid place-items-center font-mono text-[12px] text-accent shrink-0">
+                {t.name.split(' ').map((s) => s[0]).slice(0, 2).join('')}
+              </span>
+              <span className="min-w-0">
+                <span className="block text-sm font-medium truncate">{t.name}</span>
+                <span className="block text-xs text-muted truncate">{t.role}</span>
+              </span>
+            </figcaption>
+          </motion.figure>
+        ))}
+      </div>
+
+      <div className="mt-8 flex items-center gap-2">
+        <RailButton label="Previous testimonials" onClick={() => nudge(-1)}>
+          <ArrowLeft size={16} strokeWidth={2} />
+        </RailButton>
+        <RailButton label="More testimonials" onClick={() => nudge(1)}>
+          <ArrowRight size={16} strokeWidth={2} />
+        </RailButton>
+      </div>
     </div>
+  );
+}
+
+function RailButton({
+  children,
+  label,
+  onClick,
+}: {
+  children: React.ReactNode;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={label}
+      className="w-10 h-10 grid place-items-center rounded-pill border border-border bg-surface text-muted hover:text-text hover:border-accent/40 active:scale-95 transition-all"
+    >
+      {children}
+    </button>
   );
 }

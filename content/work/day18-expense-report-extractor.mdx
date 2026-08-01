@@ -2,7 +2,7 @@
 day: 18
 slug: day18-expense-report-extractor
 title: "AI Expense Report Extractor & Categorizer"
-tagline: "webhook-triggered n8n workflow that"
+tagline: "Reads receipts, categorises spend, and files the report."
 week: 3
 category: "Internal Ops"
 industries: ["Agencies", "Freelancers", "Startups", "HR", "Ops", "Finance"]
@@ -26,18 +26,18 @@ The finance person was spending days on data entry. Employees were waiting weeks
 
 ## What I Built
 
-I built them an expense worker that lives at the submission endpoint. An employee just forwards a receipt — from their inbox, from Slack, from their phone — and the workflow reads the image or PDF, pulls out the vendor, amount, date, tax, and payment method, and categorizes it against the company's actual expense policy. If it's clearly approved, it goes straight into the sheet and pings the employee "logged, reimbursement queued." If it needs a human's eye — over-limit, uncategorized vendor, missing info — it flags finance in Slack with the context and a suggested category.
+I built them an expense worker that lives at the submission endpoint. An employee just forwards a receipt - from their inbox, from Slack, from their phone - and the workflow reads the image or PDF, pulls out the vendor, amount, date, tax, and payment method, and categorizes it against the company's actual expense policy. If it's clearly approved, it goes straight into the sheet and pings the employee "logged, reimbursement queued." If it needs a human's eye - over-limit, uncategorized vendor, missing info - it flags finance in Slack with the context and a suggested category.
 
 The employee submits and forgets. Finance stops typing and starts approving.
 
 ## The Outcome
 
-Days of month-end data entry compressed to minutes of approval work. Reimbursement time to employees dropped from weeks to same-day for clean submissions. Cost per receipt processed is a fraction of a cent. And the "lost receipts" problem — the one that costs companies real deductions every year — mostly disappeared, because losing a receipt now requires actively deleting the email.
+Days of month-end data entry compressed to minutes of approval work. Reimbursement time to employees dropped from weeks to same-day for clean submissions. Cost per receipt processed is a fraction of a cent. And the "lost receipts" problem - the one that costs companies real deductions every year - mostly disappeared, because losing a receipt now requires actively deleting the email.
 
 ## Pricing Packages
 
-- Fiverr/Upwork setup: **$200–$600**
-- With multi-currency support + monthly summary report: **$600–$1,200**
-- Full finance automation suite (invoice extractor + expense tracker + approval flow): **$1,500–$3,000**
-- Monthly retainer: **$75–$200/month**
-- Bundle with Day 7 (invoice extractor) → Complete Accounts Payable + Expense Package: **$800–$1,500**
+- Fiverr/Upwork setup: **$200-$600**
+- With multi-currency support + monthly summary report: **$600-$1,200**
+- Full finance automation suite (invoice extractor + expense tracker + approval flow): **$1,500-$3,000**
+- Monthly retainer: **$75-$200/month**
+- Bundle with Day 7 (invoice extractor) → Complete Accounts Payable + Expense Package: **$800-$1,500**

@@ -1,122 +1,132 @@
-import { Check, ArrowRight, Layout, Cpu } from 'lucide-react';
+import { ArrowRight, Check, Cpu, Layout } from 'lucide-react';
 import { Container, CTAButton, Eyebrow, SectionTitle } from '@/components/ui';
 import { FadeUp, Stagger, StaggerItem } from '@/components/motion';
 
 export const metadata = {
-  title: 'Services — Web Development & AI Automation',
+  title: 'Services · Web Development & AI Automation',
   description:
     'Marketing sites, apps, SaaS builds, and AI automation on n8n. Fixed-price scopes from $800 to $15k. Vertex Studio.',
 };
 
-const webTiers = [
+type Tier = {
+  name: string;
+  price: string;
+  timeline: string;
+  desc: string;
+  featured?: boolean;
+  items: string[];
+  cta: { label: string; href: string };
+};
+
+const webTiers: Tier[] = [
   {
     name: 'Marketing Site',
-    price: '$1,500 – $3,500',
-    timeline: '1 – 2 weeks',
+    price: '$1,500 - $3,500',
+    timeline: '1 - 2 weeks',
     desc: 'A conversion-tuned marketing or brand site. Editorial layout, motion, CMS-ready.',
     items: [
       'Up to 6 sections / pages',
-      'Figma design → Next.js build',
+      'Figma design into a Next.js build',
       'Blog / MDX content system',
-      'On-page SEO + analytics',
+      'On-page SEO and analytics',
     ],
-    cta: { label: 'Start a site', href: '/contact?ref=marketing-site' },
+    cta: { label: 'Start a project', href: '/contact?ref=marketing-site' },
   },
   {
     name: 'Web App / Dashboard',
-    price: '$4,000 – $8,000',
-    timeline: '3 – 5 weeks',
-    desc: 'Internal tools, admin panels, ops dashboards on Next.js + Supabase with auth and roles.',
+    price: '$4,000 - $8,000',
+    timeline: '3 - 5 weeks',
+    desc: 'Internal tools, admin panels, and ops dashboards on Next.js plus Supabase, with auth and roles.',
     featured: true,
     items: [
       'Auth, RBAC, and multi-tenant models',
-      'Supabase + Postgres data layer',
-      'Real-time widgets & charts',
-      'Deployed to Vercel, Loom walkthrough',
+      'Supabase and Postgres data layer',
+      'Real-time widgets and charts',
+      'Deployed to Vercel with a Loom walkthrough',
     ],
-    cta: { label: 'Scope a dashboard', href: '/contact?ref=webapp' },
+    cta: { label: 'Start a project', href: '/contact?ref=webapp' },
   },
   {
     name: 'SaaS / App MVP',
-    price: '$6,000 – $15,000',
-    timeline: '4 – 8 weeks',
-    desc: 'End-to-end SaaS product or React Native app — billing, onboarding, and the core loop.',
+    price: '$6,000 - $15,000',
+    timeline: '4 - 8 weeks',
+    desc: 'End-to-end SaaS product or React Native app, covering billing, onboarding, and the core loop.',
     items: [
-      'Full product surface (10 – 25 screens)',
-      'Stripe billing + auth + emails',
-      'Design system + component library',
+      'Full product surface, 10 to 25 screens',
+      'Stripe billing, auth, and transactional email',
+      'Design system and component library',
       'Post-launch retainer available',
     ],
-    cta: { label: 'Plan an MVP', href: '/contact?ref=saas-mvp' },
+    cta: { label: 'Start a project', href: '/contact?ref=saas-mvp' },
   },
 ];
 
-const aiTiers = [
+const aiTiers: Tier[] = [
   {
     name: 'Single Workflow',
-    price: '$300 – $900',
-    timeline: '3 – 5 days',
-    desc: 'One tightly-scoped n8n workflow — cold email, invoice extraction, review aggregation, etc.',
+    price: '$300 - $900',
+    timeline: '3 - 5 days',
+    desc: 'One tightly-scoped n8n workflow: cold email, invoice extraction, review aggregation.',
     items: [
       'One workflow, deployed to your n8n',
       'Configured against your APIs',
       'Cost-per-run measured and published',
       '30-day support included',
     ],
-    cta: { label: 'Pick a workflow', href: '/work?filter=automation' },
+    cta: { label: 'See our work', href: '/work?filter=automation' },
   },
   {
     name: 'Ops Bundle',
-    price: '$1,500 – $3,500',
-    timeline: '2 – 3 weeks',
-    desc: 'Three integrated workflows for a vertical — Sales Ops, Hiring Stack, Content Pipeline, Support.',
+    price: '$1,500 - $3,500',
+    timeline: '2 - 3 weeks',
+    desc: 'Three integrated workflows for one vertical: Sales Ops, Hiring Stack, Content Pipeline, or Support.',
     featured: true,
     items: [
-      'Three linked workflows, shared data',
-      'Slack / Sheets / CRM glue built in',
+      'Three linked workflows on shared data',
+      'Slack, Sheets, and CRM glue built in',
       'Custom branding on all outputs',
-      '60-day support · 1 revision round',
+      '60-day support with one revision round',
     ],
-    cta: { label: 'Discuss a bundle', href: '/contact?ref=ops-bundle' },
+    cta: { label: 'Start a project', href: '/contact?ref=ops-bundle' },
   },
   {
     name: 'Agents & Integrations',
-    price: '$3,000 – $8,000 + retainer',
-    timeline: '3 – 5 weeks',
+    price: '$3,000 - $8,000',
+    timeline: '3 - 5 weeks',
     desc: 'Autonomous agents, multi-tool orchestration, and deep API integrations across your stack.',
     items: [
       'Multi-agent workflow with tool use',
-      'Deep integrations (CRM, ERP, custom APIs)',
-      'Guardrails, logging, cost caps',
-      'Optional monthly retainer ($200 – $800/mo)',
+      'Deep integrations across CRM, ERP, custom APIs',
+      'Guardrails, logging, and cost caps',
+      'Optional monthly retainer, $200 to $800',
     ],
-    cta: { label: 'Design an agent', href: '/contact?ref=agents' },
+    cta: { label: 'Start a project', href: '/contact?ref=agents' },
   },
 ];
 
 const bundles = [
   {
     title: 'Launch Bundle',
-    detail: 'Marketing site + lead-scoring automation',
+    detail: 'Marketing site plus lead-scoring automation',
     desc: 'For founders who need both a story and a sales pipeline the day they go live.',
-    price: '$3,000 – $5,500',
+    price: '$3,000 - $5,500',
   },
   {
     title: 'Ops Bundle',
-    detail: 'Internal dashboard + 2 n8n workflows',
-    desc: 'Give leadership a live view. Automate the two spreadsheets that eat everyone\'s week.',
-    price: '$5,500 – $10,000',
+    detail: 'Internal dashboard plus two n8n workflows',
+    desc: 'Give leadership a live view. Automate the two spreadsheets that eat everyone’s week.',
+    price: '$5,500 - $10,000',
   },
   {
     title: 'Product Bundle',
-    detail: 'SaaS MVP + AI feature + billing',
-    desc: 'From concept to first paying customer. Product + AI feature + Stripe on day one.',
-    price: '$8,000 – $16,000',
+    detail: 'SaaS MVP plus an AI feature plus billing',
+    desc: 'From concept to first paying customer. Product, AI feature, and Stripe on day one.',
+    price: '$8,000 - $16,000',
   },
   {
     title: 'Full Studio',
-    detail: 'Site + app + automation retainer',
-    desc: 'When you want a design partner + engineering team + ops brain on tap for the quarter.',
+    detail: 'Site plus app plus an automation retainer',
+    desc: 'A design partner, an engineering team, and an ops brain on tap for the quarter.',
     price: '$12,000+ / quarter',
   },
 ];
@@ -124,151 +134,237 @@ const bundles = [
 export default function ServicesPage() {
   return (
     <>
-      <section>
-        <Container className="pt-20 pb-12">
-          <Eyebrow>Services</Eyebrow>
-          <h1 className="mt-3 text-4xl md:text-6xl font-semibold tracking-tight">
-            Two crafts. <span className="font-serif italic font-normal text-accent">One studio.</span>
+      {/* 1. Page head */}
+      <section className="relative overflow-hidden border-b border-border">
+        <div aria-hidden className="absolute inset-0 tech-grid" />
+        <Container className="relative pt-20 md:pt-28 pb-20 md:pb-24">
+          <Eyebrow className="mb-6">Services</Eyebrow>
+          <h1 className="font-display font-semibold tracking-[-0.04em] leading-[1.02] text-[clamp(2.4rem,5.6vw,4rem)] max-w-3xl">
+            Two crafts. One studio.
           </h1>
-          <p className="mt-4 text-muted max-w-2xl text-lg">
-            Fixed-price scopes across web development and AI automation. Pick a tier, or bundle both sides into one engagement.
+          <p className="mt-7 text-muted max-w-[56ch] text-lg leading-relaxed">
+            Fixed-price scopes across web development and AI automation. Pick a tier, or bundle
+            both sides into a single engagement.
           </p>
         </Container>
       </section>
 
-      {/* Web Dev */}
+      {/* 2. Web tiers: one lead panel, two stacked. Not three identical cards. */}
       <section id="web" className="scroll-mt-24">
-        <Container className="pt-8 pb-16">
-          <div className="flex items-center gap-3 mb-8">
-            <span className="w-9 h-9 rounded-lg grid place-items-center bg-accent/10 text-accent border border-accent/20">
-              <Layout size={16} strokeWidth={1.8} />
-            </span>
-            <span className="text-[11px] uppercase tracking-[0.22em] text-muted font-mono">Web Development</span>
-          </div>
-          <h2 className="text-3xl md:text-4xl font-semibold tracking-tight">Sites, apps, and SaaS products.</h2>
-          <p className="mt-3 text-muted max-w-2xl">
-            Modern stack — Next.js, React, Tailwind, Supabase, Vercel. Editorial design, production-grade engineering.
-          </p>
-
-          <Stagger className="mt-12 grid lg:grid-cols-3 gap-5">
-            {webTiers.map((t) => (
-              <StaggerItem
-                key={t.name}
-                className={
-                  'rounded-2xl border bg-surface p-7 flex flex-col transition-colors ' +
-                  (t.featured ? 'border-accent/40 ring-1 ring-accent/20' : 'border-border hover:border-accent/30')
-                }
-              >
-                {t.featured && (
-                  <div className="text-[11px] uppercase tracking-wider text-accent font-mono mb-3">Most popular</div>
-                )}
-                <div className="text-sm text-muted">{t.name}</div>
-                <div className="mt-2 font-mono text-2xl md:text-3xl text-text">{t.price}</div>
-                <div className="text-xs text-muted mt-1 font-mono">{t.timeline}</div>
-                <p className="mt-4 text-sm text-muted leading-relaxed">{t.desc}</p>
-                <ul className="mt-5 space-y-2 text-sm">
-                  {t.items.map((i) => (
-                    <li key={i} className="flex items-start gap-2">
-                      <Check size={14} className="text-accent mt-1 shrink-0" />
-                      <span>{i}</span>
-                    </li>
-                  ))}
-                </ul>
-                <div className="mt-7">
-                  <CTAButton href={t.cta.href} variant={t.featured ? 'primary' : 'ghost'}>
-                    {t.cta.label} <ArrowRight size={14} />
-                  </CTAButton>
-                </div>
-              </StaggerItem>
-            ))}
-          </Stagger>
-        </Container>
-      </section>
-
-      {/* AI Automation */}
-      <section id="ai" className="scroll-mt-24 border-t border-border bg-surface/30">
-        <Container className="py-16">
-          <div className="flex items-center gap-3 mb-8">
-            <span className="w-9 h-9 rounded-lg grid place-items-center bg-accent/10 text-accent border border-accent/20">
-              <Cpu size={16} strokeWidth={1.8} />
-            </span>
-            <span className="text-[11px] uppercase tracking-[0.22em] text-muted font-mono">AI Automation</span>
-          </div>
-          <h2 className="text-3xl md:text-4xl font-semibold tracking-tight">n8n workflows, agents, integrations.</h2>
-          <p className="mt-3 text-muted max-w-2xl">
-            We replace $300/month SaaS tools with $0.001/run workflows — and build autonomous agents that actually stay on task.
-          </p>
-
-          <Stagger className="mt-12 grid lg:grid-cols-3 gap-5">
-            {aiTiers.map((t) => (
-              <StaggerItem
-                key={t.name}
-                className={
-                  'rounded-2xl border bg-surface p-7 flex flex-col transition-colors ' +
-                  (t.featured ? 'border-accent/40 ring-1 ring-accent/20' : 'border-border hover:border-accent/30')
-                }
-              >
-                {t.featured && (
-                  <div className="text-[11px] uppercase tracking-wider text-accent font-mono mb-3">Most popular</div>
-                )}
-                <div className="text-sm text-muted">{t.name}</div>
-                <div className="mt-2 font-mono text-2xl md:text-3xl text-text">{t.price}</div>
-                <div className="text-xs text-muted mt-1 font-mono">{t.timeline}</div>
-                <p className="mt-4 text-sm text-muted leading-relaxed">{t.desc}</p>
-                <ul className="mt-5 space-y-2 text-sm">
-                  {t.items.map((i) => (
-                    <li key={i} className="flex items-start gap-2">
-                      <Check size={14} className="text-accent mt-1 shrink-0" />
-                      <span>{i}</span>
-                    </li>
-                  ))}
-                </ul>
-                <div className="mt-7">
-                  <CTAButton href={t.cta.href} variant={t.featured ? 'primary' : 'ghost'}>
-                    {t.cta.label} <ArrowRight size={14} />
-                  </CTAButton>
-                </div>
-              </StaggerItem>
-            ))}
-          </Stagger>
-        </Container>
-      </section>
-
-      {/* Bundles */}
-      <Container className="py-20">
-        <SectionTitle
-          eyebrow="Bundles"
-          title="Or combine both sides."
-          sub="Web + automation, scoped as one engagement. Cleaner handoffs, lower total cost, faster to launch."
-        />
-        <Stagger className="grid sm:grid-cols-2 gap-5">
-          {bundles.map((b) => (
-            <StaggerItem
-              key={b.title}
-              className="rounded-xl border border-border bg-surface p-6 hover:border-accent/30 transition-colors"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h3 className="font-medium text-lg tracking-tight">{b.title}</h3>
-                  <div className="mt-1 text-xs text-muted font-mono">{b.detail}</div>
-                </div>
-                <span className="font-mono text-sm text-accent whitespace-nowrap">{b.price}</span>
-              </div>
-              <p className="mt-3 text-sm text-muted leading-relaxed">{b.desc}</p>
+        <Container className="py-24 md:py-32">
+          <CraftHead
+            icon={<Layout size={17} strokeWidth={1.8} />}
+            title="Sites, apps, and SaaS products."
+            sub="Modern stack: Next.js, React, Tailwind, Supabase, Vercel. Editorial design, production-grade engineering."
+          />
+          <Stagger className="grid lg:grid-cols-[1.25fr,1fr] gap-5 items-start">
+            <StaggerItem className="h-full">
+              <LeadTier tier={webTiers[1]} />
             </StaggerItem>
-          ))}
-        </Stagger>
+            <div className="grid gap-5">
+              {[webTiers[0], webTiers[2]].map((t) => (
+                <StaggerItem key={t.name}>
+                  <CompactTier tier={t} />
+                </StaggerItem>
+              ))}
+            </div>
+          </Stagger>
+        </Container>
+      </section>
 
-        <FadeUp className="mt-20 rounded-xl border border-border bg-surface p-8 text-center">
-          <h3 className="text-2xl font-semibold tracking-tight">Something more custom?</h3>
-          <p className="mt-2 text-muted">
-            We take on fully custom scopes across both crafts. Tell us the outcome, we'll quote in 24 hours.
-          </p>
-          <div className="mt-5">
-            <CTAButton href="/contact" variant="primary">Get a custom quote</CTAButton>
-          </div>
-        </FadeUp>
-      </Container>
+      {/* 3. AI tiers: full-width rows, a different layout family from above. */}
+      <section id="ai" className="scroll-mt-24 border-y border-border bg-surface/40">
+        <Container className="py-24 md:py-32">
+          <CraftHead
+            icon={<Cpu size={17} strokeWidth={1.8} />}
+            title="n8n workflows, agents, integrations."
+            sub="We replace $300-a-month SaaS tools with workflows that cost a fraction of a cent per run, and build agents that stay on task."
+          />
+          <Stagger className="border-t border-border">
+            {aiTiers.map((t) => (
+              <StaggerItem key={t.name}>
+                <TierRow tier={t} />
+              </StaggerItem>
+            ))}
+          </Stagger>
+        </Container>
+      </section>
+
+      {/* 4. Bundles: a priced index, not another card wall. */}
+      <section>
+        <Container className="py-24 md:py-32">
+          <SectionTitle
+            title="Or combine both sides."
+            sub="Web and automation scoped as one engagement. Cleaner handoffs, lower total cost, faster to launch."
+          />
+          <Stagger className="border-t border-border">
+            {bundles.map((b) => (
+              <StaggerItem
+                key={b.title}
+                className="group grid md:grid-cols-[1fr,1.2fr,auto] gap-x-8 gap-y-2 items-baseline py-7 border-b border-border hover:bg-surface/60 transition-colors px-2 -mx-2"
+              >
+                <div>
+                  <h3 className="font-display text-xl md:text-2xl font-semibold tracking-[-0.025em]">
+                    {b.title}
+                  </h3>
+                  <div className="mt-1.5 text-xs text-muted font-mono">{b.detail}</div>
+                </div>
+                <p className="text-sm text-muted leading-relaxed max-w-[52ch]">{b.desc}</p>
+                <span className="font-mono text-sm text-accent whitespace-nowrap md:text-right">
+                  {b.price}
+                </span>
+              </StaggerItem>
+            ))}
+          </Stagger>
+        </Container>
+      </section>
+
+      {/* 5. Closing */}
+      <section className="relative overflow-hidden border-t border-border">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -bottom-56 left-1/2 -translate-x-1/2 w-[46rem] h-[46rem] rounded-full blur-[130px] bg-accent/[0.13] animate-drift"
+        />
+        <Container className="relative py-24 md:py-36">
+          <FadeUp className="max-w-3xl">
+            <h2 className="font-display font-semibold tracking-[-0.04em] leading-[1.04] text-[clamp(2rem,4.8vw,3.4rem)]">
+              Something more custom?
+            </h2>
+            <p className="mt-6 text-muted text-lg leading-relaxed max-w-[52ch]">
+              We take fully custom scopes across both crafts. Tell us the outcome, and we quote it
+              inside 24 hours.
+            </p>
+            <div className="mt-10">
+              <CTAButton href="/contact" variant="primary" size="lg">
+                Start a project <ArrowRight size={17} strokeWidth={2} />
+              </CTAButton>
+            </div>
+          </FadeUp>
+        </Container>
+      </section>
     </>
+  );
+}
+
+/* ---------------- pieces ---------------- */
+
+/* No uppercase kicker here on purpose. The icon marks the craft and the
+   headline names it, so a label above every section would just be a third
+   templated eyebrow on one page. */
+function CraftHead({
+  icon,
+  title,
+  sub,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  sub: string;
+}) {
+  return (
+    <div className="mb-14">
+      <span className="w-11 h-11 rounded-pill grid place-items-center bg-accent/10 text-accent border border-accent/25">
+        {icon}
+      </span>
+      <h2 className="mt-7 font-display text-[1.9rem] md:text-[2.7rem] font-semibold tracking-[-0.035em] leading-[1.06] max-w-3xl">
+        {title}
+      </h2>
+      <p className="mt-5 text-muted leading-relaxed max-w-[62ch]">{sub}</p>
+    </div>
+  );
+}
+
+function LeadTier({ tier }: { tier: Tier }) {
+  return (
+    <div className="relative h-full flex flex-col rounded-card border border-accent/40 bg-surface p-8 md:p-10 ring-1 ring-accent/15">
+      <span className="self-start rounded-pill bg-accent/12 border border-accent/25 px-3 py-1 text-[10.5px] uppercase tracking-[0.18em] text-accent font-mono">
+        Most popular
+      </span>
+      <div className="mt-7 text-sm text-muted">{tier.name}</div>
+      <div className="mt-2 font-display text-[2.4rem] md:text-[3rem] font-semibold tracking-[-0.045em] leading-none">
+        {tier.price}
+      </div>
+      <div className="mt-3 font-mono text-xs text-muted">{tier.timeline}</div>
+      <p className="mt-6 text-muted leading-relaxed max-w-[44ch]">{tier.desc}</p>
+      <ul className="mt-8 space-y-3 text-sm">
+        {tier.items.map((i) => (
+          <li key={i} className="flex items-start gap-2.5">
+            <Check size={14} className="text-accent mt-[3px] shrink-0" strokeWidth={2.2} />
+            <span className="text-text/85">{i}</span>
+          </li>
+        ))}
+      </ul>
+      <div className="mt-auto pt-10">
+        <CTAButton href={tier.cta.href} variant="primary">
+          {tier.cta.label} <ArrowRight size={15} strokeWidth={2} />
+        </CTAButton>
+      </div>
+    </div>
+  );
+}
+
+function CompactTier({ tier }: { tier: Tier }) {
+  return (
+    <div className="rounded-card border border-border bg-surface p-7 hover:border-accent/35 transition-colors edge-lit">
+      <div className="flex items-baseline justify-between gap-4 flex-wrap">
+        <h3 className="font-display text-xl font-semibold tracking-[-0.025em]">{tier.name}</h3>
+        <span className="font-mono text-sm text-accent whitespace-nowrap">{tier.price}</span>
+      </div>
+      <div className="mt-1.5 font-mono text-xs text-muted">{tier.timeline}</div>
+      <p className="mt-4 text-sm text-muted leading-relaxed">{tier.desc}</p>
+      <ul className="mt-5 grid sm:grid-cols-2 gap-x-5 gap-y-2 text-sm">
+        {tier.items.map((i) => (
+          <li key={i} className="flex items-start gap-2">
+            <Check size={13} className="text-accent mt-[4px] shrink-0" strokeWidth={2.2} />
+            <span className="text-text/85">{i}</span>
+          </li>
+        ))}
+      </ul>
+      <div className="mt-7">
+        <CTAButton href={tier.cta.href} variant="ghost">
+          {tier.cta.label}
+        </CTAButton>
+      </div>
+    </div>
+  );
+}
+
+function TierRow({ tier }: { tier: Tier }) {
+  return (
+    <div className="group grid lg:grid-cols-[minmax(0,1fr),minmax(0,1.5fr),auto] gap-x-10 gap-y-5 py-9 border-b border-border">
+      <div>
+        <div className="flex items-center gap-3 flex-wrap">
+          <h3 className="font-display text-xl md:text-2xl font-semibold tracking-[-0.025em]">
+            {tier.name}
+          </h3>
+          {tier.featured && (
+            <span className="rounded-pill bg-accent/12 border border-accent/25 px-2.5 py-0.5 text-[10px] uppercase tracking-[0.16em] text-accent font-mono">
+              Most popular
+            </span>
+          )}
+        </div>
+        <div className="mt-2 font-display text-2xl font-semibold tracking-[-0.03em] text-accent">
+          {tier.price}
+        </div>
+        <div className="mt-1 font-mono text-xs text-muted">{tier.timeline}</div>
+      </div>
+
+      <div>
+        <p className="text-muted leading-relaxed max-w-[54ch]">{tier.desc}</p>
+        <ul className="mt-4 grid sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
+          {tier.items.map((i) => (
+            <li key={i} className="flex items-start gap-2">
+              <Check size={13} className="text-accent mt-[4px] shrink-0" strokeWidth={2.2} />
+              <span className="text-text/85">{i}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="lg:self-center">
+        <CTAButton href={tier.cta.href} variant={tier.featured ? 'primary' : 'ghost'}>
+          {tier.cta.label}
+        </CTAButton>
+      </div>
+    </div>
   );
 }

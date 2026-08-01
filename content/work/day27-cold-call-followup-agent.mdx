@@ -2,13 +2,13 @@
 day: 27
 slug: day27-cold-call-followup-agent
 title: "AI Cold-Call Follow-Up Agent"
-tagline: "Twilio-triggered n8n workflow that"
+tagline: "Every call ends with the follow-up already drafted and sent."
 week: 4
 category: "Advanced & Agentic"
 industries: ["Agencies", "Founders", "Sales"]
 tools: ["n8n", "OpenAI", "GPT-4o-mini", "Gmail", "Google Sheets", "Slack", "Twilio", "Webhook"]
 nodes: 12
-costPerRun: "~$0.002 total (GPT-4o-mini) — effectively free at any sales volume"
+costPerRun: "~$0.002 total (GPT-4o-mini) - effectively free at any sales volume"
 heroMetric: "~$0.002 total (GPT-4o-mini)"
 priceLow: 300
 priceHigh: 800
@@ -20,24 +20,24 @@ screenshot: "/workflows/shots/day27.png"
 ---
 ## The Story
 
-Every sales team I looked at had the same silent revenue leak. Reps made cold calls all day. Some picked up. Most didn't. But the follow-up — the email that goes out after the call, the one that references the conversation or the voicemail, the one that actually converts — was the piece that kept getting skipped. A rep would hang up, think "I'll send that follow-up in a minute," and by the end of the day have twenty calls' worth of follow-ups still not sent.
+Every sales team I looked at had the same silent revenue leak. Reps made cold calls all day. Some picked up. Most didn't. But the follow-up - the email that goes out after the call, the one that references the conversation or the voicemail, the one that actually converts - was the piece that kept getting skipped. A rep would hang up, think "I'll send that follow-up in a minute," and by the end of the day have twenty calls' worth of follow-ups still not sent.
 
-Sales managers watched it happen and couldn't fix it. The reps weren't lazy — they were just doing the next call, because the next call felt more productive than typing an email. But the calls that converted almost always converted because of the follow-up, not the call itself.
+Sales managers watched it happen and couldn't fix it. The reps weren't lazy - they were just doing the next call, because the next call felt more productive than typing an email. But the calls that converted almost always converted because of the follow-up, not the call itself.
 
 ## What I Built
 
-I built them a follow-up agent that fires the second a call ends. When the rep hangs up, the workflow catches the call metadata — who they called, how long it lasted, whether it connected or hit voicemail — and writes a personalized follow-up email tuned to what actually happened on that call. Connected call with real interest? The email references specific things the prospect said and proposes a next step. Voicemail? The email is a warm nudge with a value-first offer, not a "just following up on my call." Not connected at all? A short pattern-interrupt.
+I built them a follow-up agent that fires the second a call ends. When the rep hangs up, the workflow catches the call metadata - who they called, how long it lasted, whether it connected or hit voicemail - and writes a personalized follow-up email tuned to what actually happened on that call. Connected call with real interest? The email references specific things the prospect said and proposes a next step. Voicemail? The email is a warm nudge with a value-first offer, not a "just following up on my call." Not connected at all? A short pattern-interrupt.
 
 The rep dials the next number. The follow-up is already on its way, logged in the CRM, tracked in the sheet.
 
 ## The Outcome
 
-Follow-up rate on cold calls went from something like thirty percent to essentially a hundred percent — because the follow-up now happened automatically, not "when the rep had a minute." Reply rates jumped because the emails referenced the specific call. Cost per follow-up is a fraction of a cent. And the sales manager finally stopped nagging reps about "did you send the follow-up?"
+Follow-up rate on cold calls went from something like thirty percent to essentially a hundred percent - because the follow-up now happened automatically, not "when the rep had a minute." Reply rates jumped because the emails referenced the specific call. Cost per follow-up is a fraction of a cent. And the sales manager finally stopped nagging reps about "did you send the follow-up?"
 
 ## Pricing Packages
 
-- Fiverr/Upwork setup: **$300–$800**
-- With HubSpot/Salesforce CRM sync: **$800–$1,500**
-- Full sales automation stack (dial → follow-up → sequence → CRM): **$2,000–$4,000**
-- Monthly retainer: **$75–$200/month**
-- Bundle with Day 9 (cold email) + Day 25 (personal CRM) → Full Sales Ops Engine: **$1,500–$2,500**
+- Fiverr/Upwork setup: **$300-$800**
+- With HubSpot/Salesforce CRM sync: **$800-$1,500**
+- Full sales automation stack (dial → follow-up → sequence → CRM): **$2,000-$4,000**
+- Monthly retainer: **$75-$200/month**
+- Bundle with Day 9 (cold email) + Day 25 (personal CRM) → Full Sales Ops Engine: **$1,500-$2,500**
