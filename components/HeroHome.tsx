@@ -36,8 +36,9 @@ export function HeroHome() {
         className="pointer-events-none absolute -top-40 right-[8%] w-[38rem] h-[38rem] rounded-full blur-[120px] bg-accent/[0.16] animate-drift"
       />
 
-      {/* Slightly under the viewport so the next band peeks. No scroll cue needed. */}
-      <Container className="relative pt-14 md:pt-16 pb-20 md:pb-20 min-h-[calc(100dvh-9rem)] flex items-center">
+      {/* Slightly under the viewport so the next band peeks. No scroll cue needed.
+          The subtraction accounts for the 88px floating header plus that margin. */}
+      <Container className="relative pt-14 md:pt-16 pb-20 md:pb-20 min-h-[calc(100dvh-10.5rem)] flex items-center">
         <div className="grid lg:grid-cols-[1.12fr,0.88fr] gap-14 lg:gap-12 items-center w-full">
           {/* ---------------- Copy ---------------- */}
           <div>
