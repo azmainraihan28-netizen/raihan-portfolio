@@ -150,7 +150,7 @@ export default function ServicesPage() {
       </section>
 
       {/* 2. Web tiers: one lead panel, two stacked. Not three identical cards. */}
-      <section id="web" className="scroll-mt-24">
+      <section id="web" className="scroll-mt-28">
         <Container className="py-24 md:py-32">
           <CraftHead
             icon={<Layout size={17} strokeWidth={1.8} />}
@@ -173,7 +173,7 @@ export default function ServicesPage() {
       </section>
 
       {/* 3. AI tiers: full-width rows, a different layout family from above. */}
-      <section id="ai" className="scroll-mt-24 border-y border-border bg-surface/40">
+      <section id="ai" className="scroll-mt-28 border-y border-border bg-surface/40">
         <Container className="py-24 md:py-32">
           <CraftHead
             icon={<Cpu size={17} strokeWidth={1.8} />}
