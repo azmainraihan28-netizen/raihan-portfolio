@@ -2,13 +2,13 @@
 day: 22
 slug: day22-google-drive-doc-qa
 title: "AI Document Q&A over Google Drive"
-tagline: "webhook-triggered n8n workflow that"
+tagline: "Ask a question, get an answer sourced from your own Drive."
 week: 4
 category: "Advanced & Agentic"
 industries: ["SaaS", "Agencies", "HR", "Sales", "Legal"]
 tools: ["n8n", "OpenAI", "GPT-4o-mini", "Google Sheets", "Google Drive", "Google Docs", "Slack", "Webhook"]
 nodes: 16
-costPerRun: "~$0.001 (GPT-4o-mini) — effectively free at any query volume"
+costPerRun: "~$0.001 (GPT-4o-mini) - effectively free at any query volume"
 heroMetric: "~$0.001 (GPT-4o-mini)"
 priceLow: 250
 priceHigh: 800
@@ -20,24 +20,24 @@ screenshot: "/workflows/shots/day22.png"
 ---
 ## The Story
 
-Every company on Google Workspace had the same buried treasure problem. Years of contracts, SOPs, meeting notes, product specs, and client docs — sitting in Drive, technically searchable, functionally invisible. When someone on the team needed to answer "what's our refund policy?" or "did we ever sign an NDA with that vendor?" the honest answer was almost always "let me ask around." Real answers took hours. Real hours turned into DMs, then meetings, then the actual answer showing up two days late from someone in a different department.
+Every company on Google Workspace had the same buried treasure problem. Years of contracts, SOPs, meeting notes, product specs, and client docs - sitting in Drive, technically searchable, functionally invisible. When someone on the team needed to answer "what's our refund policy?" or "did we ever sign an NDA with that vendor?" the honest answer was almost always "let me ask around." Real answers took hours. Real hours turned into DMs, then meetings, then the actual answer showing up two days late from someone in a different department.
 
 Legal, HR, and sales teams felt it worst. The information existed. Nobody could reach it fast enough for it to matter.
 
 ## What I Built
 
-I built them a Q&A layer that reads their Drive so they don't have to. A team member asks a question — from Slack, a form, or a chat widget — and the workflow searches the relevant docs, pulls the passages that actually answer the question, and hands back a plain-English answer with citations pointing to the source documents. Not "here's a doc, go read it." An actual answer: "Refund policy for annual plans: full within thirty days, pro-rated after. Source: Sales Operations SOP, page 4."
+I built them a Q&A layer that reads their Drive so they don't have to. A team member asks a question - from Slack, a form, or a chat widget - and the workflow searches the relevant docs, pulls the passages that actually answer the question, and hands back a plain-English answer with citations pointing to the source documents. Not "here's a doc, go read it." An actual answer: "Refund policy for annual plans: full within thirty days, pro-rated after. Source: Sales Operations SOP, page 4."
 
-Every question and answer gets logged with who asked, so over time the team knows what people are actually searching for — and which docs might need better structure.
+Every question and answer gets logged with who asked, so over time the team knows what people are actually searching for - and which docs might need better structure.
 
 ## The Outcome
 
-Questions that used to take hours of DM-hunting got answered in seconds with a citation. Legal, HR, and sales teams stopped being interrupted for the same repeated questions because the team started asking the bot first. Cost per query is a fraction of a cent. And the "we have documentation, but nobody uses it" problem — the one every ops person quietly suffers from — finally had a fix.
+Questions that used to take hours of DM-hunting got answered in seconds with a citation. Legal, HR, and sales teams stopped being interrupted for the same repeated questions because the team started asking the bot first. Cost per query is a fraction of a cent. And the "we have documentation, but nobody uses it" problem - the one every ops person quietly suffers from - finally had a fix.
 
 ## Pricing Packages
 
-- Fiverr/Upwork setup: **$250–$800**
-- With custom folder routing + web UI: **$800–$1,500**
-- Full internal knowledge base system (multi-team, analytics dashboard): **$2,000–$3,500**
-- Monthly retainer: **$75–$200/month**
-- Bundle with Day 16 (HR screener) + Day 17 (onboarding) → Full HR Knowledge System: **$1,500–$2,500**
+- Fiverr/Upwork setup: **$250-$800**
+- With custom folder routing + web UI: **$800-$1,500**
+- Full internal knowledge base system (multi-team, analytics dashboard): **$2,000-$3,500**
+- Monthly retainer: **$75-$200/month**
+- Bundle with Day 16 (HR screener) + Day 17 (onboarding) → Full HR Knowledge System: **$1,500-$2,500**

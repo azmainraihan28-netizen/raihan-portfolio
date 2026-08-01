@@ -2,13 +2,13 @@
 day: 24
 slug: day24-voice-to-notion-task
 title: "Voice-to-Notion Task"
-tagline: "Telegram bot + n8n workflow that"
+tagline: "Speak a task into Telegram, find it structured in Notion."
 week: 4
 category: "Advanced & Agentic"
 industries: ["Freelancers", "Founders"]
 tools: ["n8n", "OpenAI", "GPT-4o-mini", "Whisper", "Notion", "Telegram"]
 nodes: 12
-costPerRun: "~$0.002 total — Whisper ($0.001) + GPT-4o-mini ($0.001) — effectively free at any volume"
+costPerRun: "~$0.002 total - Whisper ($0.001) + GPT-4o-mini ($0.001) - effectively free at any volume"
 heroMetric: "~$0.002 total"
 priceLow: 300
 priceHigh: 800
@@ -20,24 +20,24 @@ screenshot: "/workflows/shots/day24.png"
 ---
 ## The Story
 
-Every founder I met had a graveyard of voice notes on their phone. Walking to the coffee shop, driving to a meeting, five minutes before bed — the moments the best ideas actually show up are usually the moments you can't sit down and type. So they'd fire off a two-minute voice memo to themselves. "Remember to follow up with that client. Also, we should redesign the pricing page. Also, book that flight."
+Every founder I met had a graveyard of voice notes on their phone. Walking to the coffee shop, driving to a meeting, five minutes before bed - the moments the best ideas actually show up are usually the moments you can't sit down and type. So they'd fire off a two-minute voice memo to themselves. "Remember to follow up with that client. Also, we should redesign the pricing page. Also, book that flight."
 
 And then nothing. The voice memo sat in a folder called "voice memos" that they never opened. The ideas evaporated. A week later they'd remember they'd had a great idea about pricing and not remember what it was.
 
 ## What I Built
 
-I built them a capture pipeline that turns voice into action. They send a voice note to a Telegram bot from anywhere — phone, watch, laptop — and within seconds the workflow transcribes it, reads the transcript, and separates it into actual tasks. Every task gets structured with a title, a due date if they mentioned one, a project or context tag, and a priority. Then it lands directly in Notion in the right database. If they rambled about three unrelated things in one memo, it splits into three tasks automatically.
+I built them a capture pipeline that turns voice into action. They send a voice note to a Telegram bot from anywhere - phone, watch, laptop - and within seconds the workflow transcribes it, reads the transcript, and separates it into actual tasks. Every task gets structured with a title, a due date if they mentioned one, a project or context tag, and a priority. Then it lands directly in Notion in the right database. If they rambled about three unrelated things in one memo, it splits into three tasks automatically.
 
 The founder just talks. Notion fills itself in.
 
 ## The Outcome
 
-The gap between "I had an idea" and "it's in my system" collapsed from days to seconds. The voice-memo graveyard is empty because every memo becomes a task the same minute it's recorded. Cost per capture is about two-tenths of a cent — Whisper transcription plus a lightweight AI pass. And the strange downstream effect the founders kept mentioning was that they started having more good ideas, because they finally trusted the capture system enough to let their brain relax.
+The gap between "I had an idea" and "it's in my system" collapsed from days to seconds. The voice-memo graveyard is empty because every memo becomes a task the same minute it's recorded. Cost per capture is about two-tenths of a cent - Whisper transcription plus a lightweight AI pass. And the strange downstream effect the founders kept mentioning was that they started having more good ideas, because they finally trusted the capture system enough to let their brain relax.
 
 ## Pricing Packages
 
-- Fiverr/Upwork setup: **$300–$800**
-- With WhatsApp Business API integration: **$800–$1,500**
-- Multi-platform version (Telegram + WhatsApp + Slack voice): **$1,500–$3,000**
-- Monthly retainer: **$75–$200/month**
-- Bundle with Day 20 (KB updater) + Day 19 (standup bot) → Full Team Capture + Ops Package: **$1,500–$2,500**
+- Fiverr/Upwork setup: **$300-$800**
+- With WhatsApp Business API integration: **$800-$1,500**
+- Multi-platform version (Telegram + WhatsApp + Slack voice): **$1,500-$3,000**
+- Monthly retainer: **$75-$200/month**
+- Bundle with Day 20 (KB updater) + Day 19 (standup bot) → Full Team Capture + Ops Package: **$1,500-$2,500**

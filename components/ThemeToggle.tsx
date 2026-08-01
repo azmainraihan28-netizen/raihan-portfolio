@@ -40,7 +40,7 @@ export function ThemeToggle() {
       transition={{ duration: 0.18 }}
       aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
       title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
-      className="relative w-8 h-8 grid place-items-center rounded-md border border-border bg-surface text-muted hover:text-text hover:border-accent/30 transition-colors"
+      className="relative w-9 h-9 grid place-items-center rounded-pill border border-border bg-surface text-muted hover:text-text hover:border-accent/40 transition-colors"
     >
       <AnimatePresence mode="wait" initial={false}>
         {theme === 'dark' ? (

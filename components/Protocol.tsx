@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef } from 'react';
-import { motion, useScroll, useTransform, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
 import { Container, Eyebrow } from './ui';
 
 type Step = {
@@ -19,32 +19,32 @@ const steps: Step[] = [
     body: 'We start with the outcome, not the deliverable. What does the site need to sell, or the automation need to remove from your week? One doc, one clear scope, one fixed price.',
     bullets: [
       'Goals, audience, and success metrics on a single page',
-      'Current-state mapping — tools, data sources, workflows',
+      'Current-state mapping across tools, data sources, workflows',
       'Fixed-price scope, not an estimate',
     ],
     meta: 'Week 0',
   },
   {
     num: '02',
-    title: 'Design & Build',
-    body: 'For sites and apps: high-fidelity design first, then production build. For automations: n8n canvas wired to real credentials from day one. You see progress on the actual thing — not a Figma stand-in.',
+    title: 'Design and Build',
+    body: 'For sites and apps: high-fidelity design first, then production build. For automations: an n8n canvas wired to real credentials from day one. You see progress on the actual thing, not a Figma stand-in.',
     bullets: [
-      'Design in Figma, engineered in Next.js / React Native',
-      'n8n workflows on your stack — real APIs, real data',
+      'Designed in Figma, engineered in Next.js or React Native',
+      'n8n workflows on your stack, with real APIs and real data',
       'Weekly async demos on Loom, live builds you can click through',
     ],
-    meta: 'Week 1 — 3',
+    meta: 'Week 1 to 3',
   },
   {
     num: '03',
-    title: 'Ship & Support',
+    title: 'Ship and Support',
     body: 'We deploy to your infrastructure, hand off documentation, walk your team through it, and stay on to tune. Optional retainer if you want us on tap for the next iteration.',
     bullets: [
-      'Deploy to Vercel, Supabase, your n8n, or your app store',
-      'Written runbook + Loom walkthrough for the team',
-      '30-day support · monthly retainer optional',
+      'Deployed to Vercel, Supabase, your n8n, or your app store',
+      'Written runbook plus a Loom walkthrough for the team',
+      '30-day support, with a monthly retainer optional',
     ],
-    meta: 'Week 3 — 4',
+    meta: 'Week 3 to 4',
   },
 ];
 
@@ -52,36 +52,32 @@ export function Protocol() {
   const wrapRef = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion();
 
-  // Scroll progress through the whole sticky stack
   const { scrollYProgress } = useScroll({
     target: wrapRef,
     offset: ['start start', 'end end'],
   });
 
   return (
-    <section className="relative border-y border-border bg-bg/40">
-      <Container className="pt-24 pb-10">
-        <div className="grid md:grid-cols-[1fr,1.4fr] gap-10 md:gap-16 items-start">
-          <div className="md:sticky md:top-24">
-            <Eyebrow>How we work</Eyebrow>
-            <h2 className="mt-4 text-3xl md:text-5xl font-semibold tracking-tight leading-[1.05]">
-              From a 30-minute call
-              <br />
-              to something{' '}
-              <span className="font-serif italic font-normal text-accent">live in your business</span>.
+    <section className="relative border-b border-border">
+      <Container className="pt-24 md:pt-32 pb-12">
+        <div className="grid md:grid-cols-[1fr,1.35fr] gap-12 md:gap-16 items-start">
+          <div className="md:sticky md:top-28">
+            <Eyebrow className="mb-6">How we work</Eyebrow>
+            <h2 className="font-display text-[2rem] md:text-[3rem] font-semibold tracking-[-0.035em] leading-[1.03]">
+              From a 30-minute call to something live in your business.
             </h2>
-            <p className="mt-5 text-muted leading-relaxed max-w-md">
-              The same three-step protocol we've run across marketing sites, SaaS products, mobile apps,
-              and n8n automations. No discovery theatre, no scope creep, no consulting hours
-              without shipping.
+            <p className="mt-6 text-muted leading-relaxed max-w-[44ch]">
+              The same three-step protocol we run across marketing sites, SaaS products,
+              mobile apps, and n8n automations. No discovery theatre, no scope creep, no
+              consulting hours without shipping.
             </p>
-            <div className="mt-8 font-mono text-[11px] uppercase tracking-[0.22em] text-muted">
-              Typical turnaround: 2 — 4 weeks
+            <div className="mt-9 font-mono text-[11px] uppercase tracking-[0.22em] text-muted">
+              Typical turnaround: 2 to 4 weeks
             </div>
           </div>
 
-          {/* Sticky stack scrub track */}
-          <div ref={wrapRef} className="relative" style={{ minHeight: reduce ? 'auto' : '180vh' }}>
+          {/* Sticky stack. Each card pins, then recedes as the next arrives. */}
+          <div ref={wrapRef} className="relative" style={{ minHeight: reduce ? 'auto' : '190vh' }}>
             {steps.map((s, i) => (
               <StickyStep
                 key={s.num}
@@ -112,51 +108,38 @@ function StickyStep({
   progress: any;
   reduce: boolean;
 }) {
-  // Each card owns a slice of overall progress. As progress passes index/total
-  // for the NEXT card, this one scales down + blurs + fades.
   const start = index / total;
   const end = (index + 1) / total;
-  const next = (index + 1.0) / total;
+  // The final card is the one the reader is meant to land on, so it never recedes.
+  const isLast = index === total - 1;
 
-  const scale = useTransform(progress, [start, end, next, 1], [1, 1, 0.94, 0.9]);
-  const blur = useTransform(progress, [start, end, next, 1], [0, 0, 3, 6]);
-  const opacity = useTransform(progress, [start, end, next], [1, 1, 0.55]);
-  const y = useTransform(progress, [start, end], [0, 0]);
-
-  const filter = useTransform(blur, (b) => (b > 0.05 ? `blur(${b}px)` : 'none'));
-
-  const style = reduce
-    ? {}
-    : {
-        scale,
-        opacity,
-        filter,
-        y,
-      };
+  const scale = useTransform(progress, [start, end, 1], [1, 1, 0.9]);
+  const opacity = useTransform(progress, [start, end, 1], [1, 1, 0.4]);
+  const blur = useTransform(progress, [start, end, 1], [0, 0, 5]);
+  const filter = useTransform(blur, (b: number) => (b > 0.05 ? `blur(${b}px)` : 'none'));
 
   return (
     <motion.div
-      style={style as any}
-      className={
-        'sticky top-28 mb-8 rounded-2xl border border-border bg-surface p-8 md:p-10 ' +
-        'shadow-[0_30px_80px_-40px_rgba(0,0,0,0.6)] origin-top'
-      }
+      style={reduce || isLast ? undefined : ({ scale, opacity, filter } as any)}
+      className="sticky top-28 mb-8 rounded-card border border-border bg-surface p-8 md:p-11 shadow-[0_40px_90px_-50px_rgba(0,0,0,0.85)] origin-top"
     >
-      <div className="flex items-start justify-between mb-6">
-        <span className="font-mono text-5xl md:text-6xl font-semibold tracking-tighter text-text/[0.08]">
+      <div className="flex items-start justify-between mb-7">
+        <span className="font-display text-5xl md:text-6xl font-semibold tracking-[-0.05em] text-accent/25 leading-none">
           {step.num}
         </span>
-        <span className="font-mono text-[11px] uppercase tracking-[0.22em] text-muted pt-3">
+        <span className="font-mono text-[11px] uppercase tracking-[0.22em] text-muted pt-2">
           {step.meta}
         </span>
       </div>
-      <h3 className="text-3xl md:text-4xl font-semibold tracking-tight">{step.title}</h3>
-      <p className="mt-4 text-muted leading-relaxed max-w-lg">{step.body}</p>
-      <ul className="mt-6 space-y-2.5">
+      <h3 className="font-display text-[1.75rem] md:text-4xl font-semibold tracking-[-0.03em]">
+        {step.title}
+      </h3>
+      <p className="mt-4 text-muted leading-relaxed max-w-[52ch]">{step.body}</p>
+      {/* Hairline-indexed, not bulleted. Dots on every row are filler. */}
+      <ul className="mt-8 border-t border-border">
         {step.bullets.map((b) => (
-          <li key={b} className="flex items-start gap-3 text-sm">
-            <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-accent shrink-0" />
-            <span className="text-text/85">{b}</span>
+          <li key={b} className="py-3 border-b border-border text-sm text-text/85 leading-relaxed">
+            {b}
           </li>
         ))}
       </ul>

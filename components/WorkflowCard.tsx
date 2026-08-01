@@ -1,183 +1,135 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowUpRight } from 'lucide-react';
 import { motion, useReducedMotion } from 'framer-motion';
+import { cn } from '@/lib/cn';
 import { PriceRange, ToolChip, WeekBadge } from './ui';
 import type { Workflow } from '@/lib/work';
 
 const CATEGORY_OF_WEEK: Record<number, string> = {
   1: 'Foundations',
-  2: 'Marketing & Sales',
+  2: 'Marketing and Sales',
   3: 'Internal Ops',
-  4: 'Advanced & Agentic',
-  5: 'Web & Product',
+  4: 'Advanced and Agentic',
+  5: 'Web and Product',
 };
 
-export function WorkflowCard({ w }: { w: Workflow }) {
+export function WorkflowCard({
+  w,
+  variant = 'default',
+  priority,
+}: {
+  w: Workflow;
+  variant?: 'default' | 'wide';
+  priority?: boolean;
+}) {
   const reduce = useReducedMotion();
   const dd = String(w.day).padStart(2, '0');
+  const wide = variant === 'wide';
 
   return (
     <motion.div
       whileHover={reduce ? undefined : { y: -4 }}
-      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
       className="h-full"
     >
       <Link
         href={`/work/${w.slug}`}
-        className="
-          group relative block h-full rounded-2xl border border-border bg-surface overflow-hidden
-          hover:border-accent/40 transition-colors duration-300
-          before:absolute before:inset-x-6 before:top-0 before:h-px
-          before:bg-gradient-to-r before:from-transparent before:via-accent/50 before:to-transparent
-          before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-500
-        "
+        className={cn(
+          'edge-lit group relative flex h-full overflow-hidden rounded-card border border-border bg-surface',
+          'hover:border-accent/40 transition-colors duration-300',
+          wide ? 'flex-col md:flex-row' : 'flex-col',
+        )}
       >
-        {/* Oversized issue number — decorative typographic anchor */}
+        {/* Oversized index numeral, the card's typographic anchor. */}
         <span
           aria-hidden
-          className="
-            pointer-events-none absolute -bottom-8 -right-3 select-none
-            font-mono font-semibold leading-none tracking-tighter
-            text-[140px] text-text/[0.035]
-            group-hover:text-accent/[0.10] transition-colors duration-700
-          "
+          className="pointer-events-none absolute -bottom-9 -right-3 select-none font-display font-semibold leading-none tracking-[-0.06em] text-[150px] text-text/[0.035] group-hover:text-accent/[0.10] transition-colors duration-700"
         >
           {dd}
         </span>
 
-        {/* Status row */}
-        <div className="relative flex items-center justify-between px-5 pt-5">
-          <div className="flex items-center gap-2">
-            <span className="relative inline-flex w-1.5 h-1.5">
-              <span className="absolute inset-0 rounded-full bg-accent/60 animate-ping" />
-              <span className="relative w-1.5 h-1.5 rounded-full bg-accent" />
-            </span>
-            <span className="text-[10.5px] uppercase tracking-[0.18em] text-muted font-mono">
-              {w.kind === 'webdev'
-                ? (w.client ? `${w.client} · Shipped` : 'Case study · Shipped')
-                : `Day ${dd} · Shipped`}
-            </span>
-          </div>
-          <WeekBadge week={w.week} />
-        </div>
-
-        {/* Image plate — inset framed with hover sheen */}
-        {w.screenshot ? (
-          <div
-            className="
-              relative mx-5 mt-4 rounded-lg overflow-hidden border border-border
-              shadow-[0_10px_30px_-18px_rgba(0,0,0,0.55)]
-            "
-          >
-            <div className="aspect-[16/10] bg-bg overflow-hidden">
-              <img
+        {/* ---- Media ---- */}
+        <div className={cn('relative shrink-0', wide ? 'md:w-[55%] md:self-stretch' : '')}>
+          {w.screenshot ? (
+            <div
+              className={cn(
+                'relative overflow-hidden bg-bg',
+                wide ? 'h-full min-h-[220px] md:min-h-[340px]' : 'aspect-[16/10]',
+              )}
+            >
+              <Image
                 src={w.screenshot}
-                alt=""
-                loading="lazy"
-                className="
-                  block w-full h-full object-cover object-top
-                  transition-transform duration-[900ms] ease-out
-                  group-hover:scale-[1.045]
-                "
+                alt={`${w.title} preview`}
+                fill
+                priority={priority}
+                sizes={wide ? '(max-width: 768px) 100vw, 46vw' : '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 30vw'}
+                className="object-cover object-top transition-transform duration-[900ms] ease-out group-hover:scale-[1.05]"
+              />
+              {/* Sheen sweep on hover. */}
+              <span
+                aria-hidden
+                className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-white/[0.12] to-transparent translate-x-[-150%] group-hover:translate-x-[350%] transition-transform duration-[1100ms] ease-out"
               />
             </div>
-            {/* Soft inner-bezel highlight */}
-            <span
-              aria-hidden
-              className="
-                pointer-events-none absolute inset-0 rounded-lg
-                bg-gradient-to-b from-white/[0.06] via-transparent to-black/[0.10] mix-blend-overlay
-              "
-            />
-            {/* Hover sheen sweep */}
-            <span
-              aria-hidden
-              className="
-                pointer-events-none absolute inset-y-0 -left-1/3 w-1/2 -skew-x-12
-                bg-gradient-to-r from-transparent via-white/[0.10] to-transparent
-                translate-x-[-150%] group-hover:translate-x-[350%]
-                transition-transform duration-[1100ms] ease-out
-              "
-            />
-          </div>
-        ) : (
-          <div
-            className="
-              relative mx-5 mt-4 rounded-lg border border-dashed border-border
-              aspect-[16/10] grid place-items-center bg-bg/40
-            "
-          >
-            <span className="font-mono font-semibold text-5xl text-text/10 tracking-tighter">
-              {dd}.
+          ) : (
+            <div
+              className={cn(
+                'grid place-items-center bg-surface2',
+                wide ? 'h-full min-h-[220px] md:min-h-[340px]' : 'aspect-[16/10]',
+              )}
+            >
+              <span className="font-display font-semibold text-6xl text-text/10 tracking-[-0.05em]">{dd}</span>
+            </div>
+          )}
+          <span aria-hidden className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/[0.05]" />
+        </div>
+
+        {/* ---- Body ---- */}
+        <div className={cn('relative flex flex-col flex-1 px-6 pt-5 pb-6', wide && 'md:px-9 md:py-9 md:justify-center')}>
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-[10.5px] uppercase tracking-[0.2em] text-muted font-mono truncate">
+              {w.kind === 'webdev'
+                ? (w.client ? `${w.client} · Shipped` : 'Case study')
+                : `Day ${dd} · ${CATEGORY_OF_WEEK[w.week]}`}
             </span>
-          </div>
-        )}
-
-        {/* Content body */}
-        <div className="relative px-6 pt-5 pb-6">
-          {/* Vertical accent rule — grows + shifts to accent on hover */}
-          <span
-            aria-hidden
-            className="
-              absolute left-6 top-5 w-px bg-border
-              group-hover:bg-accent group-hover:w-[2px]
-              transition-all duration-300
-            "
-            style={{ bottom: '5.5rem' }}
-          />
-
-          {/* Category caps */}
-          <div className="pl-4 text-[10.5px] uppercase tracking-[0.22em] text-muted font-mono">
-            {CATEGORY_OF_WEEK[w.week]}
+            <WeekBadge week={w.week} />
           </div>
 
-          {/* Title */}
-          <h3 className="pl-4 mt-2 text-[19px] leading-[1.25] font-semibold tracking-tight">
+          <h3
+            className={cn(
+              'font-display font-semibold tracking-[-0.03em] leading-[1.15]',
+              wide ? 'mt-4 text-2xl md:text-[2rem]' : 'mt-3 text-xl',
+            )}
+          >
             {w.title}
           </h3>
 
-          {/* Tagline */}
-          <p className="pl-4 mt-3 text-[13.5px] text-muted leading-relaxed line-clamp-2">
+          <p className={cn('mt-3 text-muted leading-relaxed', wide ? 'text-[15px] max-w-[46ch]' : 'text-[13.5px] line-clamp-2')}>
             {w.tagline}
           </p>
 
-          {/* Tool chips */}
           {w.tools.length > 0 && (
-            <div className="pl-4 mt-4 flex flex-wrap items-center gap-1.5">
-              {w.tools.slice(0, 4).map((t) => (
+            <div className="mt-5 flex flex-wrap items-center gap-1.5">
+              {w.tools.slice(0, wide ? 5 : 3).map((t) => (
                 <ToolChip key={t}>{t}</ToolChip>
               ))}
-              {w.tools.length > 4 && (
-                <span className="text-[10.5px] text-muted font-mono">+{w.tools.length - 4}</span>
+              {w.tools.length > (wide ? 5 : 3) && (
+                <span className="text-[10.5px] text-muted font-mono">+{w.tools.length - (wide ? 5 : 3)}</span>
               )}
             </div>
           )}
 
-          {/* Spec footer */}
-          <div className="mt-5 flex items-center justify-between border-t border-dashed border-border pt-4">
-            <div className="font-mono text-[11px] tracking-wide flex items-center gap-3">
-              {w.kind === 'automation' ? (
-                <>
-                  <span className="text-muted">
-                    <span className="text-text">{w.nodes || '—'}</span>
-                    <span className="opacity-60"> N</span>
-                  </span>
-                  <span className="text-muted opacity-30">·</span>
-                </>
-              ) : null}
-              <span className="text-muted">
-                <PriceRange low={w.priceLow} high={w.priceHigh} />
-              </span>
-            </div>
+          <div className="mt-auto pt-6 flex items-center justify-between">
+            <span className="font-mono text-[11.5px] tracking-wide">
+              <PriceRange low={w.priceLow} high={w.priceHigh} />
+            </span>
             <ArrowUpRight
-              size={16}
-              className="
-                text-muted group-hover:text-accent
-                transition-all duration-300
-                group-hover:translate-x-0.5 group-hover:-translate-y-0.5
-              "
+              size={17}
+              strokeWidth={2}
+              className="text-muted group-hover:text-accent transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
             />
           </div>
         </div>

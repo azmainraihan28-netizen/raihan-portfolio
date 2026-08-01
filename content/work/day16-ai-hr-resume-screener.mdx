@@ -2,7 +2,7 @@
 day: 16
 slug: day16-ai-hr-resume-screener
 title: "AI HR Resume Screener"
-tagline: "webhook-triggered n8n workflow that"
+tagline: "Scores every incoming CV against the role before you open it."
 week: 3
 category: "Internal Ops"
 industries: ["SaaS", "Agencies", "Startups", "HR", "Recruiting"]
@@ -20,24 +20,24 @@ screenshot: "/workflows/shots/day16.png"
 ---
 ## The Story
 
-Every hiring manager I met had the same painful admission — they hadn't read half the resumes in their pipeline. A single job posting on LinkedIn pulls three hundred applicants in a week. Nobody has time to give three hundred people a fair read. So a founder or an HR lead scrolls, scans first lines, gets tired around resume forty, and starts making decisions based on how tired they are, not how qualified the person is.
+Every hiring manager I met had the same painful admission - they hadn't read half the resumes in their pipeline. A single job posting on LinkedIn pulls three hundred applicants in a week. Nobody has time to give three hundred people a fair read. So a founder or an HR lead scrolls, scans first lines, gets tired around resume forty, and starts making decisions based on how tired they are, not how qualified the person is.
 
-The result is the same at every startup I saw. Great candidates get missed because their resume didn't have the exact keyword. Weak candidates make it to interviews because their resume happened to be near the top of the pile. And the recruiter ends up spending their most expensive time — the interview — on people who never should've reached that stage.
+The result is the same at every startup I saw. Great candidates get missed because their resume didn't have the exact keyword. Weak candidates make it to interviews because their resume happened to be near the top of the pile. And the recruiter ends up spending their most expensive time - the interview - on people who never should've reached that stage.
 
 ## What I Built
 
-I built them a first-pass screener that reads every single resume the same way, without getting tired. When an application lands, the workflow pulls the resume, extracts the relevant skills and experience, and scores it against the actual job requirements the hiring manager wrote — not against a keyword list, against the real intent of the role. Each candidate gets a numeric fit score, a two-line summary of why, and a shortlist recommendation. High-fit candidates get flagged in Slack immediately so the recruiter can move on them before a competitor does. The full ranked list drops into a sheet.
+I built them a first-pass screener that reads every single resume the same way, without getting tired. When an application lands, the workflow pulls the resume, extracts the relevant skills and experience, and scores it against the actual job requirements the hiring manager wrote - not against a keyword list, against the real intent of the role. Each candidate gets a numeric fit score, a two-line summary of why, and a shortlist recommendation. High-fit candidates get flagged in Slack immediately so the recruiter can move on them before a competitor does. The full ranked list drops into a sheet.
 
 The hiring manager stops scrolling. They open the sheet, look at the top ten, and start interviewing on Monday.
 
 ## The Outcome
 
-Time-to-shortlist on a three-hundred-applicant pool dropped from days of scanning to about ten minutes of reading a ranked list. Interview panels got measurably stronger because the top of the list was actually the top, not just the people whose resumes happened to be scanned first. Cost per resume screened is under a cent. And "great applicant we missed" — the phrase every recruiter dreads — showed up a lot less often.
+Time-to-shortlist on a three-hundred-applicant pool dropped from days of scanning to about ten minutes of reading a ranked list. Interview panels got measurably stronger because the top of the list was actually the top, not just the people whose resumes happened to be scanned first. Cost per resume screened is under a cent. And "great applicant we missed" - the phrase every recruiter dreads - showed up a lot less often.
 
 ## Pricing Packages
 
-- Fiverr/Upwork setup: **$200–$600**
-- With custom scoring rubric + multi-role support: **$600–$1,200**
-- Full hiring automation (JD generation + screening + calendar scheduling): **$2,000–$4,000**
-- Monthly retainer: **$75–$200/month**
-- Bundle with Day 8 (meeting notes) + Day 9 (cold email) → Full Ops + Outreach Package: **$1,500–$2,500**
+- Fiverr/Upwork setup: **$200-$600**
+- With custom scoring rubric + multi-role support: **$600-$1,200**
+- Full hiring automation (JD generation + screening + calendar scheduling): **$2,000-$4,000**
+- Monthly retainer: **$75-$200/month**
+- Bundle with Day 8 (meeting notes) + Day 9 (cold email) → Full Ops + Outreach Package: **$1,500-$2,500**

@@ -2,13 +2,13 @@
 day: 20
 slug: day20-kb-auto-updater
 title: "Knowledge Base Auto-Updater"
-tagline: "webhook-triggered n8n workflow that"
+tagline: "Keeps your internal docs current as the product changes."
 week: 3
 category: "Internal Ops"
 industries: ["SaaS", "Agencies", "E-commerce", "Startups", "Customer Support"]
 tools: ["n8n", "OpenAI", "GPT-4o-mini", "Google Sheets", "Slack", "Notion", "Webhook"]
 nodes: 11
-costPerRun: "~$0.001 (GPT-4o-mini) — effectively free at any support volume"
+costPerRun: "~$0.001 (GPT-4o-mini) - effectively free at any support volume"
 heroMetric: "~$0.001 (GPT-4o-mini)"
 priceLow: 200
 priceHigh: 600
@@ -20,24 +20,24 @@ screenshot: "/workflows/shots/day20.png"
 ---
 ## The Story
 
-Every support team I looked at had the same problem no one talked about. Their public knowledge base was six months out of date. New features had shipped, pricing had changed, workflows had been redesigned — and the docs still described the old world. Every article that stayed stale was a customer who searched, didn't find the answer, and opened a ticket the team then had to answer manually.
+Every support team I looked at had the same problem no one talked about. Their public knowledge base was six months out of date. New features had shipped, pricing had changed, workflows had been redesigned - and the docs still described the old world. Every article that stayed stale was a customer who searched, didn't find the answer, and opened a ticket the team then had to answer manually.
 
 Everyone knew keeping docs fresh was important. Nobody had time to actually do it. The person who "owned" the KB was usually a support lead already drowning in tickets, and updating a KB article always lost to putting out today's fire.
 
 ## What I Built
 
-I built them a knowledge base that updates itself off real signal. Every time a support ticket comes in that the KB *should* have answered — but didn't — the workflow catches it. The AI reads the question, checks whether an existing article should be edited or a new one needs to exist, drafts the update in the KB's actual tone, and drops it into Notion as a pending change. A human still approves it, but the writing, the structure, and the placement are already done. Slack pings the KB owner with "here's a suggested update — accept, edit, or reject."
+I built them a knowledge base that updates itself off real signal. Every time a support ticket comes in that the KB *should* have answered - but didn't - the workflow catches it. The AI reads the question, checks whether an existing article should be edited or a new one needs to exist, drafts the update in the KB's actual tone, and drops it into Notion as a pending change. A human still approves it, but the writing, the structure, and the placement are already done. Slack pings the KB owner with "here's a suggested update - accept, edit, or reject."
 
 The KB stops rotting. Every ticket the team answers manually plants a seed for the article that will answer the next twenty tickets automatically.
 
 ## The Outcome
 
-The KB's freshness went from six-months-behind to same-week for the teams that rolled it out. Repeat-question ticket volume dropped as the KB actually started answering search queries. Cost per suggested update is a fraction of a cent. And the support lead stopped feeling guilty about the docs — the docs were finally maintaining themselves.
+The KB's freshness went from six-months-behind to same-week for the teams that rolled it out. Repeat-question ticket volume dropped as the KB actually started answering search queries. Cost per suggested update is a fraction of a cent. And the support lead stopped feeling guilty about the docs - the docs were finally maintaining themselves.
 
 ## Pricing Packages
 
-- Fiverr/Upwork setup: **$200–$600**
-- With custom article templates + category routing: **$600–$1,200**
-- Full support automation suite (triage + screener + KB updater): **$1,500–$3,000**
-- Monthly retainer: **$75–$200/month**
-- Bundle with Day 19 (standup bot) + Day 16 (resume screener) → Full Internal Ops Package: **$1,500–$2,500**
+- Fiverr/Upwork setup: **$200-$600**
+- With custom article templates + category routing: **$600-$1,200**
+- Full support automation suite (triage + screener + KB updater): **$1,500-$3,000**
+- Monthly retainer: **$75-$200/month**
+- Bundle with Day 19 (standup bot) + Day 16 (resume screener) → Full Internal Ops Package: **$1,500-$2,500**
