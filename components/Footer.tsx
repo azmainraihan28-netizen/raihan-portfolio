@@ -76,7 +76,13 @@ export function Footer() {
           <div>
             © {new Date().getFullYear()} {site.name}. All rights reserved.
           </div>
-          <div className="font-mono">Web development and AI automation</div>
+          <div className="flex items-center gap-4">
+            <Link href="/privacy" className="hover:text-accent transition-colors">
+              Privacy Policy
+            </Link>
+            <span className="text-border">·</span>
+            <span className="font-mono">Web development and AI automation</span>
+          </div>
         </div>
       </div>
     </footer>
