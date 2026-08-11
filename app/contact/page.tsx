@@ -50,7 +50,8 @@ export default function ContactPage({ searchParams }: { searchParams: { ref?: st
               href={site.linkedin}
               target="_blank"
               rel="noopener"
-              className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 rounded-pill bg-primary text-primary-on text-sm font-medium hover:bg-primary-hover active:scale-[0.97] transition-all whitespace-nowrap"
+              data-press="pill"
+              className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 rounded-pill bg-primary text-primary-on text-sm font-medium hover:bg-primary-hover transition-colors whitespace-nowrap"
             >
               <Linkedin size={15} aria-hidden /> Message on LinkedIn
             </a>

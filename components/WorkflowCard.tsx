@@ -6,6 +6,7 @@ import { ArrowUpRight } from 'lucide-react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { cn } from '@/lib/cn';
 import { PriceRange, ToolChip, WeekBadge } from './ui';
+import { springDefault } from '@/lib/springs';
 import type { Workflow } from '@/lib/work';
 
 const CATEGORY_OF_WEEK: Record<number, string> = {
@@ -32,11 +33,15 @@ export function WorkflowCard({
   return (
     <motion.div
       whileHover={reduce ? undefined : { y: -4 }}
-      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+      /* Spring rather than a fixed-duration ease: the lift settles
+         naturally and, if the pointer leaves mid-hover, the fall back
+         starts from the presentation value instead of jumping. */
+      transition={springDefault}
       className="h-full"
     >
       <Link
         href={`/work/${w.slug}`}
+        data-press="card"
         className={cn(
           'edge-lit group relative flex h-full overflow-hidden rounded-card border border-border bg-surface',
           'hover:border-accent/40 transition-colors duration-300',

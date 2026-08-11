@@ -80,6 +80,9 @@
 
 html {
   scroll-behavior: smooth;
+  /* Dynamic Type: layout scales with the user's browser text-size setting
+     because everything downstream is in rem/em. */
+  font-size: 100%;
 }
 
 html,
@@ -88,6 +91,8 @@ body {
   color: rgb(var(--text));
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  /* Fonts ship optical-sizing tables; let the browser pick per rendered size. */
+  font-optical-sizing: auto;
 }
 
 body {
@@ -119,6 +124,97 @@ a {
   outline: 2px solid rgb(var(--accent));
   outline-offset: 2px;
   border-radius: 4px;
+}
+
+/* ------------------------------------------------------------
+   TYPOGRAPHY DISCIPLINE
+
+   Apple designs type to change shape with size. On the web that means
+   size-specific letter-spacing (tighten as it grows, loosen slightly
+   below 14px) and tight leading on display, comfortable on body.
+   These utility classes stand in for a proper type scale so component
+   authors do not re-invent tracking per site.
+   ------------------------------------------------------------ */
+
+.t-display {
+  font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+  font-weight: 600;
+  font-optical-sizing: auto;
+  line-height: 1.02;
+  letter-spacing: -0.045em;
+}
+
+.t-headline {
+  font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+  font-weight: 600;
+  font-optical-sizing: auto;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+}
+
+.t-title {
+  font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+}
+
+.t-body {
+  line-height: 1.65;
+  letter-spacing: 0;
+}
+
+/* Small labels want a hair more tracking to stay legible at 12px and under. */
+.t-micro {
+  font-size: 0.75rem;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+}
+
+/* Vibrancy: over a translucent surface, gray body text loses too much
+   contrast. Bump the weight one notch and open the tracking a hair. */
+.t-vibrancy {
+  font-weight: 500;
+  letter-spacing: 0.002em;
+}
+
+/* ------------------------------------------------------------
+   POINTER-DOWN RESPONSE
+
+   Feedback lives on the press, not the release. Every interactive
+   surface responds the instant the user touches it. Transform-only
+   so it stays on the compositor and never triggers layout.
+   ------------------------------------------------------------ */
+
+@media (hover: hover) and (pointer: fine) {
+  a:hover,
+  button:not(:disabled):hover {
+    /* hover states are per-component; this stub keeps the selector alive */
+  }
+}
+
+/* The universal press-in. Components can override with variant-specific
+   scale via `data-press` on the pressable element. */
+[data-press]:not([data-press='off']):active {
+  transform: scale(var(--press-scale, 0.97));
+  transition: transform 60ms cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+[data-press='card']:active {
+  --press-scale: 0.985;
+}
+[data-press='pill']:active {
+  --press-scale: 0.955;
+}
+[data-press='chip']:active {
+  --press-scale: 0.92;
+}
+
+/* Kill the ~300ms tap delay on iOS Safari for anything interactive. */
+a,
+button,
+[role='button'],
+[data-press] {
+  touch-action: manipulation;
 }
 
 /* ------------------------------------------------------------
@@ -172,6 +268,8 @@ a {
     inset 0 1px 0 rgb(255 255 255 / 0.12),
     inset 0 -1px 0 rgb(0 0 0 / 0.22),
     0 12px 32px -14px rgb(0 0 0 / 0.5);
+  /* Body text sitting on glass follows the vibrancy discipline. */
+  font-optical-sizing: auto;
 }
 
 .light .glass-bar {
@@ -195,6 +293,65 @@ a {
     background: rgb(var(--glass));
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
+  }
+}
+
+/* ------------------------------------------------------------
+   VIEW TRANSITIONS
+
+   Chrome runs the theme swap as a circular reveal from the toggle. We
+   suppress the default cross-fade Chrome adds so the new theme paints
+   *on top* of the old one via clip-path, keeping the physical origin
+   obvious. Non-supporting browsers ignore this block entirely.
+   ------------------------------------------------------------ */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-old(root) {
+  z-index: 1;
+}
+::view-transition-new(root) {
+  z-index: 2;
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+}
+
+/* Scroll-edge fade: a soft mask directly under the floating header where
+   its glass overlaps content. Not a 1px divider (Apple's rule: fade,
+   don't rule off, where floating chrome touches the flow). Applied at
+   the header wrapper via the `scroll-edge` class. */
+.scroll-edge::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 28px;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgb(var(--bg) / 0.55) 0%,
+    rgb(var(--bg) / 0) 100%
+  );
+  /* Blur is optional here — it visibly softens the seam on dark themes
+     without a perf hit because the strip is short. */
+  -webkit-mask-image: linear-gradient(to bottom, #000, transparent);
+  mask-image: linear-gradient(to bottom, #000, transparent);
+  opacity: 0;
+  transition: opacity 220ms ease-out;
+}
+.scroll-edge[data-lifted='true']::after {
+  opacity: 1;
+}
+@media (prefers-reduced-transparency: reduce) {
+  .scroll-edge::after {
+    display: none;
   }
 }
 

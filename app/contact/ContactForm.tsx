@@ -91,10 +91,11 @@ export function ContactForm({ ref_ }: { ref_?: string }) {
         <button
           type="submit"
           disabled={busy}
+          data-press={busy ? 'off' : 'pill'}
           className={cn(
             'inline-flex items-center gap-2 px-6 py-3 rounded-pill text-sm font-medium whitespace-nowrap',
-            'bg-primary text-primary-on hover:bg-primary-hover active:scale-[0.97] transition-all',
-            'disabled:opacity-60 disabled:cursor-not-allowed disabled:active:scale-100',
+            'bg-primary text-primary-on hover:bg-primary-hover transition-colors',
+            'disabled:opacity-60 disabled:cursor-not-allowed',
           )}
         >
           {busy ? (

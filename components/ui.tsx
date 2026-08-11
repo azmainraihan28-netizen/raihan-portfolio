@@ -4,11 +4,13 @@ import { cn } from '@/lib/cn';
 import Link from 'next/link';
 import { useRef, type ReactNode } from 'react';
 import {
+  animate,
   motion,
   useMotionValue,
   useSpring,
   useReducedMotion,
 } from 'framer-motion';
+import { springSnap } from '@/lib/springs';
 
 export function Container({ className, children }: { className?: string; children: ReactNode }) {
   return <div className={cn('max-w-container mx-auto px-5 sm:px-8', className)}>{children}</div>;
@@ -97,21 +99,39 @@ export function CTAButton({
   const reduce = useReducedMotion();
   const ref = useRef<HTMLSpanElement>(null);
 
+  // Magnetic pull runs through springs so cursor motion never re-renders.
+  // The spring itself is critically damped in each axis (no overshoot),
+  // matching the "move / reposition" values Apple ships for repositioning
+  // interactions (damping 1.0, response 0.4).
   const mx = useMotionValue(0);
   const my = useMotionValue(0);
-  const x = useSpring(mx, { stiffness: 260, damping: 22, mass: 0.4 });
-  const y = useSpring(my, { stiffness: 260, damping: 22, mass: 0.4 });
+  const x = useSpring(mx, { stiffness: 260, damping: 26, mass: 0.4 });
+  const y = useSpring(my, { stiffness: 260, damping: 26, mass: 0.4 });
+
+  // Press-in is a separate spring on scale that starts from the *live*
+  // presentation value on interruption, so a fast press-release-press
+  // does not visibly jump. `animate()` on the motion value handles that
+  // for us: calling it again mid-flight retargets from the current value
+  // and carries velocity forward.
+  const scale = useMotionValue(1);
 
   function onMove(e: React.PointerEvent) {
     if (reduce || !ref.current) return;
     const r = ref.current.getBoundingClientRect();
-    // Pull the button ~14% of the way toward the cursor.
     mx.set((e.clientX - (r.left + r.width / 2)) * 0.14);
     my.set((e.clientY - (r.top + r.height / 2)) * 0.14);
   }
   function onLeave() {
     mx.set(0);
     my.set(0);
+  }
+  function onPointerDown() {
+    if (reduce) return;
+    animate(scale, 0.955, springSnap);
+  }
+  function onPointerUp() {
+    if (reduce) return;
+    animate(scale, 1, springSnap);
   }
 
   const styles =
@@ -122,16 +142,16 @@ export function CTAButton({
   const sz = size === 'lg' ? 'px-6 py-3 text-[15px]' : 'px-5 py-2.5 text-sm';
 
   const inner = (
-    <span
+    <motion.span
+      style={reduce ? undefined : { scale }}
       className={cn(
         'inline-flex items-center justify-center gap-2 rounded-pill whitespace-nowrap',
-        'active:scale-[0.97] transition-transform duration-150',
         styles,
         sz,
       )}
     >
       {children}
-    </span>
+    </motion.span>
   );
 
   return (
@@ -139,6 +159,9 @@ export function CTAButton({
       ref={ref}
       onPointerMove={onMove}
       onPointerLeave={onLeave}
+      onPointerDown={onPointerDown}
+      onPointerUp={onPointerUp}
+      onPointerCancel={onPointerUp}
       style={reduce ? undefined : { x, y }}
       className={cn('inline-block', className)}
     >

@@ -55,6 +55,7 @@ export function WorkGrid({ items }: { items: Workflow[] }) {
               key={k.v}
               onClick={() => setKind(k.v)}
               aria-pressed={kind === k.v}
+              data-press="pill"
               className={cn(
                 'px-4 py-2 rounded-pill text-sm border transition-colors',
                 kind === k.v
@@ -95,6 +96,7 @@ export function WorkGrid({ items }: { items: Workflow[] }) {
               key={t}
               onClick={() => setTool(tool === t ? null : t)}
               aria-pressed={tool === t}
+              data-press="chip"
               className={cn(
                 'px-2.5 py-1 rounded-pill text-[11px] font-mono border transition-colors',
                 tool === t
@@ -108,6 +110,7 @@ export function WorkGrid({ items }: { items: Workflow[] }) {
           {rankedTools.length > VISIBLE_TOOLS && (
             <button
               onClick={() => setShowAllTools((v) => !v)}
+              data-press="chip"
               className="px-2.5 py-1 rounded-pill text-[11px] font-mono border border-dashed border-border text-muted hover:text-text"
             >
               {showAllTools ? 'Show less' : `+${rankedTools.length - VISIBLE_TOOLS} more`}
@@ -144,7 +147,11 @@ export function WorkGrid({ items }: { items: Workflow[] }) {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.96 }}
-                transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+                /* Spring on the layout re-flow keeps the reshuffle
+                   interruptible: change a filter mid-motion and the cards
+                   re-target from where they are, not from where they were
+                   originally going. */
+                transition={{ type: 'spring', bounce: 0.15, duration: 0.4 }}
               >
                 <WorkflowCard w={w} />
               </motion.div>
@@ -166,6 +173,7 @@ export function WorkGrid({ items }: { items: Workflow[] }) {
               setTool(null);
               setQ('');
             }}
+            data-press="pill"
             className="mt-6 inline-flex items-center gap-1.5 px-4 py-2 rounded-pill text-sm bg-primary text-primary-on hover:bg-primary-hover"
           >
             Clear filters
