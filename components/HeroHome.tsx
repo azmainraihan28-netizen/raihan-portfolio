@@ -5,8 +5,9 @@ import { useRef } from 'react';
 import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { Container, CTAButton, Eyebrow } from './ui';
+import { springDefault, springDrawer, easeOut } from '@/lib/springs';
 
-const EASE = [0.16, 1, 0.3, 1] as const;
+const EASE = easeOut;
 
 /* Headline is split so it can enter word by word. The reveal establishes
    reading order on first paint -- the eye lands on "build" before it lands
@@ -149,7 +150,10 @@ function Line({
             <motion.span
               initial={reduce ? false : { y: '110%' }}
               animate={{ y: '0%' }}
-              transition={{ duration: 0.75, delay: start + i * 0.06, ease: EASE }}
+              /* Critically-damped spring per word: no overshoot (so the
+                 line settles), no fixed duration (so it stays interruptible
+                 if the user navigates during the reveal). */
+              transition={{ delay: start + i * 0.055, ...springDrawer }}
               className="inline-block"
             >
               {w}
