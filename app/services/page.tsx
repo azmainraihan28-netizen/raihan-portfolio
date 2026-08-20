@@ -5,12 +5,11 @@ import { FadeUp, Stagger, StaggerItem } from '@/components/motion';
 export const metadata = {
   title: 'Services · Web Development & AI Automation',
   description:
-    'Marketing sites, apps, SaaS builds, and AI automation on n8n. Fixed-price scopes from $800 to $15k. Vertex Studio.',
+    'Marketing sites, apps, SaaS builds, and AI automation on n8n. Custom-scoped engagements, quoted on a call. Vertex Studio.',
 };
 
 type Tier = {
   name: string;
-  price: string;
   timeline: string;
   desc: string;
   featured?: boolean;
@@ -21,7 +20,6 @@ type Tier = {
 const webTiers: Tier[] = [
   {
     name: 'Marketing Site',
-    price: '$1,500 - $3,500',
     timeline: '1 - 2 weeks',
     desc: 'A conversion-tuned marketing or brand site. Editorial layout, motion, CMS-ready.',
     items: [
@@ -30,11 +28,10 @@ const webTiers: Tier[] = [
       'Blog / MDX content system',
       'On-page SEO and analytics',
     ],
-    cta: { label: 'Start a project', href: '/contact?ref=marketing-site' },
+    cta: { label: 'Book a call', href: '/contact?ref=marketing-site' },
   },
   {
     name: 'Web App / Dashboard',
-    price: '$4,000 - $8,000',
     timeline: '3 - 5 weeks',
     desc: 'Internal tools, admin panels, and ops dashboards on Next.js plus Supabase, with auth and roles.',
     featured: true,
@@ -44,11 +41,10 @@ const webTiers: Tier[] = [
       'Real-time widgets and charts',
       'Deployed to Vercel with a Loom walkthrough',
     ],
-    cta: { label: 'Start a project', href: '/contact?ref=webapp' },
+    cta: { label: 'Book a call', href: '/contact?ref=webapp' },
   },
   {
     name: 'SaaS / App MVP',
-    price: '$6,000 - $15,000',
     timeline: '4 - 8 weeks',
     desc: 'End-to-end SaaS product or React Native app, covering billing, onboarding, and the core loop.',
     items: [
@@ -57,14 +53,13 @@ const webTiers: Tier[] = [
       'Design system and component library',
       'Post-launch retainer available',
     ],
-    cta: { label: 'Start a project', href: '/contact?ref=saas-mvp' },
+    cta: { label: 'Book a call', href: '/contact?ref=saas-mvp' },
   },
 ];
 
 const aiTiers: Tier[] = [
   {
     name: 'Single Workflow',
-    price: '$300 - $900',
     timeline: '3 - 5 days',
     desc: 'One tightly-scoped n8n workflow: cold email, invoice extraction, review aggregation.',
     items: [
@@ -77,7 +72,6 @@ const aiTiers: Tier[] = [
   },
   {
     name: 'Ops Bundle',
-    price: '$1,500 - $3,500',
     timeline: '2 - 3 weeks',
     desc: 'Three integrated workflows for one vertical: Sales Ops, Hiring Stack, Content Pipeline, or Support.',
     featured: true,
@@ -87,20 +81,19 @@ const aiTiers: Tier[] = [
       'Custom branding on all outputs',
       '60-day support with one revision round',
     ],
-    cta: { label: 'Start a project', href: '/contact?ref=ops-bundle' },
+    cta: { label: 'Book a call', href: '/contact?ref=ops-bundle' },
   },
   {
     name: 'Agents & Integrations',
-    price: '$3,000 - $8,000',
     timeline: '3 - 5 weeks',
     desc: 'Autonomous agents, multi-tool orchestration, and deep API integrations across your stack.',
     items: [
       'Multi-agent workflow with tool use',
       'Deep integrations across CRM, ERP, custom APIs',
       'Guardrails, logging, and cost caps',
-      'Optional monthly retainer, $200 to $800',
+      'Optional monthly retainer',
     ],
-    cta: { label: 'Start a project', href: '/contact?ref=agents' },
+    cta: { label: 'Book a call', href: '/contact?ref=agents' },
   },
 ];
 
@@ -109,25 +102,21 @@ const bundles = [
     title: 'Launch Bundle',
     detail: 'Marketing site plus lead-scoring automation',
     desc: 'For founders who need both a story and a sales pipeline the day they go live.',
-    price: '$3,000 - $5,500',
   },
   {
     title: 'Ops Bundle',
     detail: 'Internal dashboard plus two n8n workflows',
     desc: 'Give leadership a live view. Automate the two spreadsheets that eat everyone’s week.',
-    price: '$5,500 - $10,000',
   },
   {
     title: 'Product Bundle',
     detail: 'SaaS MVP plus an AI feature plus billing',
     desc: 'From concept to first paying customer. Product, AI feature, and Stripe on day one.',
-    price: '$8,000 - $16,000',
   },
   {
     title: 'Full Studio',
     detail: 'Site plus app plus an automation retainer',
     desc: 'A design partner, an engineering team, and an ops brain on tap for the quarter.',
-    price: '$12,000+ / quarter',
   },
 ];
 
@@ -143,8 +132,8 @@ export default function ServicesPage() {
             Two crafts. One studio.
           </h1>
           <p className="mt-7 text-muted max-w-[56ch] text-lg leading-relaxed">
-            Fixed-price scopes across web development and AI automation. Pick a tier, or bundle
-            both sides into a single engagement.
+            Custom-scoped engagements across web development and AI automation. Every project is
+            quoted on a call, tuned to what you actually need.
           </p>
         </Container>
       </section>
@@ -178,7 +167,7 @@ export default function ServicesPage() {
           <CraftHead
             icon={<Cpu size={17} strokeWidth={1.8} />}
             title="n8n workflows, agents, integrations."
-            sub="We replace $300-a-month SaaS tools with workflows that cost a fraction of a cent per run, and build agents that stay on task."
+            sub="We replace subscription SaaS tools with workflows that cost a fraction of a cent per run, and build agents that stay on task."
           />
           <Stagger className="border-t border-border">
             {aiTiers.map((t) => (
@@ -190,18 +179,18 @@ export default function ServicesPage() {
         </Container>
       </section>
 
-      {/* 4. Bundles: a priced index, not another card wall. */}
+      {/* 4. Bundles: an index of combined engagements, not another card wall. */}
       <section>
         <Container className="py-24 md:py-32">
           <SectionTitle
             title="Or combine both sides."
-            sub="Web and automation scoped as one engagement. Cleaner handoffs, lower total cost, faster to launch."
+            sub="Web and automation scoped as one engagement. Cleaner handoffs, faster to launch."
           />
           <Stagger className="border-t border-border">
             {bundles.map((b) => (
               <StaggerItem
                 key={b.title}
-                className="group grid md:grid-cols-[1fr,1.2fr,auto] gap-x-8 gap-y-2 items-baseline py-7 border-b border-border hover:bg-surface/60 transition-colors px-2 -mx-2"
+                className="group grid md:grid-cols-[1fr,1.5fr] gap-x-8 gap-y-2 items-baseline py-7 border-b border-border hover:bg-surface/60 transition-colors px-2 -mx-2"
               >
                 <div>
                   <h3 className="font-display text-xl md:text-2xl font-semibold tracking-[-0.025em]">
@@ -210,9 +199,6 @@ export default function ServicesPage() {
                   <div className="mt-1.5 text-xs text-muted font-mono">{b.detail}</div>
                 </div>
                 <p className="text-sm text-muted leading-relaxed max-w-[52ch]">{b.desc}</p>
-                <span className="font-mono text-sm text-accent whitespace-nowrap md:text-right">
-                  {b.price}
-                </span>
               </StaggerItem>
             ))}
           </Stagger>
@@ -279,11 +265,13 @@ function LeadTier({ tier }: { tier: Tier }) {
       <span className="self-start rounded-pill bg-accent/12 border border-accent/25 px-3 py-1 text-[10.5px] uppercase tracking-[0.18em] text-accent font-mono">
         Most popular
       </span>
-      <div className="mt-7 text-sm text-muted">{tier.name}</div>
-      <div className="mt-2 font-display text-[2.4rem] md:text-[3rem] font-semibold tracking-[-0.045em] leading-none">
-        {tier.price}
+      <div className="mt-7 font-mono text-[11px] uppercase tracking-[0.18em] text-muted">
+        {tier.name}
       </div>
-      <div className="mt-3 font-mono text-xs text-muted">{tier.timeline}</div>
+      <div className="mt-3 font-display text-[2.4rem] md:text-[3rem] font-semibold tracking-[-0.045em] leading-none">
+        Custom quote
+      </div>
+      <div className="mt-3 font-mono text-xs text-muted">{tier.timeline} · scoped on a call</div>
       <p className="mt-6 text-muted leading-relaxed max-w-[44ch]">{tier.desc}</p>
       <ul className="mt-8 space-y-3 text-sm">
         {tier.items.map((i) => (
@@ -307,7 +295,7 @@ function CompactTier({ tier }: { tier: Tier }) {
     <div className="rounded-card border border-border bg-surface p-7 hover:border-accent/35 transition-colors edge-lit">
       <div className="flex items-baseline justify-between gap-4 flex-wrap">
         <h3 className="font-display text-xl font-semibold tracking-[-0.025em]">{tier.name}</h3>
-        <span className="font-mono text-sm text-accent whitespace-nowrap">{tier.price}</span>
+        <span className="font-mono text-xs text-accent whitespace-nowrap">Custom quote</span>
       </div>
       <div className="mt-1.5 font-mono text-xs text-muted">{tier.timeline}</div>
       <p className="mt-4 text-sm text-muted leading-relaxed">{tier.desc}</p>
@@ -343,7 +331,7 @@ function TierRow({ tier }: { tier: Tier }) {
           )}
         </div>
         <div className="mt-2 font-display text-2xl font-semibold tracking-[-0.03em] text-accent">
-          {tier.price}
+          Custom quote
         </div>
         <div className="mt-1 font-mono text-xs text-muted">{tier.timeline}</div>
       </div>

@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { ArrowUpRight } from 'lucide-react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { cn } from '@/lib/cn';
-import { PriceRange, ToolChip, WeekBadge } from './ui';
+import { ToolChip, WeekBadge } from './ui';
 import { springDefault } from '@/lib/springs';
 import type { Workflow } from '@/lib/work';
 
@@ -128,8 +128,8 @@ export function WorkflowCard({
           )}
 
           <div className="mt-auto pt-6 flex items-center justify-between">
-            <span className="font-mono text-[11.5px] tracking-wide">
-              <PriceRange low={w.priceLow} high={w.priceHigh} />
+            <span className="font-mono text-[11.5px] tracking-wide text-muted">
+              View case study
             </span>
             <ArrowUpRight
               size={17}

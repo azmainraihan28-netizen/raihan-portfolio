@@ -107,7 +107,7 @@ export default async function HomePage() {
               <span className="block text-muted">starts with a 30-minute call.</span>
             </h2>
             <p className="mt-7 text-muted text-lg leading-relaxed max-w-[52ch]">
-              Tell us the outcome you are after. We come back with a fixed-price scope in under 24 hours.
+              Tell us the outcome you are after. We scope it on the call and quote you within 24 hours.
             </p>
             <div className="mt-11 flex flex-wrap gap-3">
               <CTAButton href="/contact" variant="primary" size="lg">
