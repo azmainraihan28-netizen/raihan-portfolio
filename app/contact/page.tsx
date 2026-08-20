@@ -7,7 +7,7 @@ import { ContactForm } from './ContactForm';
 export const metadata = {
   title: 'Contact',
   description:
-    'Start a project with Vertex Studio, a web development and AI automation studio. Fixed-price scopes in under 24 hours.',
+    'Start a project with Vertex Studio, a web development and AI automation studio. Custom scope and quote within 24 hours of a call.',
 };
 
 export default function ContactPage({ searchParams }: { searchParams: { ref?: string } }) {
@@ -23,8 +23,8 @@ export default function ContactPage({ searchParams }: { searchParams: { ref?: st
             Let us build something.
           </h1>
           <p className="mt-7 text-muted max-w-[56ch] text-lg leading-relaxed">
-            Fixed-price scope in under 24 hours. Most sites, apps, and automations ship in 2 to 4
-            weeks.
+            Book a call and get a custom scope and quote within 24 hours. Most sites, apps, and
+            automations ship in 2 to 4 weeks.
           </p>
           {ref && (
             <p className="mt-5 inline-flex items-center rounded-pill border border-accent/25 bg-accent/10 px-3.5 py-1.5 font-mono text-xs text-accent">

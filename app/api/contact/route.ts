@@ -5,7 +5,7 @@ export const runtime = 'nodejs';
 
 export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}));
-  const { name, email, company, budget, message, ref } = body || {};
+  const { name, email, company, scope, message, ref } = body || {};
 
   if (!name || !email || !message) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -14,7 +14,7 @@ export async function POST(req: Request) {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
     // Dev fallback: log to server console so the form still works locally.
-    console.log('[contact] new lead (no RESEND_API_KEY set):', { name, email, company, budget, message, ref });
+    console.log('[contact] new lead (no RESEND_API_KEY set):', { name, email, company, scope, message, ref });
     return NextResponse.json({ ok: true, dev: true });
   }
 
@@ -25,7 +25,7 @@ export async function POST(req: Request) {
       <h2>New portfolio lead</h2>
       <p><strong>From:</strong> ${escape(name)} &lt;${escape(email)}&gt;</p>
       ${company ? `<p><strong>Company:</strong> ${escape(company)}</p>` : ''}
-      ${budget ? `<p><strong>Budget:</strong> ${escape(budget)}</p>` : ''}
+      ${scope ? `<p><strong>Scope:</strong> ${escape(scope)}</p>` : ''}
       ${ref ? `<p><strong>Came from:</strong> ${escape(ref)}</p>` : ''}
       <hr/>
       <p style="white-space:pre-wrap">${escape(message)}</p>
@@ -34,7 +34,7 @@ export async function POST(req: Request) {
       from: `Portfolio <onboarding@resend.dev>`,
       to: site.email,
       replyTo: email,
-      subject: `New lead · ${name}${budget ? ` (${budget})` : ''}`,
+      subject: `New lead · ${name}${scope ? ` (${scope})` : ''}`,
       html,
     });
     return NextResponse.json({ ok: true });

@@ -16,11 +16,11 @@ const steps: Step[] = [
   {
     num: '01',
     title: 'Discovery',
-    body: 'We start with the outcome, not the deliverable. What does the site need to sell, or the automation need to remove from your week? One doc, one clear scope, one fixed price.',
+    body: 'We start with the outcome, not the deliverable. What does the site need to sell, or the automation need to remove from your week? One doc, one clear scope, quoted on a call.',
     bullets: [
       'Goals, audience, and success metrics on a single page',
       'Current-state mapping across tools, data sources, workflows',
-      'Fixed-price scope, not an estimate',
+      'Custom scope, quoted after the call',
     ],
     meta: 'Week 0',
   },

@@ -72,10 +72,16 @@ export function ContactForm({ ref_ }: { ref_?: string }) {
       <div className="grid sm:grid-cols-2 gap-6">
         <Field name="company" label="Company" hint="Optional" autoComplete="organization" />
         <Select
-          name="budget"
-          label="Budget"
+          name="scope"
+          label="Scope"
           required
-          options={['Under $500', '$500 - $2,000', '$2,000 - $5,000', '$5,000+', 'Not sure yet']}
+          options={[
+            'Single workflow or page',
+            'Full site or app',
+            'Multi-workstream engagement',
+            'Ongoing / retainer',
+            'Not sure yet',
+          ]}
         />
       </div>
       <Field

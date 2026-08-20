@@ -19,8 +19,8 @@ const stackGroups = [
 
 const principles = [
   {
-    t: 'Fixed-price scopes.',
-    d: 'You should know the number before you sign. Estimates are how agencies stay expensive.',
+    t: 'Custom scopes on a call.',
+    d: 'Every engagement is scoped and quoted to what you actually need. No templated tiers, no surprise line items.',
   },
   {
     t: 'Design in the browser.',
@@ -175,7 +175,7 @@ export default async function AboutPage() {
               Have a project in mind?
             </h2>
             <p className="mt-6 text-muted text-lg leading-relaxed max-w-[48ch]">
-              Fixed-price scope in 24 hours. Launch in 2 to 4 weeks.
+              Scope and quote in 24 hours. Launch in 2 to 4 weeks.
             </p>
             <div className="mt-10 flex flex-wrap gap-3">
               <CTAButton href="/contact" variant="primary" size="lg">

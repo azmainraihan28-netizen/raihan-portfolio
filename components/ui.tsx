@@ -57,17 +57,6 @@ export function WeekBadge({ week, className }: { week: number; className?: strin
   );
 }
 
-export function PriceRange({ low, high }: { low: number; high: number }) {
-  const fmt = (n: number) => (n >= 1000 ? `$${(n / 1000).toFixed(n % 1000 === 0 ? 0 : 1)}k` : `$${n}`);
-  return (
-    <span className="font-mono text-text">
-      {fmt(low)}
-      <span className="text-muted">-</span>
-      {fmt(high)}
-    </span>
-  );
-}
-
 /* ------------------------------------------------------------------
    CTAButton
 

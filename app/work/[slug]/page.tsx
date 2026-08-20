@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowLeft, ArrowRight, Linkedin } from 'lucide-react';
 import { MDXRemote } from 'next-mdx-remote/rsc';
-import { Container, CTAButton, PriceRange, ToolChip, WeekBadge } from '@/components/ui';
+import { Container, CTAButton, ToolChip, WeekBadge } from '@/components/ui';
 import { FadeUp, StaggerItem, StaggerOnMount } from '@/components/motion';
 import { site } from '@/content/site';
 import { getAllWorkflows, getWorkflow } from '@/lib/work';
@@ -43,17 +43,15 @@ export default async function CaseStudyPage({ params }: { params: { slug: string
   const metrics =
     w.kind === 'automation'
       ? [
-          // heroMetric duplicates cost-per-run on most automation entries,
-          // so the fourth slot carries the category instead.
           { label: 'Cost per run', value: w.costPerRun || 'n/a' },
           { label: 'Nodes', value: w.nodes ? String(w.nodes) : 'n/a' },
-          { label: 'Build price', value: <PriceRange low={w.priceLow} high={w.priceHigh} /> },
+          { label: 'Timeline', value: w.week ? `Week ${w.week}` : 'n/a' },
           { label: 'Track', value: w.category },
         ]
       : [
           { label: 'Client', value: w.client || 'n/a' },
           { label: 'Category', value: w.category },
-          { label: 'Build price', value: <PriceRange low={w.priceLow} high={w.priceHigh} /> },
+          { label: 'Timeline', value: w.week ? `Week ${w.week}` : 'n/a' },
           { label: 'Outcome', value: w.heroMetric || 'n/a' },
         ];
 
@@ -147,7 +145,7 @@ export default async function CaseStudyPage({ params }: { params: { slug: string
           </h2>
           <p className="mt-4 text-muted max-w-[56ch] leading-relaxed">
             {w.kind === 'webdev'
-              ? 'Tell us the outcome you are after, whether that is more signups, a better funnel, or a real internal tool. We come back with a fixed-price scope in 24 hours.'
+              ? 'Tell us the outcome you are after, whether that is more signups, a better funnel, or a real internal tool. We scope and quote it on a call within 24 hours.'
               : 'We adapt this workflow to your stack, deploy it to your n8n, and walk your team through it. Turnaround is 3 to 7 days.'}
           </p>
           <div className="mt-8">
