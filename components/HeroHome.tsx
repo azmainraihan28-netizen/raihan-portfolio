@@ -182,23 +182,25 @@ function StatCard({
   );
 }
 
+const HEADLINE_LINES = ['Web & AI,', 'Applied Differently.'];
+
 function BottomBlock({ reduce }: { reduce: boolean }) {
   return (
-    <div className="absolute inset-x-0 bottom-8 md:bottom-12 z-40 flex flex-col items-center gap-6 text-center px-4">
+    <div className="absolute right-4 md:right-8 bottom-8 md:bottom-12 z-40 flex flex-col items-end gap-6 text-right max-w-[32rem] pl-4">
       <motion.h1
         initial={reduce ? false : { opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.65, delay: 0.5, ease: EASE }}
-        className="font-display font-semibold tracking-[-0.035em] leading-[1.02] text-[clamp(2rem,4.4vw,3.4rem)] text-text max-w-[24ch]"
+        className="font-display font-semibold tracking-[-0.035em] leading-[1.02] text-[clamp(2rem,4.4vw,3.4rem)] text-text"
       >
-        Web &amp; AI, <span className="text-muted">Applied Differently.</span>
+        <TypedHeadline lines={HEADLINE_LINES} reduce={reduce} />
       </motion.h1>
 
       <motion.div
         initial={reduce ? false : { opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.65, delay: 0.62, ease: EASE }}
-        className="flex flex-wrap gap-3 justify-center"
+        className="flex flex-wrap gap-3 justify-end"
       >
         <CTAButton href="/contact" variant="primary" size="lg">
           Book a Call <ArrowRight size={17} strokeWidth={2} />
@@ -208,6 +210,79 @@ function BottomBlock({ reduce }: { reduce: boolean }) {
         </CTAButton>
       </motion.div>
     </div>
+  );
+}
+
+/* Types the headline character-by-character, one line after the next.
+   The blinking caret sits at the end of the current line while typing and
+   at the end of the last line once it settles. Reduced-motion users get
+   the finished string with no caret. */
+function TypedHeadline({ lines, reduce }: { lines: string[]; reduce: boolean }) {
+  const [lineIdx, setLineIdx] = useState(0);
+  const [charIdx, setCharIdx] = useState(0);
+  const [done, setDone] = useState(false);
+
+  useEffect(() => {
+    if (reduce || done) return;
+    const current = lines[lineIdx];
+    if (charIdx < current.length) {
+      const id = setTimeout(() => setCharIdx((c) => c + 1), 55);
+      return () => clearTimeout(id);
+    }
+    if (lineIdx < lines.length - 1) {
+      const id = setTimeout(() => {
+        setLineIdx((i) => i + 1);
+        setCharIdx(0);
+      }, 380);
+      return () => clearTimeout(id);
+    }
+    setDone(true);
+  }, [charIdx, lineIdx, lines, done, reduce]);
+
+  if (reduce) {
+    return (
+      <>
+        {lines.map((l, i) => (
+          <span key={i} className={i === lines.length - 1 ? 'block text-muted' : 'block'}>
+            {l}
+          </span>
+        ))}
+      </>
+    );
+  }
+
+  return (
+    <>
+      {lines.map((l, i) => {
+        const isCurrent = i === lineIdx;
+        const finished = i < lineIdx;
+        const text = finished ? l : isCurrent ? l.slice(0, charIdx) : '';
+        const showCaret = (isCurrent && !done) || (done && i === lines.length - 1);
+        return (
+          <span
+            key={i}
+            className={i === lines.length - 1 ? 'block text-muted' : 'block'}
+          >
+            {text}
+            {/* Reserve trailing space so line-two doesn't reflow when the caret shows up */}
+            {!finished && !isCurrent && '​'}
+            {showCaret && <Caret settled={done} />}
+          </span>
+        );
+      })}
+    </>
+  );
+}
+
+function Caret({ settled }: { settled: boolean }) {
+  return (
+    <span
+      aria-hidden
+      className={
+        'inline-block align-baseline ml-[0.06em] w-[0.06em] h-[0.9em] bg-accent translate-y-[0.1em] ' +
+        (settled ? 'animate-caret-blink' : 'opacity-90')
+      }
+    />
   );
 }
 
@@ -243,7 +318,7 @@ function WhoAmI({ reduce }: { reduce: boolean }) {
       initial={reduce ? false : { opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.55, delay: 0.5, ease: EASE }}
-      className="absolute left-4 md:left-8 bottom-[8.5rem] md:bottom-[10rem] lg:bottom-[11rem] z-40 max-w-[22rem]"
+      className="absolute left-4 md:left-8 bottom-[9rem] md:bottom-[10.5rem] lg:bottom-[12rem] z-40 max-w-[34rem]"
     >
       <div
         role="button"
@@ -253,12 +328,12 @@ function WhoAmI({ reduce }: { reduce: boolean }) {
         onMouseLeave={() => setHovering(false)}
         onFocus={() => setHovering(true)}
         onBlur={() => setHovering(false)}
-        className="group inline-flex items-baseline gap-2 cursor-pointer select-none outline-none"
+        className="group inline-flex items-baseline gap-3 cursor-pointer select-none outline-none"
       >
-        <span aria-hidden className="font-mono text-[10.5px] uppercase tracking-[0.22em] text-muted">
+        <span aria-hidden className="font-mono text-[12px] md:text-[13px] uppercase tracking-[0.22em] text-muted">
           /
         </span>
-        <span className="relative inline-block min-h-[1.6em] font-display text-[1.2rem] md:text-[1.35rem] font-semibold tracking-[-0.02em] leading-tight text-text">
+        <span className="relative inline-block min-h-[1.4em] font-display font-semibold tracking-[-0.025em] leading-[1.1] text-text text-[1.75rem] md:text-[2.25rem] lg:text-[2.75rem]">
           <AnimatePresence mode="wait" initial={false}>
             <motion.span
               key={shown}
@@ -273,7 +348,7 @@ function WhoAmI({ reduce }: { reduce: boolean }) {
           </AnimatePresence>
         </span>
       </div>
-      <div className="mt-2 pl-4 font-mono text-[10px] uppercase tracking-[0.22em] text-muted/70">
+      <div className="mt-3 pl-6 font-mono text-[11px] uppercase tracking-[0.22em] text-muted/70">
         Hover to peek
       </div>
     </motion.div>
