@@ -1,167 +1,222 @@
 'use client';
 
 import Image from 'next/image';
-import { useRef } from 'react';
-import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
-import { Container, CTAButton, Eyebrow } from './ui';
-import { springDefault, springDrawer, easeOut } from '@/lib/springs';
+import { motion, useReducedMotion } from 'framer-motion';
+import { ArrowRight, Sparkles, Zap, Compass, Wrench, ShieldCheck } from 'lucide-react';
+import { Container, CTAButton } from './ui';
+import { easeOut } from '@/lib/springs';
 
 const EASE = easeOut;
 
-/* Headline is split so it can enter word by word. The reveal establishes
-   reading order on first paint -- the eye lands on "build" before it lands
-   on "system behind it". */
-const LINE_ONE = ['We', 'build', 'the', 'site,'];
-const LINE_TWO = ['and', 'the', 'system', 'behind', 'it.'];
+const attributes = [
+  { icon: Sparkles, label: 'Creative' },
+  { icon: ShieldCheck, label: 'Reliable' },
+  { icon: Compass, label: 'Strategic' },
+  { icon: Wrench, label: 'Engineered' },
+  { icon: Zap, label: 'Fast' },
+];
 
 export function HeroHome() {
   const reduce = useReducedMotion();
-  const ref = useRef<HTMLDivElement>(null);
-
-  // Plates drift at different rates as the hero leaves. Depth cue only.
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ['start start', 'end start'],
-  });
-  const frontY = useTransform(scrollYProgress, [0, 1], [0, -70]);
-  const backY = useTransform(scrollYProgress, [0, 1], [0, 40]);
 
   return (
-    <section ref={ref} className="relative overflow-hidden border-b border-border">
-      {/* Hairline grid, masked so it fades before it reaches the copy. */}
+    <section className="relative overflow-hidden border-b border-border bg-bg">
+      {/* Hairline grid + slow drift bloom, same tokens as the rest of the site */}
       <div aria-hidden className="absolute inset-0 tech-grid" />
-      {/* One slow accent bloom. Transform-only animation, no repaint cost. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute -top-40 right-[8%] w-[38rem] h-[38rem] rounded-full blur-[120px] bg-accent/[0.16] animate-drift"
+        className="pointer-events-none absolute -top-40 right-[10%] w-[42rem] h-[42rem] rounded-full blur-[130px] bg-accent/[0.16] animate-drift"
       />
 
-      {/* Slightly under the viewport so the next band peeks. No scroll cue needed.
-          The subtraction accounts for the 88px floating header plus that margin. */}
-      <Container className="relative pt-14 md:pt-16 pb-20 md:pb-20 min-h-[calc(100dvh-10.5rem)] flex items-center">
-        <div className="grid lg:grid-cols-[1.12fr,0.88fr] gap-14 lg:gap-12 items-center w-full">
-          {/* ---------------- Copy ---------------- */}
-          <div>
+      {/* The stage. Everything below stacks on top of one another. */}
+      <div className="relative min-h-[calc(100dvh-5rem)] md:min-h-[calc(100dvh-3rem)] flex flex-col">
+        {/* --- Giant background wordmark --- */}
+        <BackgroundWordmark reduce={!!reduce} />
+
+        {/* --- Portrait, cropped to the section bottom --- */}
+        <Portrait reduce={!!reduce} />
+
+        {/* --- Foreground content sits above the portrait/wordmark --- */}
+        <Container className="relative z-30 flex-1 flex flex-col pt-24 md:pt-28 pb-16 md:pb-20">
+          {/* Top row: eyebrow left, descriptor right */}
+          <div className="grid md:grid-cols-2 gap-y-8 md:gap-8">
+            <motion.div
+              initial={reduce ? false : { opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, ease: EASE }}
+              className="max-w-[22ch]"
+            >
+              <div className="font-mono text-[11px] uppercase tracking-[0.22em] text-accent">
+                Vertex Studio
+              </div>
+              <p className="mt-4 font-display text-[1.35rem] md:text-[1.6rem] font-semibold tracking-[-0.02em] leading-tight text-text">
+                The web-and-AI studio.
+                <span className="block text-muted">Built like it matters.</span>
+              </p>
+            </motion.div>
+
+            <motion.p
+              initial={reduce ? false : { opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.08, ease: EASE }}
+              className="md:justify-self-end md:text-right text-[15px] leading-relaxed text-muted max-w-[38ch]"
+            >
+              Working closely with founders to ship marketing sites, SaaS builds, and n8n
+              automations that stay useful long after launch.
+            </motion.p>
+          </div>
+
+          {/* Floating badge cluster - stat chips */}
+          <div className="mt-10 md:mt-14 grid md:grid-cols-2 gap-6 md:gap-8 pointer-events-none">
+            <div className="flex flex-wrap gap-3 md:justify-start">
+              <StatCard glyph="V" value="35+" label="Projects shipped" delay={0.2} reduce={!!reduce} />
+              <StatCard glyph="◐" value="92%" label="Client retention" delay={0.3} reduce={!!reduce} />
+            </div>
+            <div className="md:justify-self-end">
+              <AttributesCard delay={0.35} reduce={!!reduce} />
+            </div>
+          </div>
+
+          {/* Spacer pushes the headline block toward the bottom on tall screens */}
+          <div className="flex-1 min-h-[8rem] md:min-h-[14rem]" />
+
+          {/* Bottom center: headline + CTAs */}
+          <div className="text-center md:text-left md:pl-[38%] lg:pl-[42%] max-w-[42rem] mx-auto md:mx-0">
+            <motion.h1
+              initial={reduce ? false : { opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4, ease: EASE }}
+              className="font-display font-semibold tracking-[-0.035em] leading-[1.02] text-[clamp(2rem,4.6vw,3.6rem)] text-text"
+            >
+              Web &amp; AI,
+              <span className="block">Applied Differently.</span>
+            </motion.h1>
+
             <motion.div
               initial={reduce ? false : { opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, ease: EASE }}
+              transition={{ duration: 0.6, delay: 0.55, ease: EASE }}
+              className="mt-8 flex flex-wrap gap-3 justify-center md:justify-start"
             >
-              <Eyebrow>Web development and AI automation</Eyebrow>
-            </motion.div>
-
-            {/* Scale is planned against the plate width so line two never wraps. */}
-            <h1 className="mt-7 font-display font-semibold tracking-[-0.045em] leading-[1.0] text-[clamp(2.4rem,5vw,3.5rem)]">
-              <Line words={LINE_ONE} start={0.1} reduce={!!reduce} />
-              <Line words={LINE_TWO} start={0.28} reduce={!!reduce} muted />
-            </h1>
-
-            <motion.p
-              initial={reduce ? false : { opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.5, ease: EASE }}
-              className="mt-7 text-[17px] leading-relaxed text-muted max-w-[46ch]"
-            >
-              Marketing sites, SaaS products, and n8n automations for founders who
-              need both shipped in weeks, not quarters.
-            </motion.p>
-
-            <motion.div
-              initial={reduce ? false : { opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.62, ease: EASE }}
-              className="mt-10 flex flex-wrap items-center gap-3"
-            >
-              <CTAButton href="/work" variant="primary" size="lg">
-                See our work <ArrowRight size={17} strokeWidth={2} />
+              <CTAButton href="/contact" variant="primary" size="lg">
+                Book a Call <ArrowRight size={17} strokeWidth={2} />
               </CTAButton>
-              <CTAButton href="/contact" variant="ghost" size="lg">
-                Start a project
+              <CTAButton href="/work" variant="ghost" size="lg">
+                See Our Work
               </CTAButton>
             </motion.div>
           </div>
-
-          {/* ---------------- Plates ---------------- */}
-          <motion.div
-            initial={reduce ? false : { opacity: 0, scale: 0.96 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.9, delay: 0.24, ease: EASE }}
-            className="relative mx-auto w-full max-w-[38rem] lg:max-w-none"
-          >
-            {/* Back plate: the automation side of the studio. */}
-            <motion.div
-              style={reduce ? undefined : { y: backY }}
-              className="absolute -bottom-14 -left-4 sm:-left-8 w-[58%] rounded-card overflow-hidden border border-border bg-surface shadow-[0_30px_70px_-40px_rgba(0,0,0,0.85)]"
-            >
-              <Image
-                src="/work/expenseai.png"
-                alt="ExpenseAI dashboard built by the studio"
-                width={900}
-                height={563}
-                sizes="(max-width: 1024px) 40vw, 22vw"
-                className="block w-full h-auto"
-              />
-            </motion.div>
-
-            {/* Front plate carries the LCP. */}
-            <motion.div
-              style={reduce ? undefined : { y: frontY }}
-              className="relative ml-auto w-[88%] rounded-card overflow-hidden border border-border bg-surface shadow-[0_50px_100px_-50px_rgba(0,0,0,0.9)]"
-            >
-              <span
-                aria-hidden
-                className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-accent/70 to-transparent z-10"
-              />
-              <Image
-                src="/work/trendybd.png"
-                alt="TrendyBD storefront built by the studio"
-                width={1400}
-                height={875}
-                priority
-                sizes="(max-width: 1024px) 88vw, 42vw"
-                className="block w-full h-auto"
-              />
-            </motion.div>
-          </motion.div>
-        </div>
-      </Container>
+        </Container>
+      </div>
     </section>
   );
 }
 
-function Line({
-  words,
-  start,
+/* ---------- pieces ---------- */
+
+function BackgroundWordmark({ reduce }: { reduce: boolean }) {
+  return (
+    <motion.div
+      aria-hidden
+      initial={reduce ? false : { opacity: 0, y: -8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 1.1, ease: EASE }}
+      className="pointer-events-none absolute inset-x-0 top-0 z-10 flex justify-center"
+    >
+      <span
+        className="font-display font-semibold text-accent select-none whitespace-nowrap"
+        style={{
+          fontSize: 'clamp(9rem, 26vw, 26rem)',
+          lineHeight: 0.82,
+          letterSpacing: '-0.06em',
+          // Slight top clip so the caps line hugs the very top edge like the reference
+          marginTop: '-0.08em',
+        }}
+      >
+        VERTEX
+      </span>
+    </motion.div>
+  );
+}
+
+function Portrait({ reduce }: { reduce: boolean }) {
+  return (
+    <motion.div
+      initial={reduce ? false : { opacity: 0, y: 24 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 1, delay: 0.2, ease: EASE }}
+      className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex justify-center"
+    >
+      <div className="relative h-[75vh] md:h-[86vh] max-h-[860px] aspect-[7/8]">
+        <Image
+          src="/hero-portrait.png"
+          alt="Vertex Studio founder"
+          fill
+          priority
+          sizes="(max-width: 768px) 90vw, 60vw"
+          className="object-contain object-bottom"
+        />
+      </div>
+    </motion.div>
+  );
+}
+
+function StatCard({
+  glyph,
+  value,
+  label,
+  delay,
   reduce,
-  muted,
 }: {
-  words: string[];
-  start: number;
+  glyph: string;
+  value: string;
+  label: string;
+  delay: number;
   reduce: boolean;
-  muted?: boolean;
 }) {
   return (
-    <span className={muted ? 'block text-muted' : 'block'}>
-      {words.map((w, i) => (
-        <span key={`${w}-${i}`}>
-          {/* pb reserve keeps descenders clear of the clip edge */}
-          <span className="inline-block overflow-hidden pb-[0.09em] align-bottom">
-            <motion.span
-              initial={reduce ? false : { y: '110%' }}
-              animate={{ y: '0%' }}
-              /* Critically-damped spring per word: no overshoot (so the
-                 line settles), no fixed duration (so it stays interruptible
-                 if the user navigates during the reveal). */
-              transition={{ delay: start + i * 0.055, ...springDrawer }}
-              className="inline-block"
-            >
-              {w}
-            </motion.span>
+    <motion.div
+      initial={reduce ? false : { opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay, ease: EASE }}
+      className="pointer-events-auto inline-flex items-center gap-3 pr-4 pl-3 py-2.5 rounded-[14px] border border-white/10 bg-surface/70 backdrop-blur-md shadow-[0_20px_50px_-30px_rgba(0,0,0,0.9)]"
+    >
+      <span className="grid place-items-center w-9 h-9 rounded-[10px] bg-accent text-on-accent font-display text-[15px] font-semibold">
+        {glyph}
+      </span>
+      <div className="leading-none">
+        <div className="font-display text-[1.35rem] font-semibold tracking-[-0.02em] text-text">
+          {value}
+        </div>
+        <div className="mt-1 font-mono text-[10.5px] uppercase tracking-[0.18em] text-muted">
+          {label}
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+function AttributesCard({ delay, reduce }: { delay: number; reduce: boolean }) {
+  return (
+    <motion.ul
+      initial={reduce ? false : { opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay, ease: EASE }}
+      className="pointer-events-auto inline-flex flex-col gap-2 p-3 rounded-[14px] border border-white/10 bg-surface/70 backdrop-blur-md shadow-[0_20px_50px_-30px_rgba(0,0,0,0.9)]"
+    >
+      {attributes.map(({ icon: Icon, label }) => (
+        <li
+          key={label}
+          className="flex items-center gap-2.5 pl-1 pr-3 py-1"
+        >
+          <span className="grid place-items-center w-5 h-5 rounded-[6px] bg-accent/15 text-accent">
+            <Icon size={12} strokeWidth={2.2} />
           </span>
-          {i < words.length - 1 ? ' ' : null}
-        </span>
+          <span className="font-display text-[15px] font-semibold tracking-[-0.01em] text-text">
+            {label}
+          </span>
+        </li>
       ))}
-    </span>
+    </motion.ul>
   );
 }
