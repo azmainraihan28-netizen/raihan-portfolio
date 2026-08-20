@@ -51,10 +51,16 @@ const config: Config = {
           '0%, 100%': { transform: 'translate3d(0,0,0) scale(1)' },
           '50%': { transform: 'translate3d(3%, -4%, 0) scale(1.06)' },
         },
+        caretBlink: {
+          '0%, 45%': { opacity: '1' },
+          '50%, 95%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
       },
       animation: {
         'fade-up': 'fadeUp 0.6s ease-out both',
         drift: 'drift 24s ease-in-out infinite',
+        'caret-blink': 'caretBlink 1.1s steps(2, jump-none) infinite',
       },
     },
   },
