@@ -21,15 +21,15 @@ export function HeroHome() {
 
   return (
     <section className="relative overflow-hidden border-b border-border bg-bg">
-      {/* Ambient background: hairline grid + one slow bloom, same tokens as the rest of the site */}
+      {/* Ambient background: hairline grid + one slow bloom */}
       <div aria-hidden className="absolute inset-0 tech-grid opacity-70" />
       <div
         aria-hidden
-        className="pointer-events-none absolute -top-40 right-[10%] w-[42rem] h-[42rem] rounded-full blur-[130px] bg-accent/[0.14] animate-drift"
+        className="pointer-events-none absolute -top-40 right-[10%] w-[46rem] h-[46rem] rounded-full blur-[140px] bg-accent/[0.14] animate-drift"
       />
 
-      {/* One stage. Everything is absolutely positioned inside it so nothing collides. */}
-      <div className="relative mx-auto w-full max-w-[86rem] px-5 md:px-8 min-h-[calc(100dvh-6rem)] h-[46rem] md:h-[44rem] lg:h-[48rem]">
+      {/* One stage, everything is absolutely positioned inside it so nothing collides. */}
+      <div className="relative mx-auto w-full max-w-[92rem] px-5 md:px-8 min-h-[calc(100dvh-5rem)] h-[54rem] md:h-[56rem] lg:h-[62rem]">
         {/* Top row: eyebrow left, one-line descriptor right */}
         <motion.div
           initial={reduce ? false : { opacity: 0, y: -6 }}
@@ -47,17 +47,17 @@ export function HeroHome() {
           </div>
         </motion.div>
 
-        {/* Background wordmark: absolute, tucked behind the portrait, no overlap with side chips */}
+        {/* Giant editorial wordmark. Sits behind everything. */}
         <BackgroundWordmark reduce={!!reduce} />
 
-        {/* Portrait: absolute bottom-centered, main visual anchor */}
+        {/* Portrait — main focal point, cropped to section bottom. */}
         <Portrait reduce={!!reduce} />
 
-        {/* Floating chip clusters, positioned outside the portrait silhouette */}
+        {/* Floating glass chip clusters, outside the portrait silhouette. */}
         <LeftChips reduce={!!reduce} />
         <RightChips reduce={!!reduce} />
 
-        {/* Bottom headline + CTAs, centered under portrait */}
+        {/* Bottom headline + CTAs, pinned. */}
         <BottomBlock reduce={!!reduce} />
       </div>
     </section>
@@ -70,16 +70,18 @@ function BackgroundWordmark({ reduce }: { reduce: boolean }) {
   return (
     <motion.div
       aria-hidden
-      initial={reduce ? false : { opacity: 0, y: -8 }}
+      initial={reduce ? false : { opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 1.1, ease: EASE }}
-      className="pointer-events-none absolute inset-x-0 top-[3rem] md:top-[3.5rem] z-10 flex justify-center px-8"
+      transition={{ duration: 1.2, ease: EASE }}
+      className="pointer-events-none absolute inset-x-0 top-[3rem] md:top-[4rem] z-10 flex justify-center px-4"
     >
       <span
-        className="font-display font-semibold text-accent select-none whitespace-nowrap leading-none"
+        className="font-wordmark text-accent select-none whitespace-nowrap leading-[0.82]"
         style={{
-          fontSize: 'clamp(6rem, 16vw, 15rem)',
-          letterSpacing: '-0.055em',
+          fontSize: 'clamp(8rem, 24vw, 26rem)',
+          letterSpacing: '-0.045em',
+          fontWeight: 900,
+          fontStretch: '100%',
         }}
       >
         VERTEX
@@ -91,20 +93,20 @@ function BackgroundWordmark({ reduce }: { reduce: boolean }) {
 function Portrait({ reduce }: { reduce: boolean }) {
   return (
     <motion.div
-      initial={reduce ? false : { opacity: 0, y: 24 }}
+      initial={reduce ? false : { opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 1, delay: 0.2, ease: EASE }}
+      transition={{ duration: 1.1, delay: 0.2, ease: EASE }}
       className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex justify-center"
     >
-      {/* Fixed portrait height per breakpoint keeps the wordmark clearance predictable */}
-      <div className="relative h-[26rem] md:h-[30rem] lg:h-[34rem] aspect-[1208/1302]">
+      {/* Portrait bumped so head lands inside the VERTEX caps, shoulders anchor the base. */}
+      <div className="relative h-[34rem] md:h-[42rem] lg:h-[50rem] aspect-[1208/1302]">
         <Image
           src="/hero-portrait.png"
           alt="Vertex Studio founder"
           fill
           priority
-          sizes="(max-width: 768px) 80vw, 34rem"
-          className="object-contain object-bottom"
+          sizes="(max-width: 768px) 88vw, 42rem"
+          className="object-contain object-bottom drop-shadow-[0_40px_60px_rgba(0,0,0,0.35)]"
         />
       </div>
     </motion.div>
@@ -113,9 +115,9 @@ function Portrait({ reduce }: { reduce: boolean }) {
 
 function LeftChips({ reduce }: { reduce: boolean }) {
   return (
-    <div className="absolute left-4 md:left-8 top-[14rem] md:top-[15rem] lg:top-[17rem] z-30 flex flex-col gap-3">
-      <StatCard glyph="V" value="35+" label="Projects" delay={0.3} reduce={reduce} />
-      <StatCard glyph="◐" value="92%" label="Retention" delay={0.38} reduce={reduce} />
+    <div className="absolute left-4 md:left-8 top-[16rem] md:top-[18rem] lg:top-[21rem] z-30 flex flex-col gap-3">
+      <StatCard glyph="V" value="35+" label="Projects" delay={0.32} reduce={reduce} />
+      <StatCard glyph="◐" value="92%" label="Retention" delay={0.4} reduce={reduce} />
     </div>
   );
 }
@@ -125,12 +127,12 @@ function RightChips({ reduce }: { reduce: boolean }) {
     <motion.ul
       initial={reduce ? false : { opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.42, ease: EASE }}
-      className="absolute right-4 md:right-8 top-[14rem] md:top-[15rem] lg:top-[17rem] z-30 flex flex-col gap-1.5 p-2 rounded-[16px] border border-border bg-surface/85 backdrop-blur-md shadow-[0_20px_50px_-30px_rgba(0,0,0,0.9)]"
+      transition={{ duration: 0.55, delay: 0.44, ease: EASE }}
+      className={GLASS + ' absolute right-4 md:right-8 top-[16rem] md:top-[18rem] lg:top-[21rem] z-30 flex flex-col gap-1.5 p-2.5 rounded-[18px]'}
     >
       {attributes.map(({ icon: Icon, label }) => (
-        <li key={label} className="flex items-center gap-2.5 pl-1.5 pr-3.5 py-1.5">
-          <span className="grid place-items-center w-5 h-5 rounded-[6px] bg-accent/15 text-accent">
+        <li key={label} className="flex items-center gap-2.5 pl-1.5 pr-4 py-1.5">
+          <span className="grid place-items-center w-5 h-5 rounded-[6px] bg-accent/20 text-accent">
             <Icon size={12} strokeWidth={2.2} />
           </span>
           <span className="font-display text-[14px] md:text-[15px] font-semibold tracking-[-0.01em] text-text">
@@ -159,10 +161,10 @@ function StatCard({
     <motion.div
       initial={reduce ? false : { opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay, ease: EASE }}
-      className="inline-flex items-center gap-3 pr-4 pl-2.5 py-2.5 rounded-[14px] border border-border bg-surface/85 backdrop-blur-md shadow-[0_20px_50px_-30px_rgba(0,0,0,0.9)]"
+      transition={{ duration: 0.55, delay, ease: EASE }}
+      className={GLASS + ' inline-flex items-center gap-3 pr-4 pl-2.5 py-2.5 rounded-[16px]'}
     >
-      <span className="grid place-items-center w-9 h-9 rounded-[10px] bg-accent text-on-accent font-display text-[15px] font-semibold">
+      <span className="grid place-items-center w-9 h-9 rounded-[10px] bg-accent text-on-accent font-display text-[15px] font-semibold shadow-[0_10px_25px_-10px_rgb(var(--accent)/0.7)]">
         {glyph}
       </span>
       <div className="leading-none">
@@ -179,12 +181,12 @@ function StatCard({
 
 function BottomBlock({ reduce }: { reduce: boolean }) {
   return (
-    <div className="absolute inset-x-0 bottom-6 md:bottom-10 z-30 flex flex-col items-center gap-6 text-center px-4">
+    <div className="absolute inset-x-0 bottom-8 md:bottom-12 z-40 flex flex-col items-center gap-6 text-center px-4">
       <motion.h1
         initial={reduce ? false : { opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.45, ease: EASE }}
-        className="font-display font-semibold tracking-[-0.035em] leading-[1.02] text-[clamp(1.9rem,4.2vw,3.2rem)] text-text max-w-[22ch]"
+        transition={{ duration: 0.65, delay: 0.5, ease: EASE }}
+        className="font-display font-semibold tracking-[-0.035em] leading-[1.02] text-[clamp(2rem,4.4vw,3.4rem)] text-text max-w-[24ch]"
       >
         Web &amp; AI, <span className="text-muted">Applied Differently.</span>
       </motion.h1>
@@ -192,7 +194,7 @@ function BottomBlock({ reduce }: { reduce: boolean }) {
       <motion.div
         initial={reduce ? false : { opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.6, ease: EASE }}
+        transition={{ duration: 0.65, delay: 0.62, ease: EASE }}
         className="flex flex-wrap gap-3 justify-center"
       >
         <CTAButton href="/contact" variant="primary" size="lg">
@@ -205,3 +207,11 @@ function BottomBlock({ reduce }: { reduce: boolean }) {
     </div>
   );
 }
+
+/* Shared glass surface. Very transparent, heavy blur, thin edge, soft drop.
+   Reads glassy in both light and dark themes because it leans on
+   `bg-surface/40` (white/40 in light, near-black/40 in dark) plus a
+   translucent white inset that catches the accent bloom behind it. */
+const GLASS =
+  'bg-surface/40 backdrop-blur-2xl border border-white/15 ring-1 ring-inset ring-white/10 ' +
+  'shadow-[0_30px_60px_-30px_rgba(0,0,0,0.55)]';
