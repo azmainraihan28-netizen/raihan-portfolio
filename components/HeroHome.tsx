@@ -243,7 +243,7 @@ function WhoAmI({ reduce }: { reduce: boolean }) {
       initial={reduce ? false : { opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.55, delay: 0.5, ease: EASE }}
-      className="absolute left-4 md:left-8 bottom-[8.5rem] md:bottom-[10rem] lg:bottom-[11rem] z-40 max-w-[22rem]"
+      className="absolute left-4 md:left-8 bottom-[9rem] md:bottom-[10.5rem] lg:bottom-[12rem] z-40 max-w-[34rem]"
     >
       <div
         role="button"
@@ -253,12 +253,12 @@ function WhoAmI({ reduce }: { reduce: boolean }) {
         onMouseLeave={() => setHovering(false)}
         onFocus={() => setHovering(true)}
         onBlur={() => setHovering(false)}
-        className="group inline-flex items-baseline gap-2 cursor-pointer select-none outline-none"
+        className="group inline-flex items-baseline gap-3 cursor-pointer select-none outline-none"
       >
-        <span aria-hidden className="font-mono text-[10.5px] uppercase tracking-[0.22em] text-muted">
+        <span aria-hidden className="font-mono text-[12px] md:text-[13px] uppercase tracking-[0.22em] text-muted">
           /
         </span>
-        <span className="relative inline-block min-h-[1.6em] font-display text-[1.2rem] md:text-[1.35rem] font-semibold tracking-[-0.02em] leading-tight text-text">
+        <span className="relative inline-block min-h-[1.4em] font-display font-semibold tracking-[-0.025em] leading-[1.1] text-text text-[1.75rem] md:text-[2.25rem] lg:text-[2.75rem]">
           <AnimatePresence mode="wait" initial={false}>
             <motion.span
               key={shown}
@@ -273,7 +273,7 @@ function WhoAmI({ reduce }: { reduce: boolean }) {
           </AnimatePresence>
         </span>
       </div>
-      <div className="mt-2 pl-4 font-mono text-[10px] uppercase tracking-[0.22em] text-muted/70">
+      <div className="mt-3 pl-6 font-mono text-[11px] uppercase tracking-[0.22em] text-muted/70">
         Hover to peek
       </div>
     </motion.div>
