@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { GeistSans } from 'geist/font/sans';
 import { GeistMono } from 'geist/font/mono';
-import { Bricolage_Grotesque, Fraunces } from 'next/font/google';
+import { Bricolage_Grotesque, Space_Grotesk } from 'next/font/google';
 import './globals.css';
 
 /* Display face for headlines only. Geist carries all UI and body copy.
@@ -15,13 +15,12 @@ const display = Bricolage_Grotesque({
 });
 
 /* Wordmark face, kept off the critical body path. Used for the giant
-   editorial VERTEX on the home hero and nothing else. Fraunces at 900
-   with a soft optical axis gives the luxury-serif feel without leaving
-   the free-fonts pond. */
-const wordmark = Fraunces({
+   VERTEX on the home hero and nothing else. Space Grotesk 700 gives a
+   modern, tech-forward wordmark that reads as a real brand logotype
+   at poster size — professional rather than editorial-cute. */
+const wordmark = Space_Grotesk({
   subsets: ['latin'],
-  weight: ['900'],
-  style: ['normal'],
+  weight: ['700'],
   variable: '--font-wordmark',
   display: 'swap',
 });
