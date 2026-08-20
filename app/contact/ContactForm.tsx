@@ -126,7 +126,9 @@ export function ContactForm({ ref_ }: { ref_?: string }) {
 }
 
 const controlCls =
-  'w-full rounded-input bg-bg border border-border px-3.5 py-2.5 text-sm text-text ' +
+  /* text-base (16px) on mobile prevents iOS Safari from zooming the viewport
+     when a field is focused; sm:text-sm keeps the original density on desktop. */
+  'w-full rounded-input bg-bg border border-border px-3.5 py-2.5 text-base sm:text-sm text-text min-h-[44px] ' +
   'placeholder:text-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/40';
 
 function Field({

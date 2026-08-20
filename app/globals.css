@@ -93,6 +93,9 @@ body {
   text-rendering: optimizeLegibility;
   /* Fonts ship optical-sizing tables; let the browser pick per rendered size. */
   font-optical-sizing: auto;
+  /* Clip any incidental horizontal overflow — bloom blobs, wide wordmarks,
+     stray absolute art — so mobile never side-scrolls under a fat pixel. */
+  overflow-x: hidden;
 }
 
 body {
