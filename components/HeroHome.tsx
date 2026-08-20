@@ -1,7 +1,8 @@
 'use client';
 
 import Image from 'next/image';
-import { motion, useReducedMotion } from 'framer-motion';
+import { useEffect, useState } from 'react';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { ArrowRight, Sparkles, Zap, Compass, Wrench, ShieldCheck } from 'lucide-react';
 import { CTAButton } from './ui';
 import { easeOut } from '@/lib/springs';
@@ -57,6 +58,9 @@ export function HeroHome() {
         <LeftChips reduce={!!reduce} />
         <RightChips reduce={!!reduce} />
 
+        {/* Hover-to-cycle "Who am I?" prompt, tucked in the left mid-band. */}
+        <WhoAmI reduce={!!reduce} />
+
         {/* Bottom headline + CTAs, pinned. */}
         <BottomBlock reduce={!!reduce} />
       </div>
@@ -76,12 +80,11 @@ function BackgroundWordmark({ reduce }: { reduce: boolean }) {
       className="pointer-events-none absolute inset-x-0 top-[3rem] md:top-[4rem] z-10 flex justify-center px-4"
     >
       <span
-        className="font-wordmark text-accent select-none whitespace-nowrap leading-[0.82]"
+        className="font-wordmark text-accent select-none whitespace-nowrap leading-[0.86]"
         style={{
           fontSize: 'clamp(8rem, 24vw, 26rem)',
-          letterSpacing: '-0.045em',
-          fontWeight: 900,
-          fontStretch: '100%',
+          letterSpacing: '-0.05em',
+          fontWeight: 700,
         }}
       >
         VERTEX
@@ -205,6 +208,75 @@ function BottomBlock({ reduce }: { reduce: boolean }) {
         </CTAButton>
       </motion.div>
     </div>
+  );
+}
+
+/* "Who am I?" prompt. Idle it reads as a hint; on hover it cycles through
+   the identity lines every second and returns to the prompt on leave. */
+const WHOAMI_LINES = [
+  'Sometime Web developer.',
+  'Sometime AI expert.',
+  'Sometime gamer.',
+  'Sometime lazy.',
+  'Sometime creator.',
+];
+
+function WhoAmI({ reduce }: { reduce: boolean }) {
+  const [hovering, setHovering] = useState(false);
+  const [idx, setIdx] = useState(0);
+
+  useEffect(() => {
+    if (!hovering) {
+      setIdx(0);
+      return;
+    }
+    const id = setInterval(() => {
+      setIdx((i) => (i + 1) % WHOAMI_LINES.length);
+    }, 1000);
+    return () => clearInterval(id);
+  }, [hovering]);
+
+  const shown = hovering ? WHOAMI_LINES[idx] : 'Who am I?';
+
+  return (
+    <motion.div
+      initial={reduce ? false : { opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.55, delay: 0.5, ease: EASE }}
+      className="absolute left-4 md:left-8 bottom-[8.5rem] md:bottom-[10rem] lg:bottom-[11rem] z-40 max-w-[22rem]"
+    >
+      <div
+        role="button"
+        tabIndex={0}
+        aria-label="Cycle who I am"
+        onMouseEnter={() => setHovering(true)}
+        onMouseLeave={() => setHovering(false)}
+        onFocus={() => setHovering(true)}
+        onBlur={() => setHovering(false)}
+        className="group inline-flex items-baseline gap-2 cursor-pointer select-none outline-none"
+      >
+        <span aria-hidden className="font-mono text-[10.5px] uppercase tracking-[0.22em] text-muted">
+          /
+        </span>
+        <span className="relative inline-block min-h-[1.6em] font-display text-[1.2rem] md:text-[1.35rem] font-semibold tracking-[-0.02em] leading-tight text-text">
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.span
+              key={shown}
+              initial={reduce ? false : { opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={reduce ? undefined : { opacity: 0, y: -6 }}
+              transition={{ duration: 0.28, ease: EASE }}
+              className={hovering ? 'text-accent' : 'text-text'}
+            >
+              {shown}
+            </motion.span>
+          </AnimatePresence>
+        </span>
+      </div>
+      <div className="mt-2 pl-4 font-mono text-[10px] uppercase tracking-[0.22em] text-muted/70">
+        Hover to peek
+      </div>
+    </motion.div>
   );
 }
 
