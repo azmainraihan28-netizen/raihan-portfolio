@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { GeistSans } from 'geist/font/sans';
 import { GeistMono } from 'geist/font/mono';
-import { Bricolage_Grotesque } from 'next/font/google';
+import { Bricolage_Grotesque, Fraunces } from 'next/font/google';
 import './globals.css';
 
 /* Display face for headlines only. Geist carries all UI and body copy.
@@ -11,6 +11,19 @@ const display = Bricolage_Grotesque({
   subsets: ['latin'],
   weight: ['600', '700'],
   variable: '--font-display',
+  display: 'swap',
+});
+
+/* Wordmark face, kept off the critical body path. Used for the giant
+   editorial VERTEX on the home hero and nothing else. Fraunces at 900
+   with a soft optical axis gives the luxury-serif feel without leaving
+   the free-fonts pond. */
+const wordmark = Fraunces({
+  subsets: ['latin'],
+  weight: ['900'],
+  style: ['normal'],
+  axes: ['SOFT', 'opsz'],
+  variable: '--font-wordmark',
   display: 'swap',
 });
 import { Nav } from '@/components/Nav';
@@ -50,7 +63,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable} ${display.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable} ${display.variable} ${wordmark.variable}`} suppressHydrationWarning>
       <head>
         <ThemeScript />
       </head>
