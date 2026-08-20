@@ -184,14 +184,17 @@ function StatCard({
 
 const HEADLINE_LINES = ['Web & AI,', 'Applied Differently.'];
 
+/* Split in two: headline sits on the right of the portrait, CTAs sit
+   center-bottom where they used to. Keeps the typing effect visible while
+   restoring the original CTA placement. */
 function BottomBlock({ reduce }: { reduce: boolean }) {
   return (
-    <div className="absolute right-4 md:right-8 bottom-8 md:bottom-12 z-40 flex flex-col items-end gap-6 text-right max-w-[32rem] pl-4">
+    <>
       <motion.h1
         initial={reduce ? false : { opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.65, delay: 0.5, ease: EASE }}
-        className="font-display font-semibold tracking-[-0.035em] leading-[1.02] text-[clamp(2rem,4.4vw,3.4rem)] text-text"
+        className="absolute right-4 md:right-8 bottom-[9rem] md:bottom-[10rem] lg:bottom-[11rem] z-40 max-w-[32rem] pl-4 text-right font-display font-semibold tracking-[-0.035em] leading-[1.02] text-[clamp(2rem,4.4vw,3.4rem)] text-text"
       >
         <TypedHeadline lines={HEADLINE_LINES} reduce={reduce} />
       </motion.h1>
@@ -200,7 +203,7 @@ function BottomBlock({ reduce }: { reduce: boolean }) {
         initial={reduce ? false : { opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.65, delay: 0.62, ease: EASE }}
-        className="flex flex-wrap gap-3 justify-end"
+        className="absolute inset-x-0 bottom-8 md:bottom-12 z-40 flex flex-wrap gap-3 justify-center px-4"
       >
         <CTAButton href="/contact" variant="primary" size="lg">
           Book a Call <ArrowRight size={17} strokeWidth={2} />
@@ -209,7 +212,7 @@ function BottomBlock({ reduce }: { reduce: boolean }) {
           See Our Work
         </CTAButton>
       </motion.div>
-    </div>
+    </>
   );
 }
 
@@ -243,7 +246,7 @@ function TypedHeadline({ lines, reduce }: { lines: string[]; reduce: boolean }) 
     return (
       <>
         {lines.map((l, i) => (
-          <span key={i} className={i === lines.length - 1 ? 'block text-muted' : 'block'}>
+          <span key={i} className={i === lines.length - 1 ? 'block text-accent' : 'block'}>
             {l}
           </span>
         ))}
@@ -261,7 +264,7 @@ function TypedHeadline({ lines, reduce }: { lines: string[]; reduce: boolean }) 
         return (
           <span
             key={i}
-            className={i === lines.length - 1 ? 'block text-muted' : 'block'}
+            className={i === lines.length - 1 ? 'block text-accent' : 'block'}
           >
             {text}
             {/* Reserve trailing space so line-two doesn't reflow when the caret shows up */}
