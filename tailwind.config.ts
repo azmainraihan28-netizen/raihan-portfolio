@@ -30,6 +30,7 @@ const config: Config = {
         sans: ['var(--font-geist-sans)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         mono: ['var(--font-geist-mono)', 'ui-monospace', 'SFMono-Regular', 'monospace'],
         display: ['var(--font-display)', 'var(--font-geist-sans)', 'ui-sans-serif', 'sans-serif'],
+        wordmark: ['var(--font-wordmark)', 'ui-serif', 'Georgia', 'serif'],
       },
       // One documented radius rule for the whole site.
       borderRadius: {
