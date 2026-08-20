@@ -22,7 +22,6 @@ const wordmark = Fraunces({
   subsets: ['latin'],
   weight: ['900'],
   style: ['normal'],
-  axes: ['SOFT', 'opsz'],
   variable: '--font-wordmark',
   display: 'swap',
 });
