@@ -1,10 +1,7 @@
 'use client';
 
-import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-
-const AVATAR_SRC = '/avatars/vs-character.png';
 
 type Bubble = { text: string; bold?: boolean };
 
@@ -67,28 +64,14 @@ export function TypingChat() {
   return (
     <div
       ref={wrapRef}
-      className="relative w-full max-w-sm mx-auto md:mx-0 flex flex-col gap-3 min-h-[120px] justify-end"
+      className="flex flex-col items-start gap-3 min-h-[120px]"
       aria-label="Chat prompt"
     >
       {BUBBLES.map((b, i) => {
         const dotsVisible = stage >= i * 2 + 1;
         const textVisible = stage >= i * 2 + 2;
         if (!dotsVisible) return null;
-        return (
-          <div key={i} className="flex items-end gap-3">
-            <span className="shrink-0 relative w-11 h-11 rounded-full overflow-hidden bg-accent/10 border border-accent/25">
-              <Image
-                src={AVATAR_SRC}
-                alt=""
-                fill
-                sizes="44px"
-                className="object-cover object-top select-none pointer-events-none"
-                priority={i === 0}
-              />
-            </span>
-            <ChatBubble bubble={b} showText={textVisible} />
-          </div>
-        );
+        return <ChatBubble key={i} bubble={b} showText={textVisible} />;
       })}
     </div>
   );
