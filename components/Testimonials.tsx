@@ -1,263 +1,178 @@
 'use client';
 
 import {
+  CSSProperties,
   useCallback,
   useEffect,
-  useLayoutEffect,
-  useMemo,
   useRef,
   useState,
 } from 'react';
-import {
-  animate,
-  motion,
-  useMotionValue,
-  useReducedMotion,
-} from 'framer-motion';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { useReducedMotion } from 'framer-motion';
 import { site } from '@/content/site';
-import { projectDeceleration, rubberband, springMomentum } from '@/lib/springs';
 
-/**
- * Testimonial rail with real momentum physics.
- *
- * A plain `overflow-x-auto snap-x` rail scrolls but does not *throw*.
- * Apple's fluid-interfaces model instead:
- *
- *   1. Pointer-down grabs the track and pins to the finger 1:1.
- *   2. Every pointermove updates x live and records a rolling velocity
- *      sample, so we know the throw speed at release.
- *   3. Past either boundary the follow ratio falls off progressively
- *      (rubber-band) rather than clamping — the surface reads as "there
- *      is nothing more here" instead of "frozen".
- *   4. On release, we project where the finger would coast to using
- *      exponential decay (the same curve iOS uses for scroll) and snap
- *      to the nearest card from *that* projected point, not from the
- *      release point. That is what makes a flick feel like a throw.
- *   5. Velocity is handed off to the settle spring so there is no seam
- *      between dragging and animating.
- *
- * The whole thing is interruptible: another pointer-down mid-flight
- * kills the running animation and starts from the current on-screen x.
- */
-export function Testimonials() {
-  const railRef = useRef<HTMLDivElement>(null);
-  const trackRef = useRef<HTMLDivElement>(null);
+const GRADIENTS = [
+  'linear-gradient(135deg, #5e6ad2, #8b5cf6)',
+  'linear-gradient(135deg, #10b981, #059669)',
+  'linear-gradient(135deg, #f59e0b, #d97706)',
+  'linear-gradient(135deg, #ec4899, #d946ef)',
+  'linear-gradient(135deg, #3b82f6, #6366f1)',
+  'linear-gradient(135deg, #ef4444, #f97316)',
+];
+
+function initialsFor(name: string) {
+  return name
+    .split(' ')
+    .map((s) => s[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
+}
+
+export function Testimonials({ visibleBehind = 2 }: { visibleBehind?: number }) {
+  const items = site.testimonials;
+  const total = items.length;
   const reduce = useReducedMotion();
 
-  const x = useMotionValue(0);
-  const [bounds, setBounds] = useState({ min: 0, max: 0, step: 340 });
-  const [canLeft, setCanLeft] = useState(false);
-  const [canRight, setCanRight] = useState(true);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState(0);
+  const dragStartRef = useRef(0);
 
-  // Measure the difference between the track and the viewport, plus the
-  // per-card step so buttons and snapping share a single source of truth.
-  useLayoutEffect(() => {
-    const rail = railRef.current;
-    const track = trackRef.current;
-    if (!rail || !track) return;
-
-    function measure() {
-      if (!rail || !track) return;
-      const first = track.firstElementChild as HTMLElement | null;
-      const second = track.children[1] as HTMLElement | undefined;
-      const gap = 20; // matches the Tailwind gap-5 below
-      const step = first
-        ? first.offsetWidth + (second ? second.offsetLeft - first.offsetLeft - first.offsetWidth : gap)
-        : 340;
-      const min = -(track.scrollWidth - rail.clientWidth);
-      setBounds({ min: Math.min(0, min), max: 0, step });
-    }
-
-    measure();
-    const ro = new ResizeObserver(measure);
-    ro.observe(rail);
-    ro.observe(track);
-    return () => ro.disconnect();
-  }, []);
-
-  // Track which end we are near so we can hint the buttons.
-  useEffect(() => {
-    const unsub = x.on('change', (v) => {
-      setCanLeft(v < -1);
-      setCanRight(v > bounds.min + 1);
-    });
-    return unsub;
-  }, [x, bounds.min]);
-
-  /* ------------ pointer + momentum ------------ */
-
-  const drag = useRef({
-    active: false,
-    startX: 0,
-    startVal: 0,
-    running: null as ReturnType<typeof animate> | null,
-    samples: [] as { t: number; x: number }[],
-  });
-
-  const applyWithRubberband = useCallback(
-    (raw: number) => {
-      const rail = railRef.current;
-      const dim = rail?.clientWidth || 600;
-      if (raw > bounds.max) {
-        return bounds.max + rubberband(raw - bounds.max, dim);
-      }
-      if (raw < bounds.min) {
-        return bounds.min + rubberband(raw - bounds.min, dim);
-      }
-      return raw;
-    },
-    [bounds.min, bounds.max],
+  const navigate = useCallback(
+    (newIndex: number) => setActiveIndex(((newIndex % total) + total) % total),
+    [total],
   );
 
-  const settleTo = useCallback(
-    (target: number, velocity: number) => {
-      const clamped = Math.max(bounds.min, Math.min(bounds.max, target));
-      drag.current.running?.stop();
-      // Hand the release velocity to the settle spring so drag→animate
-      // has no perceptible seam.
-      drag.current.running = animate(x, clamped, {
-        ...springMomentum,
-        velocity,
-      });
-    },
-    [x, bounds.min, bounds.max],
-  );
-
-  function nearestSnap(projected: number) {
-    if (bounds.step <= 0) return projected;
-    const clampedProjection = Math.max(bounds.min, Math.min(bounds.max, projected));
-    return Math.round(clampedProjection / bounds.step) * bounds.step;
-  }
-
-  const onPointerDown = (e: React.PointerEvent) => {
+  const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
     if (reduce) return;
-    // Ignore secondary buttons and non-primary contacts.
-    if (e.button !== 0 && e.pointerType === 'mouse') return;
-    const el = railRef.current;
-    if (!el) return;
-    // Interrupt any running settle so we start from the *presentation* value.
-    drag.current.running?.stop();
-    el.setPointerCapture(e.pointerId);
-    drag.current.active = true;
-    drag.current.startX = e.clientX;
-    drag.current.startVal = x.get();
-    drag.current.samples = [{ t: performance.now(), x: e.clientX }];
+    setIsDragging(true);
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    dragStartRef.current = clientX;
   };
 
-  const onPointerMove = (e: React.PointerEvent) => {
-    if (!drag.current.active) return;
-    const dx = e.clientX - drag.current.startX;
-    const raw = drag.current.startVal + dx;
-    x.set(applyWithRubberband(raw));
-    // Keep a short window of samples so the release velocity is honest.
-    drag.current.samples.push({ t: performance.now(), x: e.clientX });
-    if (drag.current.samples.length > 6) drag.current.samples.shift();
-  };
+  const handleDragMove = useCallback(
+    (e: MouseEvent | TouchEvent) => {
+      if (!isDragging) return;
+      const clientX = 'touches' in e ? e.touches[0].clientX : (e as MouseEvent).clientX;
+      setDragOffset(clientX - dragStartRef.current);
+    },
+    [isDragging],
+  );
 
-  const endDrag = (e: React.PointerEvent) => {
-    if (!drag.current.active) return;
-    drag.current.active = false;
-    try {
-      railRef.current?.releasePointerCapture(e.pointerId);
-    } catch {}
-    // px/s velocity from the rolling window
-    const samples = drag.current.samples;
-    const first = samples[0];
-    const last = samples[samples.length - 1];
-    const dt = Math.max(1, last.t - first.t);
-    const vRaw = ((last.x - first.x) / dt) * 1000; // px/s of finger travel
-    // Drag inverts naturally when we translate the track along with it.
-    const vTrack = vRaw;
-    const projected = x.get() + projectDeceleration(vTrack);
-    const target = nearestSnap(projected);
-    settleTo(target, vTrack);
-  };
+  const handleDragEnd = useCallback(() => {
+    if (!isDragging) return;
+    if (Math.abs(dragOffset) > 60) {
+      navigate(activeIndex + (dragOffset < 0 ? 1 : -1));
+    }
+    setIsDragging(false);
+    setDragOffset(0);
+  }, [isDragging, dragOffset, activeIndex, navigate]);
 
-  function nudge(dir: -1 | 1) {
-    const target = nearestSnap(x.get() + dir * -bounds.step);
-    settleTo(target, 0);
-  }
+  useEffect(() => {
+    if (!isDragging) return;
+    window.addEventListener('mousemove', handleDragMove);
+    window.addEventListener('touchmove', handleDragMove);
+    window.addEventListener('mouseup', handleDragEnd);
+    window.addEventListener('touchend', handleDragEnd);
+    return () => {
+      window.removeEventListener('mousemove', handleDragMove);
+      window.removeEventListener('touchmove', handleDragMove);
+      window.removeEventListener('mouseup', handleDragEnd);
+      window.removeEventListener('touchend', handleDragEnd);
+    };
+  }, [isDragging, handleDragMove, handleDragEnd]);
 
-  const trackStyle = useMemo(() => ({ x, touchAction: 'pan-y' as const }), [x]);
+  if (!total) return null;
 
   return (
-    <div>
-      <div
-        ref={railRef}
-        className="relative overflow-hidden select-none -mx-5 sm:-mx-8 px-5 sm:px-8"
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={endDrag}
-        onPointerCancel={endDrag}
-      >
-        <motion.div
-          ref={trackRef}
-          style={reduce ? undefined : trackStyle}
-          className="flex gap-5 pb-2 cursor-grab active:cursor-grabbing"
-        >
-          {site.testimonials.map((t, i) => (
-            <motion.figure
+    <section className="relative mx-auto w-full max-w-[640px] pb-12">
+      <div className="relative h-[320px] sm:h-[300px]">
+        {items.map((t, index) => {
+          const displayOrder = (index - activeIndex + total) % total;
+          const isActive = displayOrder === 0;
+
+          const style: CSSProperties = {
+            transitionProperty: 'transform, opacity',
+            transitionDuration: isDragging && isActive ? '0ms' : '480ms',
+            transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)',
+          };
+
+          if (isActive) {
+            style.transform = `translateX(${dragOffset}px) rotate(${dragOffset * 0.02}deg)`;
+            style.opacity = 1;
+            style.zIndex = total;
+          } else if (displayOrder <= visibleBehind) {
+            const scale = 1 - 0.05 * displayOrder;
+            const translateY = -14 * displayOrder;
+            style.transform = `translateY(${translateY}px) scale(${scale})`;
+            style.opacity = 1 - 0.28 * displayOrder;
+            style.zIndex = total - displayOrder;
+          } else {
+            style.transform = 'translateY(-40px) scale(0.9)';
+            style.opacity = 0;
+            style.zIndex = 0;
+          }
+
+          const gradient = GRADIENTS[index % GRADIENTS.length];
+
+          return (
+            <article
               key={t.name}
-              initial={reduce ? false : { opacity: 0, y: 18 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.5, delay: Math.min(i, 3) * 0.07, ease: [0.16, 1, 0.3, 1] }}
-              className="shrink-0 w-[82vw] sm:w-[340px] rounded-card border border-border bg-surface p-7 flex flex-col hover:border-accent/35 transition-colors"
+              aria-hidden={!isActive}
+              onMouseDown={isActive ? handleDragStart : undefined}
+              onTouchStart={isActive ? handleDragStart : undefined}
+              style={style}
+              className={[
+                'absolute inset-x-0 top-0 rounded-card border border-border',
+                'bg-surface/80 backdrop-blur-xl',
+                'shadow-[0_30px_80px_-40px_rgba(0,0,0,0.7)]',
+                'p-7 md:p-8 select-none',
+                isActive ? 'cursor-grab active:cursor-grabbing' : 'pointer-events-none',
+              ].join(' ')}
             >
-              <span aria-hidden className="font-display text-5xl leading-none text-accent/35 select-none">
+              <span
+                aria-hidden
+                className="font-display text-5xl leading-none text-accent/35 select-none"
+              >
                 &ldquo;
               </span>
-              <blockquote className="mt-3 text-[15.5px] leading-[1.6] text-text/90">
+              <blockquote className="mt-3 text-[15.5px] md:text-[16.5px] leading-[1.6] text-text/90">
                 {t.quote}
               </blockquote>
-              <figcaption className="mt-auto pt-7 flex items-center gap-3">
-                <span className="w-9 h-9 rounded-pill bg-accent/10 border border-accent/25 grid place-items-center font-mono text-[12px] text-accent shrink-0">
-                  {t.name.split(' ').map((s) => s[0]).slice(0, 2).join('')}
+              <figcaption className="mt-7 pt-5 border-t border-border flex items-center gap-3">
+                <span
+                  className="w-11 h-11 rounded-[12px] grid place-items-center font-display text-[13px] font-semibold text-white shrink-0"
+                  style={{ background: gradient }}
+                >
+                  {initialsFor(t.name)}
                 </span>
                 <span className="min-w-0">
                   <span className="block text-sm font-medium truncate">{t.name}</span>
                   <span className="block text-xs text-muted truncate">{t.role}</span>
                 </span>
               </figcaption>
-            </motion.figure>
-          ))}
-        </motion.div>
+            </article>
+          );
+        })}
       </div>
 
-      <div className="mt-8 flex items-center gap-2">
-        <RailButton label="Previous testimonials" onClick={() => nudge(-1)} disabled={!canLeft}>
-          <ArrowLeft size={16} strokeWidth={2} />
-        </RailButton>
-        <RailButton label="More testimonials" onClick={() => nudge(1)} disabled={!canRight}>
-          <ArrowRight size={16} strokeWidth={2} />
-        </RailButton>
+      <div className="absolute left-0 right-0 bottom-0 flex justify-center gap-2">
+        {items.map((_, i) => {
+          const active = i === activeIndex;
+          return (
+            <button
+              key={i}
+              type="button"
+              aria-label={`Go to testimonial ${i + 1}`}
+              onClick={() => navigate(i)}
+              className={[
+                'h-1.5 rounded-pill transition-all duration-300',
+                active ? 'w-6 bg-accent' : 'w-1.5 bg-border hover:bg-muted',
+              ].join(' ')}
+            />
+          );
+        })}
       </div>
-    </div>
-  );
-}
-
-function RailButton({
-  children,
-  label,
-  onClick,
-  disabled,
-}: {
-  children: React.ReactNode;
-  label: string;
-  onClick: () => void;
-  disabled?: boolean;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-label={label}
-      disabled={disabled}
-      data-press="pill"
-      className="w-10 h-10 grid place-items-center rounded-pill border border-border bg-surface text-muted hover:text-text hover:border-accent/40 disabled:opacity-40 disabled:pointer-events-none transition-colors"
-    >
-      {children}
-    </button>
+    </section>
   );
 }

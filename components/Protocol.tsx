@@ -133,37 +133,49 @@ function ChatWindow() {
   );
 }
 
-function SectionBlock({ section, sectionIndex }: { section: Section; sectionIndex: number }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, amount: 0.15 });
+function SectionBlock({ section }: { section: Section; sectionIndex: number }) {
+  const headerRef = useRef<HTMLDivElement>(null);
+  const headerInView = useInView(headerRef, { once: true, amount: 0.6, margin: '0px 0px -10% 0px' });
   const reduce = useReducedMotion();
 
   return (
-    <div ref={ref} className="space-y-4">
+    <div className="space-y-4">
       {/* Section divider */}
-      <div className="flex items-center gap-3 pt-2">
+      <motion.div
+        ref={headerRef}
+        initial={reduce ? undefined : { opacity: 0, y: 6 }}
+        animate={headerInView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+        className="flex items-center gap-3 pt-2"
+      >
         <span className="h-px flex-1 bg-border" />
         <span className="font-mono text-[10.5px] uppercase tracking-[0.22em] text-accent whitespace-nowrap">
           {section.num} · {section.label}
         </span>
         <span className="h-px flex-1 bg-border" />
-      </div>
+      </motion.div>
 
       {section.messages.map((m, i) => (
-        <motion.div
-          key={i}
-          initial={reduce ? undefined : { opacity: 0, y: 8 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{
-            duration: 0.4,
-            delay: reduce ? 0 : sectionIndex * 0.05 + i * 0.09,
-            ease: [0.16, 1, 0.3, 1],
-          }}
-        >
-          <MessageRow msg={m} />
-        </motion.div>
+        <MessageReveal key={i} msg={m} />
       ))}
     </div>
+  );
+}
+
+function MessageReveal({ msg }: { msg: Msg }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, amount: 0.6, margin: '0px 0px -12% 0px' });
+  const reduce = useReducedMotion();
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={reduce ? undefined : { opacity: 0, y: 14 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+    >
+      <MessageRow msg={msg} />
+    </motion.div>
   );
 }
 
