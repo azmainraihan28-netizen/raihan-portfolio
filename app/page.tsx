@@ -5,21 +5,15 @@ import { HeroHome } from '@/components/HeroHome';
 import { ClientWall } from '@/components/ClientWall';
 import { ServicesShowcase } from '@/components/ServicesShowcase';
 import { Protocol } from '@/components/Protocol';
-import { WorkflowCard } from '@/components/WorkflowCard';
+import { FeaturedShowcase } from '@/components/FeaturedShowcase';
 import { CountUpStats } from '@/components/CountUpStats';
 import { Testimonials } from '@/components/Testimonials';
-import { FadeUp, Stagger, StaggerItem } from '@/components/motion';
+import { FadeUp } from '@/components/motion';
 import { site } from '@/content/site';
-import { getAllWorkflows, getFeatured } from '@/lib/work';
+import { getFeatured } from '@/lib/work';
 
 export default async function HomePage() {
   const featured = await getFeatured();
-  const all = await getAllWorkflows();
-
-  // Exactly five cells in the bento below, so exactly five items here.
-  const web = featured.filter((w) => w.kind === 'webdev').slice(0, 3);
-  const auto = featured.filter((w) => w.kind === 'automation').slice(0, 2);
-  const [lead, ...rest] = [...web, ...auto];
 
   return (
     <>
@@ -59,19 +53,15 @@ export default async function HomePage() {
             </Link>
           </div>
 
-          {/* Five items, five cells. Lead project takes a two-column plate. */}
-          <Stagger className="grid gap-5 lg:grid-cols-3">
-            {lead && (
-              <StaggerItem className="lg:col-span-2">
-                <WorkflowCard w={lead} variant="wide" />
-              </StaggerItem>
-            )}
-            {rest.map((w) => (
-              <StaggerItem key={w.slug} className="h-full">
-                <WorkflowCard w={w} />
-              </StaggerItem>
-            ))}
-          </Stagger>
+          <FeaturedShowcase
+            items={featured.map((w) => ({
+              slug: w.slug,
+              title: w.title,
+              tagline: w.tagline,
+              category: w.category,
+              screenshot: w.screenshot,
+            }))}
+          />
         </Container>
       </section>
 
