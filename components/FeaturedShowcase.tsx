@@ -26,9 +26,9 @@ export function FeaturedShowcase({ items }: { items: Item[] }) {
     <ProjectShowcase
       testimonials={testimonials}
       colors={{
-        name: 'rgb(234 234 234)',
-        position: 'rgb(138 138 146)',
-        testimony: 'rgb(234 234 234 / 0.85)',
+        name: 'rgb(var(--text))',
+        position: 'rgb(var(--muted))',
+        testimony: 'rgb(var(--text) / 0.85)',
       }}
       fontSizes={{ name: '1.75rem', position: '0.8rem', testimony: '1.05rem' }}
       spacing={{
@@ -43,16 +43,16 @@ export function FeaturedShowcase({ items }: { items: Item[] }) {
       imageAspectRatio={1.6}
       outerRounding="17px"
       innerRounding="16px"
-      outlineColor="rgb(31 31 35)"
-      hoverOutlineColor="rgb(124 92 255 / 0.55)"
+      outlineColor="rgb(var(--border))"
+      hoverOutlineColor="rgb(var(--accent) / 0.55)"
       buttonInscriptions={{
         previousButton: 'Previous',
         nextButton: 'Next',
         openWebAppButton: 'Open case study',
       }}
-      halomotButtonGradient="linear-gradient(to right, #7c5cff, #a123f4)"
-      halomotButtonBackground="rgb(17 17 19)"
-      halomotButtonTextColor="rgb(234 234 234)"
+      halomotButtonGradient="linear-gradient(to right, rgb(var(--accent)), rgb(var(--accent-hover)))"
+      halomotButtonBackground="rgb(var(--surface))"
+      halomotButtonTextColor="rgb(var(--text))"
       halomotButtonOuterBorderRadius="10px"
       halomotButtonInnerBorderRadius="9px"
       halomotButtonHoverTextColor="#fff"
