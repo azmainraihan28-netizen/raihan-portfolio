@@ -1,7 +1,10 @@
 'use client';
 
+import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
+
+const AVATAR_SRC = '/avatars/vs-character.png';
 
 type Bubble = { text: string; bold?: boolean };
 
@@ -72,9 +75,16 @@ export function TypingChat() {
         const textVisible = stage >= i * 2 + 2;
         if (!dotsVisible) return null;
         return (
-          <div key={i} className="flex items-end gap-2.5">
-            <span className="shrink-0 w-8 h-8 rounded-pill bg-accent/15 border border-accent/25 grid place-items-center font-mono text-[11px] text-accent">
-              VS
+          <div key={i} className="flex items-end gap-3">
+            <span className="shrink-0 relative w-11 h-11 rounded-full overflow-hidden bg-accent/10 border border-accent/25">
+              <Image
+                src={AVATAR_SRC}
+                alt=""
+                fill
+                sizes="44px"
+                className="object-cover object-top select-none pointer-events-none"
+                priority={i === 0}
+              />
             </span>
             <ChatBubble bubble={b} showText={textVisible} />
           </div>
