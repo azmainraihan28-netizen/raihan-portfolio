@@ -8,7 +8,9 @@ import { Protocol } from '@/components/Protocol';
 import { FeaturedShowcase } from '@/components/FeaturedShowcase';
 import { CountUpStats } from '@/components/CountUpStats';
 import { Testimonials } from '@/components/Testimonials';
+import Image from 'next/image';
 import { FadeUp } from '@/components/motion';
+import { TypingChat } from '@/components/TypingChat';
 import { site } from '@/content/site';
 import { getFeatured } from '@/lib/work';
 
@@ -91,23 +93,38 @@ export default async function HomePage() {
           className="pointer-events-none absolute -bottom-56 left-1/2 -translate-x-1/2 w-[46rem] h-[46rem] rounded-full blur-[130px] bg-accent/[0.14] animate-drift"
         />
         <Container className="relative py-28 md:py-40">
-          <FadeUp className="max-w-4xl">
-            <h2 className="font-display font-semibold tracking-[-0.04em] leading-[1.02] text-[clamp(2.4rem,6vw,4.2rem)]">
-              Your next site, app, or automation
-              <span className="block text-muted">starts with a 30-minute call.</span>
-            </h2>
-            <p className="mt-7 text-muted text-lg leading-relaxed max-w-[52ch]">
-              Tell us the outcome you are after. We scope it on the call and quote you within 24 hours.
-            </p>
-            <div className="mt-11 flex flex-wrap gap-3">
-              <CTAButton href="/contact" variant="primary" size="lg">
-                Start a project <ArrowRight size={17} strokeWidth={2} />
-              </CTAButton>
-              <CTAButton href={site.linkedin} variant="ghost" size="lg" external>
-                Message on LinkedIn
-              </CTAButton>
+          <div className="grid md:grid-cols-[1.15fr,1fr] gap-12 md:gap-16 items-end">
+            <FadeUp>
+              <h2 className="font-display font-semibold tracking-[-0.04em] leading-[1.02] text-[clamp(2.4rem,6vw,4.2rem)]">
+                Your next site, app, or automation
+                <span className="block text-muted">starts with a 30-minute call.</span>
+              </h2>
+              <p className="mt-7 text-muted text-lg leading-relaxed max-w-[52ch]">
+                Tell us the outcome you are after. We scope it on the call and quote you within 24 hours.
+              </p>
+              <div className="mt-11 flex flex-wrap gap-3">
+                <CTAButton href="/contact" variant="primary" size="lg">
+                  Start a project <ArrowRight size={17} strokeWidth={2} />
+                </CTAButton>
+                <CTAButton href={site.linkedin} variant="ghost" size="lg" external>
+                  Message on LinkedIn
+                </CTAButton>
+              </div>
+            </FadeUp>
+
+            <div className="relative w-full max-w-[26rem] mx-auto md:max-w-none md:mx-0 aspect-[1208/1302]">
+              <Image
+                src="/hero-portrait.png"
+                alt="Founder, Vertex Studio"
+                fill
+                sizes="(max-width: 768px) 80vw, 40vw"
+                className="object-contain object-bottom drop-shadow-[0_30px_50px_rgba(0,0,0,0.3)]"
+              />
+              <div className="absolute left-0 top-4 md:top-8 md:-left-4 z-10 w-[15rem] sm:w-[17rem]">
+                <TypingChat />
+              </div>
             </div>
-          </FadeUp>
+          </div>
         </Container>
       </section>
     </>
